@@ -159,8 +159,7 @@ def monte_carlo(
             "RMSE": float(np.sqrt(np.mean(errs**2))),
             "MAE":  float(np.mean(np.abs(errs))),
             "Bias": float(np.mean(errs)),
-            "N":    int(len(errs))
-        }
+         }
 
     return metrics(errors_g), metrics(errors_r), metrics(errors_m)
 
