@@ -35,9 +35,9 @@ def simulate_ms_ar1_phi_only(
     return y, s
 
 
-# =====================================================
+
 # 2) Forecasting models (1-step ahead)
-# =====================================================
+
 def forecast_global_ar1(y_train):
     res = ARIMA(y_train, order=(1, 0, 0), trend="n").fit()
     return float(res.forecast(1)[0])
@@ -82,9 +82,9 @@ def forecast_markov_switching_ar1(y_train):
     return float(probs[0] * f0 + probs[1] * f1)
 
 
-# =====================================================
+
 # 3) Monte Carlo experiment
-# =====================================================
+
 def monte_carlo_phi_only(
     n_sim=200,
     T=300,
@@ -125,9 +125,9 @@ def monte_carlo_phi_only(
     return metrics(err_g), metrics(err_r), metrics(err_m)
 
 
-# =====================================================
+
 # 4) RUN
-# =====================================================
+
 if __name__ == "__main__":
     global_ar, rolling_ar, markov_ar = monte_carlo_phi_only(
         n_sim=200,
