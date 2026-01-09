@@ -3,10 +3,8 @@ from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 import warnings
 
+# DGP: Markov-switching AR(1), ONLY phi changes
 
-# =====================================================
-# 1) DGP: Markov-switching AR(1), ONLY phi changes
-# =====================================================
 def simulate_ms_ar1_phi_only(
     T=300,
     p00=0.97, p11=0.97,
