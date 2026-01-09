@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Single variance break small",
+    "Tb": 40,
+    "sigma1": 1.0,
+    "sigma2": 2.0,
+    "task": "variance",
+    "owner": "aadya",
+    "tag": "variance_small"
+  },
+  {
+    "name": "Late variance break",
+    "Tb": 80,
+    "sigma1": 1.0,
+    "sigma2": 3.0,
+    "task": "variance",
+    "owner": "aadya",
+    "tag": "variance_late"
+  },
+  {
+    "name": "Parameter single break example",
+    "Tb": 200,
+    "phi1": 0.2,
+    "phi2": 0.9,
+    "sigma": 1.0,
+    "task": "parameter",
+    "owner": "mahir",
+    "tag": "param_single"
+  }
+]

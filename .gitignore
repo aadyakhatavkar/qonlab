@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+.python-version
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+# Jupyter
+.ipynb_checkpoints
+# Pytest
+.pytest_cache/
+# Data / outputs
+results/
+figures/
+logs/
+# OS
+.DS_Store
+Thumbs.db
+# IDEs
+.vscode/
+.idea/
