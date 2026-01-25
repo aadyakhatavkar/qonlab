@@ -1,4 +1,4 @@
-from .ols_like import (
+from .forecasters import (
     forecast_dist_arima_global,
     forecast_dist_arima_rolling,
     forecast_garch_variance,
