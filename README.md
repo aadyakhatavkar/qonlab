@@ -18,3 +18,14 @@ Use `main.py` as the canonical CLI entrypoint (subcommands: `mc`, `pixi`).
 If you'd like this repo fully converted to the econ-project-templates layout
 (src/, docs/, CI), say “apply template” and I will create a branch and implement
 the conversion.
+
+## Setup
+
+1. Install Pixi: https://prefix.dev
+2. Run: `pixi install`
+3. Start coding!
+
+### Alternative (without Pixi)
+```bash
+pip install -r [requirements.txt](http://_vscodecontentref_/1)
+```

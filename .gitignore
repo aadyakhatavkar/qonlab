@@ -5,11 +5,12 @@ __pycache__/
 *.egg-info/
 .eggs/
 .python-version
-# Virtualenv
+# Virtualenv & pixi environments
 .venv/
 venv/
 ENV/
 env/
+.pixi/
 # Jupyter
 .ipynb_checkpoints
 # Pytest

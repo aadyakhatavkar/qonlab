@@ -8,8 +8,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 from dgps.static import simulate_variance_break
-from estimators.ols_like import forecast_garch_variance, rmse_mae_bias
-import estimators.ols_like as ols_mod
+from estimators.forecasters import forecast_garch_variance, rmse_mae_bias
+import estimators.forecasters as ols_mod
 
 
 def test_simulate_variance_break_seed():
@@ -30,7 +30,7 @@ def test_forecast_garch_shapes():
 
 def test_mc_variance_breaks_runs_quick():
     scenarios = [{'name':'test','Tb':40,'sigma1':1.0,'sigma2':1.5}]
-    from analyses.mc import mc_variance_breaks
+    from analyses.variance_break_simulations import mc_variance_breaks
     pg, pu = mc_variance_breaks(n_sim=2, T=80, phi=0.3, window=20, horizon=5, scenarios=scenarios)
     assert not pg.empty
     assert not pu.empty
