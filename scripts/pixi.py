@@ -14,13 +14,47 @@ import os
 from datetime import datetime
 import sys
 
-# make sure local package can be imported
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VAR_DIR = os.path.join(ROOT, 'Variance Change')
-if VAR_DIR not in sys.path:
-    sys.path.insert(0, VAR_DIR)
 
-import variance_change as vc
+def _check_dependencies():
+    """Check runtime dependencies and print actionable install instructions if missing."""
+    missing = []
+    try:
+        import numpy  # noqa: F401
+    except Exception:
+        missing.append('numpy')
+    try:
+        import pandas  # noqa: F401
+    except Exception:
+        missing.append('pandas')
+    try:
+        import yfinance  # noqa: F401
+    except Exception:
+        # yfinance is optional unless using --sp500, but recommend it
+        missing.append('yfinance')
+
+    if missing:
+        print('\nMissing Python packages detected:', ', '.join(missing))
+        print('Install required packages with:')
+        print('  python3 -m pip install -r requirements.txt')
+        print('or individually:')
+        print('  python3 -m pip install ' + ' '.join(missing))
+        print('Exiting. Re-run after installing dependencies.')
+        sys.exit(1)
+
+
+# run dependency check early
+_check_dependencies()
+
+from analyses.mc import mc_variance_breaks, mc_variance_breaks_grid
+from dgps.static import simulate_variance_break
+from estimators.ols_like import (
+    forecast_dist_arima_rolling,
+    log_score_normal,
+    interval_coverage,
+    rmse_mae_bias,
+)
+import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
@@ -98,6 +132,9 @@ def main():
     parser.add_argument('--scenarios', type=str, default=None, help='JSON file with scenarios list')
     parser.add_argument('--tag', type=str, default=None, help='Optional tag to add to output filenames')
     parser.add_argument('--plot', action='store_true', help='Save a small summary figure to figures/')
+    parser.add_argument('--sp500', action='store_true', help='Fetch S&P500 (^GSPC) and run variance analysis on returns')
+    parser.add_argument('--start', type=str, default='2010-01-01', help='Start date for S&P data (YYYY-MM-DD)')
+    parser.add_argument('--end', type=str, default=None, help='End date for S&P data (YYYY-MM-DD)')
 
     args = parser.parse_args()
 
@@ -133,7 +170,33 @@ def main():
 
         if task == 'variance':
             # pass a single-scenario list to mc_variance_breaks so output rows are scenario-scoped
-            df_point, df_unc = vc.mc_variance_breaks(n_sim=n_sim, T=T, phi=args.phi, window=window, horizon=horizon, scenarios=[sc])
+            df_point, df_unc = mc_variance_breaks(n_sim=n_sim, T=T, phi=args.phi, window=window, horizon=horizon, scenarios=[sc])
+        elif args.sp500:
+            # Run S&P application on returns
+            try:
+                import yfinance as yf
+                print('Fetching S&P500 data...')
+                end = args.end
+                data = yf.download('^GSPC', start=args.start, end=end, progress=False)
+                if data is None or data.empty:
+                    print('Failed to fetch S&P data or empty result')
+                    continue
+                # compute log returns
+                prices = data['Adj Close'].dropna()
+                returns = np.log(prices).diff().dropna().values
+                print(f'Fetched {len(returns)} return observations')
+                # Run a small grid analysis on the real returns (use smaller n_sim)
+                df_grid = mc_variance_breaks_grid(n_sim=min(20, n_sim), T=len(returns), phi=args.phi, horizon=horizon, window_sizes=[20,50,100], break_magnitudes=[1.5,3.0])
+                # save grid
+                os.makedirs('results', exist_ok=True)
+                outcsv = f"results/sp500_variance_grid_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                df_grid.to_csv(outcsv, index=False)
+                print('Saved S&P variance grid to:', outcsv)
+                df_point = pd.DataFrame()
+                df_unc = pd.DataFrame()
+            except Exception as e:
+                print('S&P application failed:', e)
+                continue
         elif task == 'parameter':
             # attempt to run parameter-change module if present
             try:
