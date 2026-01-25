@@ -21,11 +21,15 @@ the conversion.
 
 ## Setup
 
+### Recommended: Using Pixi (reproducible environments)
 1. Install Pixi: https://prefix.dev
 2. Run: `pixi install`
-3. Start coding!
+3. Run experiments: `pixi run python main.py`
 
-### Alternative (without Pixi)
+This ensures exact dependency versions across all environments.
+
+### Alternative: Using pip
 ```bash
-pip install -r [requirements.txt](http://_vscodecontentref_/1)
+pip install -r requirements.txt
+python main.py
 ```
