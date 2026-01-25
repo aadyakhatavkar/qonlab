@@ -2,8 +2,8 @@
 
 Lightweight tools and experiments for variance-break analysis.
 
-Primary guide: follow the professor's master guide (COMPREHENSIVE_MASTER_GUIDE.md).
-For layout guidance see the econ-project-templates: https://econ-project-templates.readthedocs.io/
+
+
 
 Canonical modules in this repo:
 
