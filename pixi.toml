@@ -12,8 +12,11 @@ pandas = "*"
 scipy = "*"
 statsmodels = "*"
 matplotlib = "*"
+seaborn = "*"
 joblib = "*"
 pytest = "*"
+pip = ">=25.3,<26"
+ipykernel = ">=7.1.0,<8"
 
 [pypi-dependencies]
 yfinance = "*"
