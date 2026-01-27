@@ -45,9 +45,9 @@ def _check_dependencies():
 # run dependency check early
 _check_dependencies()
 
-from analyses.mc import mc_variance_breaks, mc_variance_breaks_grid
+from analyses.variance_break_simulations import mc_variance_breaks, mc_variance_breaks_grid
 from dgps.static import simulate_variance_break
-from estimators.ols_like import (
+from estimators.forecasters import (
     forecast_dist_arima_rolling,
     log_score_normal,
     interval_coverage,

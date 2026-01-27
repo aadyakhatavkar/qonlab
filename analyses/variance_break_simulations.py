@@ -12,6 +12,7 @@ from estimators.forecasters import (
     forecast_dist_arima_global,
     forecast_dist_arima_rolling,
     forecast_garch_variance,
+    forecast_arima_post_break,
     rmse_mae_bias,
     interval_coverage,
     log_score_normal,
@@ -96,9 +97,11 @@ def mc_variance_breaks(
         point_g = []
         point_r = []
         point_garch = []
+        point_pb = []
         unc_g = []
         unc_r = []
         unc_garch = []
+        unc_pb = []
 
         seeds = [int(rng.integers(0, 1_000_000_000)) for _ in range(n_sim)]
 
@@ -114,11 +117,18 @@ def mc_variance_breaks(
             except Exception:
                 mgarch = np.full(horizon, np.nan)
                 vgarch = np.full(horizon, np.nan)
+            
+            try:
+                mpb, vpb = forecast_arima_post_break(y_train, horizon=horizon)
+            except Exception:
+                mpb = np.full(horizon, np.nan)
+                vpb = np.full(horizon, np.nan)
 
             return (
                 rmse_mae_bias(y_test, mg),
                 rmse_mae_bias(y_test, mr),
                 rmse_mae_bias(y_test, mgarch),
+                rmse_mae_bias(y_test, mpb),
                 (
                     interval_coverage(y_test, mg, vg, 0.80),
                     interval_coverage(y_test, mg, vg, 0.95),
@@ -134,6 +144,11 @@ def mc_variance_breaks(
                     interval_coverage(y_test, mgarch, vgarch, 0.95),
                     log_score_normal(y_test, mgarch, vgarch)
                 ),
+                (
+                    interval_coverage(y_test, mpb, vpb, 0.80),
+                    interval_coverage(y_test, mpb, vpb, 0.95),
+                    log_score_normal(y_test, mpb, vpb)
+                ),
             )
 
         if Parallel is not None:
@@ -142,20 +157,26 @@ def mc_variance_breaks(
             results = [_run_one(s) for s in seeds]
 
         for res in results:
-            pg_val, pr_val, pgarch_val, ug_val, ur_val, ugarch_val = res
+            pg_val, pr_val, pgarch_val, ppb_val, ug_val, ur_val, ugarch_val, upb_val = res
             point_g.append(pg_val)
             point_r.append(pr_val)
             point_garch.append(pgarch_val)
+            point_pb.append(ppb_val)
             unc_g.append(ug_val)
             unc_r.append(ur_val)
             unc_garch.append(ugarch_val)
+            unc_pb.append(upb_val)
+            unc_garch.append(ugarch_val)
+            unc_pb.append(upb_val)
 
         pg = np.mean(np.array(point_g), axis=0)
         pr = np.mean(np.array(point_r), axis=0)
         pgarch = np.mean(np.array(point_garch), axis=0)
+        ppb = np.mean(np.array(point_pb), axis=0)
         ug = np.mean(np.array(unc_g), axis=0)
         ur = np.mean(np.array(unc_r), axis=0)
         ugarch = np.mean(np.array(unc_garch), axis=0)
+        upb = np.mean(np.array(unc_pb), axis=0)
 
         for metric, idx in [("RMSE", 0), ("MAE", 1), ("Bias", 2)]:
             point_rows.append({
@@ -164,6 +185,7 @@ def mc_variance_breaks(
                 "ARIMA Global": pg[idx],
                 "ARIMA Rolling": pr[idx],
                 "GARCH": pgarch[idx] if len(point_garch) > 0 else np.nan,
+                "ARIMA PostBreak": ppb[idx] if len(point_pb) > 0 else np.nan,
             })
 
         for metric, idx in [("Coverage80", 0), ("Coverage95", 1), ("LogScore", 2)]:
@@ -173,6 +195,7 @@ def mc_variance_breaks(
                 "ARIMA Global": ug[idx],
                 "ARIMA Rolling": ur[idx],
                 "GARCH": ugarch[idx] if len(unc_garch) > 0 else np.nan,
+                "ARIMA PostBreak": upb[idx] if len(unc_pb) > 0 else np.nan,
             })
 
     return pd.DataFrame(point_rows), pd.DataFrame(unc_rows)
