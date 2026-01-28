@@ -1,0 +1,475 @@
+%==============================================================================
+% FORECASTING UNDER STRUCTURAL BREAKS: A MONTE CARLO STUDY
+% Research Module in Econometrics and Statistics
+% University of Bonn
+%==============================================================================
+
+\documentclass[12pt,a4paper]{article}
+
+%------------------------------------------------------------------------------
+% PACKAGES
+%------------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{fancybox}
+\usepackage{xcolor}
+
+% Line spacing
+\onehalfspacing
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\iid}{\stackrel{\text{iid}}{\sim}}
+\newcommand{\ind}{\mathbf{1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}
+
+%------------------------------------------------------------------------------
+% TITLE AND AUTHORS
+%------------------------------------------------------------------------------
+\title{%
+    \textbf{Forecasting Under Structural Breaks: A Monte Carlo Study}\\[1em]
+    \large Research Module in Econometrics and Statistics\\
+    Fundamentals of Monte Carlo Simulations in Data Science
+}
+\author{%
+    Aadya Khatavkar\\
+    University of Bonn\\
+    \texttt{s6aakhat@uni-bonn.de}
+}
+\date{Winter Semester 2025/26}
+
+%==============================================================================
+\begin{document}
+%==============================================================================
+
+\maketitle
+
+\begin{abstract}
+This study evaluates the forecasting performance of various time series methods in the presence of structural breaks in the mean. Using Monte Carlo simulations, we compare global AR(1), rolling-window AR(1), oracle break-dummy specifications, estimated break detection, and Markov switching models. Our simulation design generates AR(1) processes with single and multiple deterministic breaks in the intercept, and we assess each method's one-step-ahead forecast accuracy using RMSE, MAE, and bias. Results indicate that oracle break-dummy models achieve the best performance, reflecting the value of correctly incorporating structural change. Among practical methods where break dates are unknown, rolling-window estimation offers improvements over global fitting by adapting to recent data. These findings have implications for practitioners choosing forecasting strategies under parameter instability.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} Structural breaks, Monte Carlo simulation, time series forecasting, ARIMA, rolling window estimation, regime switching
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+%------------------------------------------------------------------------------
+\section{Introduction}
+\label{sec:introduction}
+%------------------------------------------------------------------------------
+
+Time series forecasting is central to economic and financial decision-making. A fundamental challenge arises when the underlying data-generating process (DGP) is subject to \emph{structural breaks}---discrete changes in model parameters that occur at specific points in time. Ignoring such breaks can lead to severely biased forecasts, as models trained on pooled data fail to reflect the current regime.
+
+This study investigates the forecasting performance of several methods under structural breaks in the mean of an AR(1) process. The research questions are:
+
+\begin{enumerate}
+    \item How do different forecasting methods perform when the DGP exhibits structural breaks?
+    \item What is the cost of not knowing the break date(s) in terms of forecast accuracy?
+    \item Can adaptive methods (rolling windows, regime switching) provide a practical alternative to oracle specifications?
+\end{enumerate}
+
+The remainder of this paper is organized as follows. \Cref{sec:dgp} describes the data-generating processes. \Cref{sec:methods} presents the forecasting methods under comparison. \Cref{sec:montecarlo} details the Monte Carlo design. \Cref{sec:metrics} defines the evaluation metrics. \Cref{sec:results} reports and interprets the simulation results. \Cref{sec:conclusion} concludes.
+
+%------------------------------------------------------------------------------
+\section{Data-Generating Processes}
+\label{sec:dgp}
+%------------------------------------------------------------------------------
+
+We consider AR(1) processes with deterministic breaks in the intercept (mean). The general model is:
+\begin{equation}
+    y_t = \mu_t + \phi y_{t-1} + u_t, \quad u_t \iid N(0, \sigma^2),
+    \label{eq:dgp_general}
+\end{equation}
+where $\mu_t$ is a piecewise-constant intercept that changes at known break dates.
+
+%------------------------------------------------------------------------------
+\subsection{Single-Break DGP}
+\label{subsec:dgp_single}
+%------------------------------------------------------------------------------
+
+Let $T_b$ denote the break date. The intercept is:
+\begin{equation}
+    \mu_t = 
+    \begin{cases}
+        \mu_0 & \text{if } t \leq T_b, \\
+        \mu_1 & \text{if } t > T_b.
+    \end{cases}
+    \label{eq:single_break}
+\end{equation}
+The simulation uses parameters $\phi = 0.6$, $\sigma = 1.0$, $\mu_0 = 0$, and $\mu_1 = 2$.
+
+%------------------------------------------------------------------------------
+\subsection{Multiple-Break DGP}
+\label{subsec:dgp_multiple}
+%------------------------------------------------------------------------------
+
+For two breaks at $b_1$ and $b_2$ (with $b_1 < b_2$):
+\begin{equation}
+    \mu_t =
+    \begin{cases}
+        \mu_0 & \text{if } t \leq b_1, \\
+        \mu_1 & \text{if } b_1 < t \leq b_2, \\
+        \mu_2 & \text{if } t > b_2.
+    \end{cases}
+    \label{eq:multiple_breaks}
+\end{equation}
+The simulations use $\mu_0 = 0$, $\mu_1 = 2$, and $\mu_2 = -1$.
+
+%------------------------------------------------------------------------------
+\section{Forecasting Methods}
+\label{sec:methods}
+%------------------------------------------------------------------------------
+
+We compare five forecasting methods, ranging from naive global fitting to oracle specifications that exploit knowledge of break dates.
+
+%------------------------------------------------------------------------------
+\subsection{Global AR(1)}
+\label{subsec:global_ar}
+%------------------------------------------------------------------------------
+
+The global AR(1) model estimates:
+\begin{equation}
+    y_t = c + \phi y_{t-1} + u_t
+    \label{eq:global_ar}
+\end{equation}
+using all available training observations $\{y_1, \ldots, y_{t_0-1}\}$. The one-step forecast is:
+\begin{equation}
+    \hat{y}_{t_0} = \hat{c} + \hat{\phi} y_{t_0-1}.
+    \label{eq:global_forecast}
+\end{equation}
+\textbf{Limitation:} After a break, the estimates $\hat{c}$ and $\hat{\phi}$ are contaminated by pre-break observations, leading to biased forecasts.
+
+%------------------------------------------------------------------------------
+\subsection{Rolling-Window AR(1)}
+\label{subsec:rolling_ar}
+%------------------------------------------------------------------------------
+
+The rolling-window approach estimates the AR(1) model using only the most recent $w$ observations:
+\begin{equation}
+    \{y_{t_0 - w}, \ldots, y_{t_0 - 1}\}.
+    \label{eq:rolling_window}
+\end{equation}
+If the window lies entirely within the post-break regime, the estimator is consistent for the current parameters. The forecast is:
+\begin{equation}
+    \hat{y}_{t_0} = \hat{c}_{\text{roll}} + \hat{\phi}_{\text{roll}} y_{t_0 - 1}.
+    \label{eq:rolling_forecast}
+\end{equation}
+\textbf{Trade-off:} Smaller windows adapt faster but increase estimation variance; larger windows reduce variance but may include pre-break data.
+
+%------------------------------------------------------------------------------
+\subsection{AR(1) + Break Dummy (Oracle)}
+\label{subsec:oracle_dummy}
+%------------------------------------------------------------------------------
+
+This method explicitly models breaks via dummy variables. It is called \emph{oracle} because it assumes the break date(s) are known (true in simulation, usually unknown in real data).
+
+\subsubsection{Single-Break Dummy Model}
+
+Define:
+\begin{equation}
+    d_t = \ind(t > T_b),
+    \label{eq:single_dummy}
+\end{equation}
+and estimate:
+\begin{equation}
+    y_t = c + \phi y_{t-1} + \delta d_t + u_t.
+    \label{eq:dummy_model}
+\end{equation}
+The one-step forecast becomes:
+\begin{equation}
+    \hat{y}_{t_0} = \hat{c} + \hat{\phi} y_{t_0-1} + \hat{\delta} d_{t_0}.
+    \label{eq:dummy_forecast}
+\end{equation}
+\textbf{Interpretation:} The intercept shifts by $\delta$ after the break, so the model can match the mean change.
+
+\subsubsection{Multiple-Break Dummy Model}
+
+Define two dummies:
+\begin{equation}
+    d_{1,t} = \ind(t > b_1), \quad d_{2,t} = \ind(t > b_2),
+    \label{eq:multiple_dummies}
+\end{equation}
+and estimate:
+\begin{equation}
+    y_t = c + \phi y_{t-1} + \delta_1 d_{1,t} + \delta_2 d_{2,t} + u_t.
+    \label{eq:multiple_dummy_model}
+\end{equation}
+Forecast:
+\begin{equation}
+    \hat{y}_{t_0} = \hat{c} + \hat{\phi} y_{t_0-1} + \hat{\delta}_1 d_{1,t_0} + \hat{\delta}_2 d_{2,t_0}.
+    \label{eq:multiple_dummy_forecast}
+\end{equation}
+\textbf{Why it is strong:} The model adjusts the mean at each break, matching the DGP structure.
+
+%------------------------------------------------------------------------------
+\subsection{AR(1) + Estimated Break (Grid Search)}
+\label{subsec:estimated_break}
+%------------------------------------------------------------------------------
+
+In practice, break dates are often unknown. This method estimates a single break date $\hat{T}_b$ by searching over candidate break points and choosing the one that minimizes the sum of squared errors (SSE) from two segment-specific AR(1) fits:
+\begin{equation}
+    \hat{T}_b = \argmin_{T_b} \left( \text{SSE}_1(T_b) + \text{SSE}_2(T_b) \right).
+    \label{eq:break_estimation}
+\end{equation}
+After estimating $\hat{T}_b$, forecasting is performed using the most recent regime (post-break segment).
+
+\textbf{Why it can be worse than oracle dummies:} Estimation error in $\hat{T}_b$ can lead to incorrect segmentation and larger forecast errors.
+
+%------------------------------------------------------------------------------
+\subsection{Markov Switching (Two Regimes)}
+\label{subsec:markov}
+%------------------------------------------------------------------------------
+
+Markov switching models allow regime changes without specifying break dates. A simplified interpretation is:
+\begin{equation}
+    y_t = c_{s_t} + \phi y_{t-1} + u_t,
+    \label{eq:markov}
+\end{equation}
+where $s_t \in \{1, 2\}$ is an unobserved regime evolving according to Markov transition probabilities:
+\begin{equation}
+    P(s_t = j \mid s_{t-1} = i) = p_{ij}.
+    \label{eq:transition}
+\end{equation}
+\textbf{Practical issue:} Estimation relies on non-linear maximum likelihood and can be numerically fragile; convergence failures may occur frequently in automated Monte Carlo loops.
+
+%------------------------------------------------------------------------------
+\section{Monte Carlo Design}
+\label{sec:montecarlo}
+%------------------------------------------------------------------------------
+
+For each scenario (single or multiple breaks), the simulation proceeds as follows:
+
+\begin{enumerate}
+    \item Generate a time series $\{y_t\}_{t=1}^{T}$ from the relevant DGP.
+    \item Choose the forecast time after the break(s):
+    \begin{itemize}
+        \item Single break: $t_0 = T_b + 20$.
+        \item Multiple breaks: $t_0 = b_2 + 20$.
+    \end{itemize}
+    \item Fit each forecasting method using training data $\{y_1, \ldots, y_{t_0-1}\}$ and compute a one-step forecast $\hat{y}_{t_0}$.
+    \item Compute forecast error $e = y_{t_0} - \hat{y}_{t_0}$.
+    \item Repeat steps (1)--(4) for $N$ replications (e.g., $N = 200$) to obtain an empirical distribution of errors for each method.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.9\textwidth}{
+\textbf{Algorithm 1: Monte Carlo Simulation for Structural Break Forecasting}
+\begin{enumerate}
+    \item \textbf{For} $n = 1, \ldots, N$ \textbf{do}
+    \item \hspace{1em} Generate $\{y_t\}_{t=1}^T$ from DGP with breaks
+    \item \hspace{1em} Set forecast origin $t_0$ (post-break)
+    \item \hspace{1em} \textbf{For} each method $m$ \textbf{do}
+    \item \hspace{2em} Fit method $m$ on $\{y_1, \ldots, y_{t_0-1}\}$
+    \item \hspace{2em} Compute forecast $\hat{y}_{t_0}^{(m)}$
+    \item \hspace{2em} Store error $e_n^{(m)} = y_{t_0} - \hat{y}_{t_0}^{(m)}$
+    \item \hspace{1em} \textbf{End For}
+    \item \textbf{End For}
+    \item Compute metrics (RMSE, MAE, Bias) for each method
+\end{enumerate}
+}}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Evaluation Metrics}
+\label{sec:metrics}
+%------------------------------------------------------------------------------
+
+Let $\{e_i\}_{i=1}^N$ be the forecast errors for a method across Monte Carlo replications. We compute:
+
+%------------------------------------------------------------------------------
+\subsection{Bias}
+\label{subsec:bias}
+%------------------------------------------------------------------------------
+
+\begin{equation}
+    \text{Bias} = \frac{1}{N} \sum_{i=1}^{N} e_i.
+    \label{eq:bias}
+\end{equation}
+Bias indicates systematic under- or over-forecasting. Values close to zero imply the method is not systematically wrong.
+
+%------------------------------------------------------------------------------
+\subsection{Mean Absolute Error (MAE)}
+\label{subsec:mae}
+%------------------------------------------------------------------------------
+
+\begin{equation}
+    \text{MAE} = \frac{1}{N} \sum_{i=1}^{N} |e_i|.
+    \label{eq:mae}
+\end{equation}
+MAE measures the typical magnitude of forecast errors.
+
+%------------------------------------------------------------------------------
+\subsection{Root Mean Squared Error (RMSE)}
+\label{subsec:rmse}
+%------------------------------------------------------------------------------
+
+\begin{equation}
+    \text{RMSE} = \sqrt{\frac{1}{N} \sum_{i=1}^{N} e_i^2}.
+    \label{eq:rmse}
+\end{equation}
+RMSE penalizes large errors more heavily than MAE. In this study, we rank methods primarily by RMSE (lower is better).
+
+%------------------------------------------------------------------------------
+\section{Results and Interpretation}
+\label{sec:results}
+%------------------------------------------------------------------------------
+
+The comparison table reports RMSE, MAE, Bias, and the number of successful replications $N$ (and failure counts where relevant).
+
+%------------------------------------------------------------------------------
+\subsection{Single-Break Case}
+\label{subsec:results_single}
+%------------------------------------------------------------------------------
+
+In the single-break scenario, the ranking by RMSE typically shows:
+
+\begin{itemize}
+    \item \textbf{AR(1) + Break Dummy (oracle)} performs best (lowest RMSE/MAE, bias near zero).
+    \item \textbf{AR(1) + Estimated Break (grid)} usually performs worse than oracle dummies due to break date estimation error.
+    \item \textbf{Rolling AR(1)} improves over global AR(1) by adapting to recent data, but remains inferior to explicit break modeling.
+    \item \textbf{Global AR(1)} performs worst because it mixes pre- and post-break regimes, generating biased forecasts after the break.
+\end{itemize}
+
+% Placeholder for results table
+\begin{table}[H]
+\centering
+\caption{Single-Break Scenario: Forecast Performance Comparison}
+\label{tab:single_break}
+\begin{tabular}{lccc}
+\toprule
+Method & RMSE & MAE & Bias \\
+\midrule
+AR(1) + Break Dummy (Oracle) & --- & --- & --- \\
+AR(1) + Estimated Break & --- & --- & --- \\
+Rolling AR(1) & --- & --- & --- \\
+Global AR(1) & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%------------------------------------------------------------------------------
+\subsection{Multiple-Break Case}
+\label{subsec:results_multiple}
+%------------------------------------------------------------------------------
+
+In the multiple-break scenario:
+
+\begin{itemize}
+    \item \textbf{AR(1) + Break Dummy (oracle)} again performs best, because multiple dummies adjust the mean at each break.
+    \item \textbf{Rolling AR(1)} typically performs better than global AR(1) because it focuses on recent data dominated by the final regime.
+    \item \textbf{Global AR(1)} remains weaker as it pools observations from all regimes, increasing bias and error.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\subsection{Markov Switching Results}
+\label{subsec:results_markov}
+%------------------------------------------------------------------------------
+
+In the reported output, Markov switching produced NaN metrics with $N = 0$ and high failure counts. This indicates that the model did not successfully converge or produce forecasts during the Monte Carlo loop in the implemented settings. This is consistent with the known numerical sensitivity of regime-switching maximum likelihood estimation.
+
+Therefore, Markov switching performance is not reported in those runs.
+
+%------------------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+%------------------------------------------------------------------------------
+
+Across both single and multiple break designs, the strongest forecasting performance is achieved by the \textbf{AR(1) + Break Dummy (oracle)} specification, as it explicitly incorporates the structural changes in the mean and therefore produces the lowest RMSE and MAE and bias close to zero.
+
+However, it is important to emphasize that the break dummy approach is an \emph{oracle benchmark} because it assumes the break date(s) are known. In real applications where break dates are unknown, adaptive approaches such as rolling estimation or break detection procedures become necessary, though they may produce slightly higher forecast errors than the oracle benchmark.
+
+\subsection{Implications for Practice}
+
+\begin{enumerate}
+    \item When break dates can be reliably identified (e.g., policy changes, known events), explicit break modeling via dummies is preferred.
+    \item When breaks are unknown, rolling-window methods offer a robust alternative that adapts to recent data.
+    \item Break detection methods (grid search) can help but introduce estimation uncertainty.
+    \item Markov switching models, while theoretically appealing, may face numerical challenges in practice.
+\end{enumerate}
+
+\subsection{Future Work}
+
+Extensions of this research could include:
+\begin{itemize}
+    \item Variance breaks and heteroskedasticity modeling (GARCH).
+    \item Multi-step ahead forecasting.
+    \item Real data applications using S\&P 500 realized volatility.
+    \item Confidence interval coverage and probabilistic forecast evaluation.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+% REFERENCES
+%------------------------------------------------------------------------------
+\newpage
+\bibliographystyle{apalike}
+
+\begin{thebibliography}{99}
+
+\bibitem[Box and Jenkins(1970)]{box1970}
+Box, G.~E. and Jenkins, G.~M. (1970).
+\newblock \emph{Time Series Analysis: Forecasting and Control}.
+\newblock Holden-Day, San Francisco.
+
+\bibitem[Chernozhukov et al.(2024)]{chernozhukov2024}
+Chernozhukov, V., Hansen, C., Kallus, N., Spindler, M., and Syrgkanis, V. (2024).
+\newblock \emph{Applied Causal Inference Powered by ML and AI}.
+
+\bibitem[Dormann and Ellison(2025)]{dormann2025}
+Dormann, C.~F. and Ellison, A.~M. (2025).
+\newblock \emph{Statistics by Simulation: A Synthetic Data Approach}.
+\newblock Princeton University Press.
+
+\bibitem[Francq and Zakoïan(2019)]{francq2019}
+Francq, C. and Zakoïan, J.~M. (2019).
+\newblock \emph{GARCH Models: Structure, Statistical Inference and Financial Applications}.
+\newblock Wiley.
+
+\bibitem[Gaillac and L'Hour(2025)]{gaillac2025}
+Gaillac, C. and L'Hour, J. (2025).
+\newblock \emph{Machine Learning for Econometrics}.
+\newblock Oxford University Press.
+
+\bibitem[Hamilton(1989)]{hamilton1989}
+Hamilton, J.~D. (1989).
+\newblock A new approach to the economic analysis of nonstationary time series and the business cycle.
+\newblock \emph{Econometrica}, 57(2):357--384.
+
+\bibitem[Pesaran(2013)]{pesaran2013}
+Pesaran, M.~H. (2013).
+\newblock The role of structural breaks in forecasting.
+\newblock In Elliott, G. and Timmermann, A., editors, \emph{Handbook of Economic Forecasting}, volume 2B, pages 1159--1191. Elsevier.
+
+\bibitem[Wager(2024)]{wager2024}
+Wager, S. (2024).
+\newblock \emph{Causal Inference: A Statistical Learning Approach}.
+
+\end{thebibliography}
+
+%==============================================================================
+\end{document}
+%==============================================================================
