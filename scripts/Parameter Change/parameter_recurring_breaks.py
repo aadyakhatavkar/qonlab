@@ -1,22 +1,24 @@
 import numpy as np
-import warnings
+import pandas as pd
 import matplotlib.pyplot as plt
+import warnings
+
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 warnings.filterwarnings("ignore")
 
 # =====================================================
-# 1) DGP: Markov-switching AR(1), phi only
+# 1) DGP: Markov-switching AR(1), Gaussian
 # =====================================================
 def simulate_ms_ar1_phi_only(
     T=400,
-    p00=0.97, p11=0.97,
-    phi0=0.2, phi1=0.9,
+    p00=0.97,
+    p11=0.97,
+    phi0=0.2,
+    phi1=0.9,
     sigma=1.0,
     y0=0.0,
-    innovation="normal",
-    df=None,
     rng=None
 ):
     if rng is None:
@@ -29,72 +31,77 @@ def simulate_ms_ar1_phi_only(
     s[0] = rng.integers(0, 2)
 
     for t in range(1, T):
-        if s[t-1] == 0:
+        if s[t - 1] == 0:
             s[t] = 0 if rng.random() < p00 else 1
         else:
             s[t] = 1 if rng.random() < p11 else 0
 
-        if innovation == "normal":
-            eps = rng.normal(0.0, sigma)
-        elif innovation == "student":
-            eps = (
-                rng.standard_t(df)
-                * sigma
-                / np.sqrt(df / (df - 2))
-            )
-        else:
-            raise ValueError("Unknown innovation")
-
+        eps = rng.normal(0.0, sigma)
         phi = phi0 if s[t] == 0 else phi1
-        y[t] = phi * y[t-1] + eps
+        y[t] = phi * y[t - 1] + eps
 
     return y, s
 
 
 # =====================================================
-# 2) Forecasting models
+# 2) Forecasting models (1-step ahead)
 # =====================================================
-def forecast_global_ar1(y):
-    res = ARIMA(y, order=(1, 0, 0), trend="n").fit()
-    return float(res.forecast(1)[0])
+def forecast_global_ar(y):
+    return float(
+        ARIMA(y, order=(1, 0, 0), trend="n")
+        .fit()
+        .forecast(1)[0]
+    )
 
 
-def forecast_rolling_ar1(y, window=80):
-    res = ARIMA(y[-window:], order=(1, 0, 0), trend="n").fit()
-    return float(res.forecast(1)[0])
+def forecast_rolling_ar(y, window=80):
+    return float(
+        ARIMA(y[-window:], order=(1, 0, 0), trend="n")
+        .fit()
+        .forecast(1)[0]
+    )
 
 
-def forecast_markov_switching_ar1(y):
+def forecast_markov_switching_ar(y):
     y_dep = y[1:]
     x = y[:-1].reshape(-1, 1)
 
-    mod = MarkovRegression(
+    model = MarkovRegression(
         y_dep,
         k_regimes=2,
         trend="n",
         exog=x,
         switching_exog=True,
         switching_variance=False
-    )
+    ).fit(disp=False)
 
-    res = mod.fit(disp=False)
-    probs = res.filtered_marginal_probabilities[-1]
-    params = dict(zip(res.model.param_names, res.params))
+    probs = model.filtered_marginal_probabilities[-1]
+    params = dict(zip(model.model.param_names, model.params))
 
     phi0 = params["x1[0]"]
     phi1 = params["x1[1]"]
 
-    y_last = y[-1]
-    return float(probs[0] * phi0 * y_last + probs[1] * phi1 * y_last)
+    return float((probs[0] * phi0 + probs[1] * phi1) * y[-1])
 
 
 # =====================================================
-# 3) Monte Carlo experiment
+# 3) Metrics
 # =====================================================
-def monte_carlo_experiment(
-    innovation="normal",
-    df=None,
-    n_sim=200,
+def metrics(e):
+    e = np.asarray(e)
+    return {
+        "RMSE": np.sqrt(np.mean(e ** 2)),
+        "MAE": np.mean(np.abs(e)),
+        "Bias": np.mean(e)
+    }
+
+
+# =====================================================
+# 4) Monte Carlo experiment
+# =====================================================
+def monte_carlo_recurring(
+    p,
+    n_sim=300,
     T=400,
     t0=300,
     window=80,
@@ -102,108 +109,165 @@ def monte_carlo_experiment(
 ):
     rng = np.random.default_rng(seed)
 
-    err_g, err_r, err_m = [], [], []
+    err = {
+        "Global AR": [],
+        "Rolling AR": [],
+        "MS AR": []
+    }
 
     for _ in range(n_sim):
         y, _ = simulate_ms_ar1_phi_only(
             T=T,
-            innovation=innovation,
-            df=df,
+            p00=p,
+            p11=p,
             rng=rng
         )
 
         y_train = y[:t0]
         y_true = y[t0]
 
-        try:
-            fg = forecast_global_ar1(y_train)
-            fr = forecast_rolling_ar1(y_train, window)
-            fm = forecast_markov_switching_ar1(y_train)
-        except Exception:
-            continue
+        err["Global AR"].append(y_true - forecast_global_ar(y_train))
+        err["Rolling AR"].append(y_true - forecast_rolling_ar(y_train, window))
+        err["MS AR"].append(y_true - forecast_markov_switching_ar(y_train))
 
-        err_g.append(y_true - fg)
-        err_r.append(y_true - fr)
-        err_m.append(y_true - fm)
-
-    def metrics(e):
-        e = np.asarray(e)
-        return {
-            "RMSE": float(np.sqrt(np.mean(e**2))),
-            "MAE": float(np.mean(np.abs(e))),
-            "Bias": float(np.mean(e))
-        }
-
-    return metrics(err_g), metrics(err_r), metrics(err_m)
+    return err
 
 
 # =====================================================
-# 4) DGP visualization
+# 5) Combined error distribution figure
 # =====================================================
-def plot_ms_dgp(
-    T=400,
-    innovation="normal",
-    df=None,
-    seed=42
-):
-    rng = np.random.default_rng(seed)
-    y, s = simulate_ms_ar1_phi_only(
-        T=T,
-        innovation=innovation,
-        df=df,
-        rng=rng
+def plot_error_distributions_all(err_by_p, persistence_levels):
+    fig, axes = plt.subplots(
+        len(persistence_levels),
+        1,
+        figsize=(9, 3 * len(persistence_levels)),
+        sharex=True,
+        sharey=True
     )
 
-    plt.figure(figsize=(10, 4))
-    plt.plot(y, color="black", lw=1.5, label="y_t")
+    for ax, p in zip(axes, persistence_levels):
+        for model, e in err_by_p[p].items():
+            ax.hist(e, bins=40, density=True, alpha=0.4, label=model)
 
-    for t in range(1, T):
-        if s[t] == 1:
-            plt.axvspan(t-1, t, color="red", alpha=0.15)
+        ax.axvline(0, color="black", linestyle="--", linewidth=1)
+        ax.set_title(f"Persistence p = {p}")
+        ax.grid(alpha=0.2)
 
-    title = "DGP: Markov-switching AR(1)"
-    if innovation == "student":
-        title += f" with Student-t Innovations (df={df})"
-    else:
-        title += " with Gaussian Innovations"
+    axes[-1].set_xlabel("Forecast error")
+    axes[0].set_ylabel("Density")
 
-    plt.title(title)
-    plt.xlabel("Time")
-    plt.ylabel("y")
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper right")
+
+    plt.tight_layout()
+    plt.show()
+
+
+# =====================================================
+# 6) Bar charts for RMSE / MAE / Bias
+# =====================================================
+def plot_metric_bars(df, metric):
+    persistences = df["Persistence"].unique()
+    models = ["Global AR", "Rolling AR", "MS AR"]
+
+    x = np.arange(len(persistences))
+    width = 0.25
+
+    plt.figure(figsize=(9, 5))
+
+    for i, model in enumerate(models):
+        vals = (
+            df[df["Model"] == model]
+            .set_index("Persistence")
+            .loc[persistences][metric]
+            .values
+        )
+        plt.bar(x + (i - 1) * width, vals, width, label=model)
+
+    plt.xticks(x, persistences)
+    plt.xlabel("Regime Persistence")
+    plt.ylabel(metric)
+    plt.title(f"{metric} across Persistence Levels (Gaussian)")
     plt.legend()
     plt.tight_layout()
     plt.show()
 
 
 # =====================================================
-# 5) RUN — RESULTS FIRST, GRAPHS AFTER
+# 7) DGP plots (all persistence levels)
+# =====================================================
+def plot_dgp_by_persistence(
+    persistence_levels,
+    T=400,
+    phi0=0.2,
+    phi1=0.9,
+    seed=42
+):
+    rng = np.random.default_rng(seed)
+
+    fig, axes = plt.subplots(
+        len(persistence_levels),
+        1,
+        figsize=(10, 3 * len(persistence_levels)),
+        sharex=True
+    )
+
+    for ax, p in zip(axes, persistence_levels):
+        y, s = simulate_ms_ar1_phi_only(
+            T=T,
+            p00=p,
+            p11=p,
+            phi0=phi0,
+            phi1=phi1,
+            rng=rng
+        )
+
+        ax.plot(y, color="black", lw=1.2)
+
+        for t in range(1, T):
+            if s[t] == 1:
+                ax.axvspan(t - 1, t, color="pink", alpha=0.6)
+
+        ax.set_title(f"DGP: Markov-Switching AR(1), persistence p = {p}")
+        ax.set_ylabel(r"$y_t$")
+        ax.grid(alpha=0.2)
+
+    axes[-1].set_xlabel("Time")
+    plt.tight_layout()
+    plt.show()
+
+
+# =====================================================
+# 8) RUN
 # =====================================================
 if __name__ == "__main__":
 
-    # ---------- NUMERICAL RESULTS ----------
-    cases = [
-        ("Gaussian", "normal", None),
-        ("Student-t (df=10)", "student", 10),
-        ("Student-t (df=5)", "student", 5),
-        ("Student-t (df=3)", "student", 3),
-    ]
+    persistence_levels = [0.90, 0.95, 0.97, 0.995]
+    rows = []
+    err_by_p = {}
 
-    results = {}
+    for p in persistence_levels:
+        print(f"Running persistence p = {p}")
+        err = monte_carlo_recurring(p=p)
+        err_by_p[p] = err
 
-    for label, innov, df in cases:
-        g, r, m = monte_carlo_experiment(
-            innovation=innov,
-            df=df
-        )
-        results[label] = (g, r, m)
+        for model, e in err.items():
+            m = metrics(e)
+            rows.append({
+                "Persistence": p,
+                "Model": model,
+                "RMSE": m["RMSE"],
+                "MAE": m["MAE"],
+                "Bias": m["Bias"]
+            })
 
-        print(f"\n===== {label} Innovations =====")
-        print("Global AR:", g)
-        print("Rolling AR:", r)
-        print("MS AR:", m)
+    df_results = pd.DataFrame(rows)
 
-    # ---------- GRAPHS ----------
-    plot_ms_dgp(innovation="normal")
-    plot_ms_dgp(innovation="student", df=10)
-    plot_ms_dgp(innovation="student", df=5)
-    plot_ms_dgp(innovation="student", df=3)
+    print("\nForecast Performance — Recurring Instability (Gaussian)\n")
+    print(df_results)
+
+    plot_error_distributions_all(err_by_p, persistence_levels)
+    plot_metric_bars(df_results, "RMSE")
+    plot_metric_bars(df_results, "MAE")
+    plot_metric_bars(df_results, "Bias")
+    plot_dgp_by_persistence(persistence_levels)

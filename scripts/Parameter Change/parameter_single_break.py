@@ -2,10 +2,20 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import warnings
+import time
+
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 warnings.filterwarnings("ignore")
+
+# =====================================================
+# VERSION / EXECUTION CHECK (MUST BE AT TOP)
+# =====================================================
+print("RUNNING parameter_single_break.py")
+print("FILE:", __file__)
+print("=" * 60)
+
 
 # =====================================================
 # 1) DGP: AR(1) with SINGLE deterministic break in phi
@@ -31,15 +41,11 @@ def simulate_single_break_ar1(
         if innovation == "normal":
             eps = rng.normal(0.0, sigma)
         elif innovation == "student":
-            eps = (
-                rng.standard_t(df)
-                * sigma
-                / np.sqrt(df / (df - 2))
-            )
+            eps = rng.standard_t(df) * sigma / np.sqrt(df / (df - 2))
         else:
             raise ValueError("Unknown innovation")
 
-        y[t] = phi * y[t-1] + eps
+        y[t] = phi * y[t - 1] + eps
 
     return y
 
@@ -48,28 +54,41 @@ def simulate_single_break_ar1(
 # 2) Forecasting models (1-step ahead)
 # =====================================================
 def forecast_global_ar(y):
-    res = ARIMA(y, order=(1, 0, 0), trend="n").fit()
-    return float(res.forecast(1)[0])
+    return float(
+        ARIMA(y, order=(1, 0, 0), trend="n")
+        .fit()
+        .forecast(1)[0]
+    )
 
 
-def forecast_rolling_ar(y, window=120):
-    res = ARIMA(y[-window:], order=(1, 0, 0), trend="n").fit()
-    return float(res.forecast(1)[0])
+def forecast_rolling_ar(y, window=80):
+    return float(
+        ARIMA(y[-window:], order=(1, 0, 0), trend="n")
+        .fit()
+        .forecast(1)[0]
+    )
 
 
 def forecast_markov_switching_ar(y):
+    y_lag = y[:-1]
+    y_curr = y[1:]
+
     model = MarkovRegression(
-        y,
+        endog=y_curr,
         k_regimes=2,
         trend="n",
+        exog=y_lag.reshape(-1, 1),
+        switching_exog=True,
         switching_variance=False
     ).fit(disp=False)
 
-    phi0, phi1 = model.params[:2]
+    params = dict(zip(model.model.param_names, model.params))
     probs = model.filtered_marginal_probabilities[-1]
-    phi_hat = probs[0] * phi0 + probs[1] * phi1
 
-    return float(phi_hat * y[-1])
+    phi0 = params["x1[0]"]
+    phi1 = params["x1[1]"]
+
+    return float((probs[0] * phi0 + probs[1] * phi1) * y[-1])
 
 
 # =====================================================
@@ -78,32 +97,39 @@ def forecast_markov_switching_ar(y):
 def metrics(e):
     e = np.asarray(e)
     return {
-        "RMSE": float(np.sqrt(np.mean(e**2))),
-        "MAE":  float(np.mean(np.abs(e))),
+        "RMSE": float(np.sqrt(np.mean(e ** 2))),
+        "MAE": float(np.mean(np.abs(e))),
         "Bias": float(np.mean(e))
     }
 
 
 # =====================================================
-# 4) Monte Carlo — PRE & POST break (FAST, comparable)
+# 4) Monte Carlo — POST-BREAK ONLY (WITH PROGRESS)
 # =====================================================
-def monte_carlo_single_break(
+def monte_carlo_single_break_post(
     n_sim=300,
     T=400,
     Tb=200,
-    t_pre=150,
-    t_post=300,
-    window=120,
+    t_post=250,
+    window=80,
     innovation="normal",
     df=None,
     seed=123
 ):
     rng = np.random.default_rng(seed)
 
-    err_pre = {"Global AR": [], "Rolling AR": [], "MS AR": []}
-    err_post = {"Global AR": [], "Rolling AR": [], "MS AR": []}
+    err = {
+        "Global AR": [],
+        "Rolling AR": [],
+        "MS AR": []
+    }
 
-    for _ in range(n_sim):
+    print(f"--- Monte Carlo START | innovation={innovation}, df={df} ---")
+
+    for i in range(n_sim):
+        if i % 50 == 0:
+            print(f"  MC iteration {i}/{n_sim}")
+
         y = simulate_single_break_ar1(
             T=T,
             Tb=Tb,
@@ -112,150 +138,140 @@ def monte_carlo_single_break(
             rng=rng
         )
 
-        # --- pre-break forecast ---
-        y_train = y[:t_pre]
-        y_true = y[t_pre]
-
-        err_pre["Global AR"].append(y_true - forecast_global_ar(y_train))
-        err_pre["Rolling AR"].append(y_true - forecast_rolling_ar(y_train, window))
-        err_pre["MS AR"].append(y_true - forecast_markov_switching_ar(y_train))
-
-        # --- post-break forecast ---
         y_train = y[:t_post]
         y_true = y[t_post]
 
-        err_post["Global AR"].append(y_true - forecast_global_ar(y_train))
-        err_post["Rolling AR"].append(y_true - forecast_rolling_ar(y_train, window))
-        err_post["MS AR"].append(y_true - forecast_markov_switching_ar(y_train))
+        err["Global AR"].append(y_true - forecast_global_ar(y_train))
+        err["Rolling AR"].append(y_true - forecast_rolling_ar(y_train, window))
+        err["MS AR"].append(y_true - forecast_markov_switching_ar(y_train))
 
-    return {
-        "Pre-break": {k: metrics(v) for k, v in err_pre.items()},
-        "Post-break": {k: metrics(v) for k, v in err_post.items()}
-    }
+    print(f"--- Monte Carlo END | innovation={innovation} ---\n")
 
-
-# =====================================================
-# 5) Convert results to Power BI–ready table
-# =====================================================
-def results_to_rows(results, scenario, innovation):
-    rows = []
-    for period, models in results.items():
-        for model, stats in models.items():
-            rows.append({
-                "Scenario": scenario,
-                "Innovation": innovation,
-                "Period": period,
-                "Model": model,
-                "RMSE": stats["RMSE"],
-                "MAE": stats["MAE"],
-                "Bias": stats["Bias"]
-            })
-    return rows
+    return err
 
 
 # =====================================================
-# 6) Visualization — DGP only
+# 5) Plots
 # =====================================================
-def plot_single_break_dgp(T=400, Tb=200, innovation="normal", df=None, seed=42):
-    rng = np.random.default_rng(seed)
-    y = simulate_single_break_ar1(
-        T=T, Tb=Tb, innovation=innovation, df=df, rng=rng
-    )
+def plot_combined_distributions(all_err):
+    fig, axes = plt.subplots(3, 1, figsize=(10, 9), sharex=True)
 
-    plt.figure(figsize=(10, 4))
-    plt.plot(y, color="black", lw=1.5, label="y_t")
-    plt.axvline(Tb, color="red", linestyle="--", label="True break")
+    for ax, (label, err) in zip(axes, all_err.items()):
+        for model, e in err.items():
+            ax.hist(e, bins=40, density=True, alpha=0.4, label=model)
 
-    plt.title("DGP: AR(1) with Single Structural Break in Persistence")
-    plt.xlabel("Time")
-    plt.ylabel("y")
+        ax.axvline(0, color="black", linestyle="--", linewidth=1)
+        ax.set_title(f"Forecast Error Distribution — {label}")
+        ax.set_ylabel("Density")
+        ax.legend()
+
+    axes[-1].set_xlabel("Forecast error")
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_rmse_by_innovation(df_results):
+    innovations = ["Gaussian", "Student-t df=100", "Student-t df=50"]
+    models = ["Global AR", "Rolling AR", "MS AR"]
+
+    x = np.arange(len(innovations))
+    width = 0.25
+
+    plt.figure(figsize=(8, 5))
+
+    for i, model in enumerate(models):
+        vals = [
+            df_results.loc[
+                (df_results["Innovation"] == innov) &
+                (df_results["Model"] == model),
+                "RMSE"
+            ].values[0]
+            for innov in innovations
+        ]
+        plt.bar(x + (i - 1) * width, vals, width, label=model)
+
+    plt.xticks(x, innovations)
+    plt.xlabel("Innovation")
+    plt.ylabel("RMSE")
+    plt.title("RMSE by Innovation Distribution and Model")
     plt.legend()
     plt.tight_layout()
     plt.show()
 
 
-# =====================================================
-# 7) Visualization — DGP + forecasts
-# =====================================================
-def plot_single_break_forecasts(
+def plot_single_break_dgp(
     T=400,
     Tb=200,
-    t_start=50,
-    window=120,
-    innovation="normal",
-    df=None,
+    phi1=0.2,
+    phi2=0.9,
     seed=42
 ):
     rng = np.random.default_rng(seed)
+
     y = simulate_single_break_ar1(
-        T=T, Tb=Tb, innovation=innovation, df=df, rng=rng
+        T=T,
+        Tb=Tb,
+        phi1=phi1,
+        phi2=phi2,
+        innovation="normal",
+        rng=rng
     )
 
-    fg, fr, fm = [], [], []
-
-    for t in range(T - 1):
-        if t < t_start:
-            fg.append(np.nan)
-            fr.append(np.nan)
-            fm.append(np.nan)
-            continue
-
-        y_train = y[:t + 1]
-
-        fg.append(forecast_global_ar(y_train))
-        fr.append(forecast_rolling_ar(y_train, window))
-        fm.append(forecast_markov_switching_ar(y_train))
-
     plt.figure(figsize=(10, 4))
-    plt.plot(y, color="black", lw=2, label="True y_t")
-    plt.plot(fg, "--", label="Global AR")
-    plt.plot(fr, "--", label="Rolling AR")
-    plt.plot(fm, "--", label="Markov-switching AR")
-    plt.axvline(Tb, color="red", linestyle=":", label="True break")
-
-    plt.title("One-step-ahead Forecasts Around a Structural Break")
+    plt.plot(y, color="black", lw=1.4)
+    plt.axvline(Tb, color="red", linestyle="--", linewidth=2)
     plt.xlabel("Time")
-    plt.ylabel("y")
-    plt.legend()
+    plt.ylabel(r"$y_t$")
+    plt.title("DGP: Single Deterministic Parameter Break")
     plt.tight_layout()
     plt.show()
 
 
 # =====================================================
-# 8) RUN — RESULTS FIRST, GRAPHS AFTER
+# 6) RUN
 # =====================================================
 if __name__ == "__main__":
 
-    all_rows = []
-
     cases = [
-        ("Single break", "Gaussian", "normal", None),
-        ("Single break", "Student-t df=10", "student", 10),
-        ("Single break", "Student-t df=5", "student", 5),
-        ("Single break", "Student-t df=3", "student", 3),
+        ("Gaussian", "normal", None),
+        ("Student-t df=100", "student", 100),
+        ("Student-t df=50", "student", 50),
     ]
 
-    # --------- NUMERICAL RESULTS ---------
-    for scenario, label, innov, df in cases:
-        res = monte_carlo_single_break(
+    all_err = {}
+    rows = []
+
+    print("\n=== SINGLE BREAK: POST-BREAK FORECAST EXPERIMENT ===\n")
+
+    for label, innov, df in cases:
+        start = time.time()
+
+        err = monte_carlo_single_break_post(
             innovation=innov,
             df=df
         )
 
-        all_rows.extend(
-            results_to_rows(res, scenario, label)
-        )
+        elapsed = time.time() - start
+        print(f"Finished {label} in {elapsed:.2f} seconds\n")
 
-    df_results = pd.DataFrame(all_rows)
-    print("\n=== FINAL RESULTS TABLE ===\n")
+        all_err[label] = err
+
+        for model, e in err.items():
+            m = metrics(e)
+            rows.append({
+                "Scenario": "Single break (post-break)",
+                "Innovation": label,
+                "Model": model,
+                "RMSE": m["RMSE"],
+                "MAE": m["MAE"],
+                "Bias": m["Bias"]
+            })
+
+    df_results = pd.DataFrame(rows)
+
+    print("\nPOST-BREAK FORECAST RESULTS (SINGLE BREAK)\n")
     print(df_results.to_string(index=False))
 
-    # Export for Power BI
-    df_results.to_csv("single_break_results.csv", index=False)
-
-    # --------- VISUALIZATIONS ---------
-    plot_single_break_dgp(innovation="normal")
-    plot_single_break_forecasts(innovation="normal")
-
-    plot_single_break_dgp(innovation="student", df=5)
-    plot_single_break_forecasts(innovation="student", df=5)
+    plot_combined_distributions(all_err)
+    plot_rmse_by_innovation(df_results)
+    plot_single_break_dgp()
