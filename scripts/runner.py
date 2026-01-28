@@ -45,13 +45,13 @@ def _check_dependencies():
 # run dependency check early
 _check_dependencies()
 
-from analyses.variance_break_simulations import mc_variance_breaks, mc_variance_breaks_grid
+from analyses.simulations import mc_variance_breaks, mc_variance_breaks_grid
 from dgps.static import simulate_variance_break
 from estimators.forecasters import (
-    forecast_dist_arima_rolling,
-    log_score_normal,
-    interval_coverage,
-    rmse_mae_bias,
+    forecast_variance_dist_arima_rolling,
+    variance_log_score_normal,
+    variance_interval_coverage,
+    variance_rmse_mae_bias,
 )
 import numpy as np
 import pandas as pd
@@ -153,7 +153,7 @@ def main():
         scenarios = load_scenarios(args.scenarios)
     else:
         scenarios = [
-            {"name": "Single variance break", "Tb": max(2, T//2), "sigma1": 1.0, "sigma2": 2.0, "task": "variance", "owner": "aadya"}
+            {"name": "Single variance break", "variance_Tb": max(2, T//2), "variance_sigma1": 1.0, "variance_sigma2": 2.0, "task": "variance", "owner": "aadya"}
         ]
 
     # scenarios may contain entries for different tasks/owners. We'll dispatch per scenario.
@@ -168,8 +168,8 @@ def main():
 
         print(f"\nRunning scenario '{name}' (task={task}, owner={owner})")
 
-        if task == 'variance':
-            # pass a single-scenario list to mc_variance_breaks so output rows are scenario-scoped
+        if task in ["variance", "mean", "parameter"]:
+            # use the unified mc_variance_breaks (which now handles all task types)
             df_point, df_unc = mc_variance_breaks(n_sim=n_sim, T=T, phi=args.phi, window=window, horizon=horizon, scenarios=[sc])
         elif args.sp500:
             # Run S&P application on returns
@@ -196,29 +196,6 @@ def main():
                 df_unc = pd.DataFrame()
             except Exception as e:
                 print('S&P application failed:', e)
-                continue
-        elif task == 'parameter':
-            # attempt to run parameter-change module if present
-            try:
-                PC_DIR = os.path.join(ROOT, 'Parameter Change')
-                if PC_DIR not in sys.path:
-                    sys.path.insert(0, PC_DIR)
-                import parameter_change as pc
-                # try common entrypoints used in Parameter Change modules
-                if hasattr(pc, 'monte_carlo_single_break'):
-                    p_point, p_unc = pc.monte_carlo_single_break(n_sim=n_sim, T=T, Tb=sc.get('Tb', T//2), window=window)
-                    # standardize to DataFrame rows
-                    df_point = pd.DataFrame([{
-                        'Scenario': name,
-                        'Metric': k,
-                        'ARIMA Global': v
-                    } for k, v in p_point.items()])
-                    df_unc = pd.DataFrame([])
-                else:
-                    print('Parameter module does not expose expected entrypoint; skipping')
-                    continue
-            except Exception as e:
-                print('Parameter task failed to run:', e)
                 continue
         else:
             print('Unknown task', task, '- skipping')
@@ -251,12 +228,6 @@ def main():
         combined_u = pd.concat(all_unc, ignore_index=True) if any(len(df)>0 for df in all_unc) else pd.DataFrame()
         return combined_p, combined_u
     return None, None
-    if args.plot:
-        try:
-            fpath = plot_and_save(df_point, df_unc, tag=args.tag)
-            print('Saved figure to:', fpath)
-        except Exception as e:
-            print('Plotting failed:', e)
 
 
 if __name__ == '__main__':

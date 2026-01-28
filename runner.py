@@ -2,7 +2,7 @@
 
 Delegates to the canonical analysis runner.
 """
-from analyses.variance_break_simulations import main
+from analyses.simulations import main
 
 
 if __name__ == '__main__':

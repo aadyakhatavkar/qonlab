@@ -55,9 +55,9 @@ def _auto_select_arima_order(y_train, max_p=5, max_d=2, max_q=5, method='aic'):
     return best_order
 
 
-def forecast_dist_arima_global(y_train, horizon=1, order=None, auto_select=True):
+def forecast_variance_dist_arima_global(y_train, horizon=1, order=None, auto_select=True):
     """
-    Forecast using global ARIMA model.
+    Forecast using global ARIMA model, providing both mean and variance.
     
     Parameters:
         y_train: Training data
@@ -80,9 +80,9 @@ def forecast_dist_arima_global(y_train, horizon=1, order=None, auto_select=True)
     return mean, var
 
 
-def forecast_dist_arima_rolling(y_train, window=100, horizon=1, order=None, auto_select=True):
+def forecast_variance_dist_arima_rolling(y_train, window=100, horizon=1, order=None, auto_select=True):
     """
-    Forecast using rolling window ARIMA model.
+    Forecast using rolling window ARIMA model, providing both mean and variance.
     
     Parameters:
         y_train: Training data
@@ -122,7 +122,7 @@ def forecast_garch_variance(y_train, horizon=1, p=1, q=1):
     return mean, var
 
 
-def forecast_arima_post_break(y_train, horizon=1, order=None, auto_select=True):
+def forecast_variance_arima_post_break(y_train, horizon=1, order=None, auto_select=True):
     """
     Detect variance break point and forecast from post-break regime only.
     
@@ -140,13 +140,13 @@ def forecast_arima_post_break(y_train, horizon=1, order=None, auto_select=True):
     y = np.asarray(y_train, dtype=float)
     
     # Estimate break point
-    Tb_hat = estimate_variance_break_point(y, trim=0.15)
+    v_Tb_hat = estimate_variance_break_point(y, trim=0.15)
     
     # Fit ARIMA to post-break data only
-    y_post = y[Tb_hat+1:]
+    y_post = y[v_Tb_hat+1:]
     if len(y_post) < 10:
         # Fall back to global if not enough post-break data
-        return forecast_dist_arima_global(y_train, horizon=horizon, order=order, auto_select=auto_select)
+        return forecast_variance_dist_arima_global(y_train, horizon=horizon, order=order, auto_select=auto_select)
     
     if order is None and auto_select:
         order = _auto_select_arima_order(y_post)
@@ -171,7 +171,7 @@ def forecast_lstm(y_train, horizon=1, lookback=20, epochs=30):
     )
 
 
-def forecast_averaged_window(y_train, window_sizes=[20, 50, 100], horizon=1, order=None, auto_select=True):
+def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horizon=1, order=None, auto_select=True):
     """
     Forecast by averaging forecasts across multiple window sizes.
     
@@ -188,28 +188,51 @@ def forecast_averaged_window(y_train, window_sizes=[20, 50, 100], horizon=1, ord
     if isinstance(window_sizes, int):
         window_sizes = [window_sizes]
 
-    means = []
-    vars = []
+    variance_means = []
+    variance_vars = []
 
     for ws in window_sizes:
         try:
-            mean, var = forecast_dist_arima_rolling(
+            mean, var = forecast_variance_dist_arima_rolling(
                 y_train, window=ws, horizon=horizon, order=order, auto_select=auto_select
             )
-            means.append(mean)
-            vars.append(var)
+            variance_means.append(mean)
+            variance_vars.append(var)
         except Exception:
             continue
 
-    if not means:
-        return forecast_dist_arima_global(y_train, horizon=horizon, order=order, auto_select=auto_select)
+    if not variance_means:
+        return forecast_variance_dist_arima_global(y_train, horizon=horizon, order=order, auto_select=auto_select)
 
-    mean_avg = np.mean(np.array(means), axis=0)
-    var_avg = np.mean(np.array(vars), axis=0)
+    mean_avg = np.mean(np.array(variance_means), axis=0)
+    var_avg = np.mean(np.array(variance_vars), axis=0)
     return mean_avg, var_avg
 
 
-def rmse_mae_bias(y_true, y_pred):
+def forecast_markov_switching(y_train, horizon=1, k_regimes=2, switching_variance=False):
+    """
+    Forecasting using Markov Switching regression.
+    """
+    try:
+        from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
+    except ImportError:
+        return np.full(horizon, np.nan), np.full(horizon, np.nan)
+
+    y = np.asarray(y_train, dtype=float)
+    try:
+        model = MarkovRegression(y, k_regimes=k_regimes, trend="c", switching_variance=switching_variance).fit(disp=False)
+        # Predict next steps
+        # MarkovRegression in statsmodels doesn't always support direct h-step var_pred_mean easily
+        # but we can get the predicted means.
+        pred_mean = model.predict(start=len(y), end=len(y) + horizon - 1)
+        # For variance, we use the estimated sigma2 of the current regime or average
+        sigma2 = model.sigma2
+        return np.asarray(pred_mean), np.full(horizon, sigma2)
+    except Exception:
+        return np.full(horizon, np.nan), np.full(horizon, np.nan)
+
+
+def variance_rmse_mae_bias(y_true, y_pred):
     err = y_true - y_pred
     rmse = float(np.sqrt(np.mean(err ** 2)))
     mae = float(np.mean(np.abs(err)))
@@ -217,7 +240,7 @@ def rmse_mae_bias(y_true, y_pred):
     return rmse, mae, bias
 
 
-def interval_coverage(y_true, mean, var, level=0.95):
+def variance_interval_coverage(y_true, mean, var, level=0.95):
     z = norm.ppf(0.5 + level / 2.0)
     sd = np.sqrt(np.maximum(var, 1e-12))
     lo = mean - z * sd
@@ -225,7 +248,7 @@ def interval_coverage(y_true, mean, var, level=0.95):
     return float(np.mean((y_true >= lo) & (y_true <= hi)))
 
 
-def log_score_normal(y_true, mean, var):
+def variance_log_score_normal(y_true, mean, var):
     y_true = np.asarray(y_true)
     mean = np.asarray(mean)
     var = np.asarray(var)

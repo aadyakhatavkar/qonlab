@@ -1,18 +1,18 @@
 [
   {
     "name": "Single variance break small",
-    "Tb": 40,
-    "sigma1": 1.0,
-    "sigma2": 2.0,
+    "variance_Tb": 40,
+    "variance_sigma1": 1.0,
+    "variance_sigma2": 2.0,
     "task": "variance",
     "owner": "aadya",
     "tag": "variance_small"
   },
   {
     "name": "Late variance break",
-    "Tb": 80,
-    "sigma1": 1.0,
-    "sigma2": 3.0,
+    "variance_Tb": 80,
+    "variance_sigma1": 1.0,
+    "variance_sigma2": 3.0,
     "task": "variance",
     "owner": "aadya",
     "tag": "variance_late"
@@ -26,5 +26,16 @@
     "task": "parameter",
     "owner": "mahir",
     "tag": "param_single"
+  },
+  {
+    "name": "Single mean break example",
+    "Tb": 150,
+    "mu0": 0.0,
+    "mu1": 2.0,
+    "phi": 0.6,
+    "sigma": 1.0,
+    "task": "mean",
+    "owner": "aadya",
+    "tag": "mean_single"
   }
 ]

@@ -10,12 +10,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from dgps.static import simulate_variance_break
-from analyses.variance_break_simulations import mc_variance_breaks_grid
+from analyses.simulations import mc_variance_breaks_grid
 from estimators.forecasters import (
-    forecast_dist_arima_rolling,
-    log_score_normal,
-    interval_coverage,
-    rmse_mae_bias,
+    forecast_variance_dist_arima_rolling,
+    variance_log_score_normal,
+    variance_interval_coverage,
+    variance_rmse_mae_bias,
 )
 
 # Set style
@@ -101,21 +101,21 @@ def plot_logscore_comparison():
         for method in methods:
             logscore_values = []
             for sim in range(n_sims):
-                y = simulate_variance_break(T=200, Tb=100, sigma1=1.0, sigma2=3.0)
+                y = simulate_variance_break(T=200, variance_Tb=100, variance_sigma1=1.0, variance_sigma2=3.0)
                 y_train = y[:-20]
                 y_test = y[-20:]
                 try:
                     if method == 'ARIMA Global':
-                        mean, var = forecast_dist_arima_rolling(y_train, window=200, horizon=20)
+                        mean, var = forecast_variance_dist_arima_rolling(y_train, window=200, horizon=20)
                     elif method == 'ARIMA Rolling':
-                        mean, var = forecast_dist_arima_rolling(y_train, window=window, horizon=20)
+                        mean, var = forecast_variance_dist_arima_rolling(y_train, window=window, horizon=20)
                     elif method == 'GARCH':
                         try:
                             mean, var = forecast_garch_variance(y_train, horizon=20)
                         except Exception:
                             mean = np.full(20, np.nan)
                             var = np.full(20, np.nan)
-                    ls = log_score_normal(y_test, mean, var)
+                    ls = variance_log_score_normal(y_test, mean, var)
                     if np.isfinite(ls):
                         logscore_values.append(ls)
                 except:
@@ -142,10 +142,10 @@ def plot_logscore_comparison():
 def plot_time_series_example():
     print("\n[3/3] Generating Time Series visualization...")
     np.random.seed(42)
-    y = simulate_variance_break(T=250, Tb=125, sigma1=1.0, sigma2=3.0)
+    y = simulate_variance_break(T=250, variance_Tb=125, variance_sigma1=1.0, variance_sigma2=3.0)
     y_train = y[:200]
     y_test = y[200:]
-    mean_arima, var_arima = forecast_dist_arima_rolling(y_train, window=50, horizon=len(y_test))
+    mean_arima, var_arima = forecast_variance_dist_arima_rolling(y_train, window=50, horizon=len(y_test))
     try:
         mean_garch, var_garch = forecast_garch_variance(y_train, horizon=len(y_test))
     except Exception:

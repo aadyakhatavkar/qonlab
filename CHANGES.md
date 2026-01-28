@@ -9,6 +9,21 @@ This document outlines the implementation of recommendations from the technical 
 
 ---
 
+## Technical Update: Consolidating and Generalizing (January 28, 2026)
+
+### Structural Changes
+- **Directory Renaming:** Renamed "Mean Change" to `mean_change` and "Parameter Change" to `parameter_change` in `scripts/` for consistency.
+- **Unified Simulation Engine:** Renamed `analyses/variance_break_simulations.py` to `analyses/simulations.py` and generalized it to handle variance, mean, and parameter breaks.
+- **Unified Runner:** Renamed `scripts/variance_runner.py` to `scripts/runner.py`.
+- **Integrated DGPs:** Moved `simulate_mean_break` and `simulate_parameter_break` to `dgps/static.py`.
+- **Integrated Estimators:** Added `forecast_markov_switching` to `estimators/forecasters.py`.
+
+### Scenario Consolidation
+- Updated `scenarios/example_scenarios.json` to include specific scenarios for mean change and parameter change tasks.
+- Improved validation in `dgps/static.py` to support multi-task scenarios.
+
+---
+
 ## 1. Addressing Scaling and Distribution Issues
 
 ### Changes in `dgps/static.py`
@@ -26,10 +41,10 @@ This document outlines the implementation of recommendations from the technical 
 - Example usage:
   ```python
   # Normal distribution (default)
-  y = simulate_variance_break(T=400, Tb=200, sigma1=1.0, sigma2=2.0)
+  y = simulate_variance_break(T=400, variance_Tb=200, variance_sigma1=1.0, variance_sigma2=2.0)
   
   # Heavy-tailed with T(ν=3), standardized to variance 1
-  y = simulate_variance_break(T=400, Tb=200, distribution='t', nu=3, sigma1=1.0, sigma2=2.0)
+  y = simulate_variance_break(T=400, variance_Tb=200, distribution='t', nu=3, variance_sigma1=1.0, variance_sigma2=2.0)
   ```
 
 #### New Functions for Realized Volatility
@@ -62,22 +77,22 @@ This document outlines the implementation of recommendations from the technical 
   - `method`: 'aic' or 'bic' selection criterion
 - **Fallback:** Returns AR(1) for very short series (<20 observations)
 
-#### Updated: `forecast_dist_arima_global()`
+#### Updated: `forecast_variance_dist_arima_global()`
 - Changed `order` parameter from required to optional
 - Default behavior: auto-selects order if not specified (`auto_select=True`)
 - Can disable auto-selection by setting `auto_select=False` and providing `order`
 - Backward compatible: existing code with explicit `order` still works
 
-#### Updated: `forecast_dist_arima_rolling()`
+#### Updated: `forecast_variance_dist_arima_rolling()`
 - Same auto-selection capability as global variant
 - Auto-selects on rolling window data
 - Adapts to regime-specific dynamics
 
-#### Updated: `forecast_arima_post_break()`
+#### Updated: `forecast_variance_arima_post_break()`
 - Auto-selects order from post-break data
 - Falls back to global model if insufficient post-break observations
 
-#### Updated: `forecast_averaged_window()`
+#### Updated: `forecast_variance_averaged_window()`
 - Supports auto-selection across all window sizes
 - Averages forecasts from models with potentially different selected orders
 
@@ -164,13 +179,13 @@ All changes maintain **full backward compatibility**:
 
 Example:
 ```python
-# Old code still works without changes
-y = simulate_variance_break(T=400, Tb=200, sigma1=1.0, sigma2=2.0)
-mean, var = forecast_dist_arima_rolling(y_train, window=100, horizon=20)
+# Old code still works without changes (with new variance-prefixed arguments)
+y = simulate_variance_break(T=400, variance_Tb=200, variance_sigma1=1.0, variance_sigma2=2.0)
+mean, var = forecast_variance_dist_arima_rolling(y_train, window=100, horizon=20)
 
 # New functionality optionally available
 y_t = simulate_variance_break(..., distribution='t', nu=3)
-mean, var = forecast_dist_arima_rolling(y_train, window=100, horizon=20)  # auto-selects order
+mean, var = forecast_variance_dist_arima_rolling(y_train, window=100, horizon=20)  # auto-selects order
 ```
 
 ---

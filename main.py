@@ -32,17 +32,17 @@ def main():
     args, remaining = parser.parse_known_args()
 
     if args.cmd == 'mc':
-        # delegate to analyses.mc.main
-        from analyses import variance_break_simulations as mc_mod
+        # delegate to analyses.simulations.main
+        from analyses import simulations as mc_mod
         # pass through remaining args via sys.argv for the delegated module
         sys.argv = [sys.argv[0]] + remaining
         return _call_module_main(mc_mod, remaining)
 
     if args.cmd == 'runner':
-        # delegate to scripts.variance_runner.main
-        from scripts import variance_runner
+        # delegate to scripts.runner.main
+        from scripts import runner
         sys.argv = [sys.argv[0]] + remaining
-        return _call_module_main(variance_runner, remaining)
+        return _call_module_main(runner, remaining)
 
     parser.print_help()
     return 0
