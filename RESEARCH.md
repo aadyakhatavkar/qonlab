@@ -1,158 +1,175 @@
 # Research Documentation
 
-## Project: Forecasting Under Structural Breaks
+## Project: Structural Break Forecasting — A Monte Carlo Study
 
-**Research Module:** Fundamentals of Monte Carlo Simulations in Data Science  
+**Course:** Fundamentals of Monte Carlo Simulations in Data Science  
 **Institution:** University of Bonn  
-**Semester:** Winter 2025/26  
-**Course Website:** [vladislav-morozov.github.io/simulations-course](https://vladislav-morozov.github.io/simulations-course/)
-
----
-
-## 📄 Documentation Overview
-
-| Document | Location | Description |
-|----------|----------|-------------|
-| **Research Proposal** | `docs/research_proposal.md` | Formal research plan and timeline |
-| **LaTeX Paper** | `docs/paper/main.tex` | Academic paper (compile with `make`) |
-| **Methods PDF** | `RM_methods_explanation.pdf` | Original methods documentation |
-| **Changelog** | `CHANGES.md` | Technical implementation log |
+**Author:** Aadya Khatavkar (s38akhat@uni-bonn.de)  
+**Semester:** Winter 2025/26
 
 ---
 
 ## 🎯 Research Questions
 
-1. **Primary:** How do different forecasting methods perform under structural breaks?
-2. **Secondary:** What is the cost of not knowing break dates in terms of forecast accuracy?
-3. **Practical:** Can adaptive methods provide alternatives to oracle specifications?
+1. How do forecasting methods perform under variance, mean, and parameter breaks?
+2. What is the optimal rolling window size for different break magnitudes?
+3. How do heavy-tailed (Student-$t$) distributions affect results?
+4. Can adaptive methods match oracle specifications?
 
 ---
 
-## 🔬 Methodology Summary
+## 📊 Work Completed
 
-### Data-Generating Processes
+### Data-Generating Processes (`dgps/static.py`)
 
-| Break Type | Location | Implementation |
-|------------|----------|----------------|
-| Mean break | `dgps/static.py` | `simulate_mean_break()` |
-| Variance break | `dgps/static.py` | `simulate_variance_break()` |
-| Parameter break | `dgps/static.py` | `simulate_parameter_break()` |
+| Function | Break Type | Key Parameters |
+|----------|------------|----------------|
+| `simulate_variance_break()` | Variance | $\sigma_1, \sigma_2, T_b$, distribution |
+| `simulate_mean_break()` | Mean | $\mu_0, \mu_1, T_b$ |
+| `simulate_parameter_break()` | Parameter | $\phi_1, \phi_2, T_b$ |
+| `simulate_realized_volatility()` | RV | intervals_per_day |
+| `_generate_t_innovations()` | — | $\nu$ (degrees of freedom) |
+| `estimate_variance_break_point()` | Detection | trim parameter |
 
-### Forecasting Methods
+### Forecasting Methods (`estimators/forecasters.py`)
 
-| Method | Implementation | Break Knowledge |
-|--------|----------------|-----------------|
-| Global AR(1) | `estimators/forecasters.py` | None |
-| Rolling AR(1) | `estimators/forecasters.py` | None |
-| GARCH | `estimators/forecasters.py` | None |
-| Post-break ARIMA | `estimators/forecasters.py` | Estimated |
+| Function | Description |
+|----------|-------------|
+| `forecast_variance_dist_arima_global()` | Full-sample ARIMA with auto-order |
+| `forecast_variance_dist_arima_rolling()` | Rolling-window ARIMA |
+| `forecast_garch_variance()` | GARCH(1,1) |
+| `forecast_variance_arima_post_break()` | Post-break ARIMA |
+| `forecast_variance_averaged_window()` | Ensemble over windows |
+| `forecast_markov_switching()` | Markov regime-switching |
+| `_auto_select_arima_order()` | AIC/BIC order selection |
 
-### Monte Carlo Engine
+### Evaluation Metrics
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| Main MC runner | `analyses/simulations.py` | Run experiments |
-| Grid search | `analyses/simulations.py` | Optimal window selection |
-| Visualization | `analyses/plots.py` | Generate figures |
+| Metric | Type | Function |
+|--------|------|----------|
+| RMSE, MAE, Bias | Point | `variance_rmse_mae_bias()` |
+| Coverage 80%, 95% | Uncertainty | `variance_interval_coverage()` |
+| Log-score | Uncertainty | `variance_log_score_normal()` |
+
+### Monte Carlo Engine (`analyses/simulations.py`)
+
+| Function | Purpose |
+|----------|---------|
+| `mc_variance_breaks()` | Main MC simulation |
+| `mc_variance_breaks_grid()` | Grid search for optimal window |
+
+### Visualization (`analyses/plots.py`)
+
+- `plot_loss_surfaces()` — RMSE heatmaps
+- `plot_logscore_comparison()` — Method × window comparison
+- `plot_time_series_example()` — Forecast visualization
 
 ---
 
-## 📊 Evaluation Metrics
+## 🔧 Key Technical Features
 
-### Point Forecast Accuracy
-- **RMSE** (Root Mean Squared Error) — penalizes large errors
-- **MAE** (Mean Absolute Error) — typical error magnitude
-- **Bias** — systematic over/under-forecasting
+1. **Heavy-tailed distributions**: Student-$t$ with standardization
+2. **Automatic ARIMA order selection**: AIC/BIC grid search
+3. **Unified simulation engine**: Handles all break types
+4. **Realized volatility**: High-frequency data support
+5. **Scenario-based configuration**: JSON files
 
-### Uncertainty Quantification
-- **Coverage 80%** — nominal interval accuracy
-- **Coverage 95%** — nominal interval accuracy
-- **Log-score** — proper scoring rule for probabilistic forecasts
+---
+
+## 📓 Notebooks
+
+| Notebook | Purpose | Status |
+|----------|---------|--------|
+| `Variance_Change_Documentation.ipynb` | Full documentation | ✅ Runnable |
+| `variance_workflow.ipynb` | Quick demo | ✅ Runnable |
+
+---
+
+## 📄 Paper Structure (`docs/paper/main.tex`)
+
+1. **Introduction** — Research questions, motivation
+2. **Data-Generating Processes** — Variance, mean, parameter breaks
+3. **Forecasting Methods** — ARIMA, GARCH, Markov, etc.
+4. **Monte Carlo Design** — Simulation procedure, grid search
+5. **Evaluation Metrics** — RMSE, Coverage, Log-score
+6. **Implementation Summary** — Code organization
+7. **Results** — Tables (placeholder for simulation output)
+8. **Conclusion** — Summary and future work
 
 ---
 
 ## 🚀 Running Experiments
 
 ```bash
-# Quick test (CI/development)
+# Quick test
 python main.py mc --quick
 
-# Standard run (200 replications)
-python main.py mc --n-sim 200
+# Full simulation
+python main.py mc --n-sim 200 --T 400 --horizon 20
 
-# Grid search for optimal window
+# Grid search
 python main.py mc --grid
 
-# Full production run
-python main.py mc --n-sim 500 --T 400 --horizon 20
+# Custom scenarios
+python main.py mc --scenarios scenarios/example_scenarios.json
+
+# Generate plots
+python -m analyses.plots
 ```
 
 ---
 
-## 📝 Compiling the Paper
+## 🧪 Testing
 
 ```bash
-cd docs/paper
-make          # Compile main.pdf
-make clean    # Remove auxiliary files
-make view     # Open PDF (Linux/Mac)
+pytest tests/ -v
 ```
 
 ---
 
-## 📚 Key References
+## 📚 References
 
-1. **Pesaran (2013)** — Structural breaks in forecasting
-2. **Box & Jenkins (1970)** — ARIMA methodology
-3. **Hamilton (1989)** — Markov switching models
-4. **Bai & Perron (1998)** — Multiple structural breaks
-
----
-
-## 📁 Project Structure
-
-```
-qonlab/
-├── docs/
-│   ├── paper/              # LaTeX thesis/paper
-│   │   ├── main.tex
-│   │   ├── main.pdf        # Compiled output
-│   │   ├── bibliography.bib
-│   │   └── Makefile
-│   └── research_proposal.md
-├── experiments/            # Experiment configurations
-│   ├── README.md
-│   └── mean_break_config.json
-├── dgps/                   # Data-generating processes
-├── estimators/             # Forecasting methods
-├── analyses/               # Monte Carlo simulations
-├── scripts/                # Task runners
-├── tests/                  # Test suite
-├── CHANGES.md              # Technical changelog
-├── RESEARCH.md             # This file
-└── README.md               # Quick start guide
-```
+- Pesaran (2013) — Structural breaks in forecasting
+- Francq & Zakoïan (2019) — GARCH models
+- Bollerslev (1986) — GARCH
+- Box & Jenkins (1970) — ARIMA
+- Hamilton (1989) — Markov switching
 
 ---
 
-## ✅ Course Deliverables Checklist
+## 🔜 Future Work
 
-- [x] Simulation design and implementation
-- [x] Replicable Python code
-- [x] Reproducible experiment configurations
-- [x] LaTeX paper/thesis
-- [ ] Results tables and figures
-- [ ] Public presentation
-- [ ] Final submission
+1. S&P 500 realized volatility (Thomson Reuters Eikon)
+2. Multi-step ahead forecasting
+3. ARIMA + GARCH ensembles
+4. Online break detection
 
 ---
 
-## 🔄 Version History
+## 📝 Presentation Outline
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-01-28 | Initial academic structure, LaTeX paper, experiment configs |
+For the course presentation:
+
+1. **Motivation** (2 min) — Why structural breaks matter
+2. **DGPs** (3 min) — Three break types
+3. **Methods** (5 min) — ARIMA, GARCH, rolling windows
+4. **Monte Carlo Design** (3 min) — Simulation setup
+5. **Results** (5 min) — Tables, loss surfaces
+6. **Conclusion** (2 min) — Practical implications
 
 ---
 
-**Contact:** Aadya Khatavkar — s6aakhat@uni-bonn.de
+## ✅ Deliverables Checklist
+
+- [x] DGP implementations
+- [x] Forecasting methods
+- [x] MC simulation engine
+- [x] Evaluation metrics
+- [x] Heavy-tailed extensions
+- [x] Auto ARIMA selection
+- [x] Grid search (Pesaran 2013)
+- [x] Visualization utilities
+- [x] LaTeX paper
+- [x] Documentation notebooks
+- [ ] Final simulation results
+- [ ] Presentation slides

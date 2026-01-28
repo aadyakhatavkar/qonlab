@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  28 JAN 2026 19:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  28 JAN 2026 20:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -415,20 +415,7 @@ Package caption Info: New subtype `subfigure' on input line 238.
 Package caption Info: New subtype `subtable' on input line 238.
 \c@subtable=\count301
 )
-(/usr/share/texlive/texmf-dist/tex/latex/fancybox/fancybox.sty
-Package: fancybox 2010/05/15 1.4
-
-Style option: `fancybox' v1.4 <2010/05/15> (tvz)
-\@fancybox=\box56
-\shadowsize=\dimen195
-\@Sbox=\box57
-\do@VerbBox=\toks34
-\the@fancyput=\toks35
-\this@fancyput=\toks36
-\EndVerbatimTokens=\toks37
-\Verbatim@Outfile=\write3
-\Verbatim@Infile=\read2
-) (/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
 
 (/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
@@ -447,48 +434,54 @@ Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
 )
-\c@definition=\count302
-\c@proposition=\count303
-
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2019/06/20 v3.9 Customized lists
+\labelindent=\skip63
+\enit@outerparindent=\dimen195
+\enit@toks=\toks34
+\enit@inbox=\box56
+\enit@count@id=\count302
+\enitdp@description=\count303
+)
 (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count304
-\l__pdf_internal_box=\box58
+\l__pdf_internal_box=\box57
 )
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
  (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count305
 \scratchdimen=\dimen196
-\scratchbox=\box59
+\scratchbox=\box58
 \nofMPsegments=\count306
 \nofMParguments=\count307
-\everyMPshowfont=\toks38
+\everyMPshowfont=\toks35
 \MPscratchCnt=\count308
 \MPscratchDim=\dimen197
 \MPnumerator=\count309
 \makeMPintoPDFobject=\count310
-\everyMPtoPDFconversion=\toks39
+\everyMPtoPDFconversion=\toks36
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
@@ -498,11 +491,11 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-Package hyperref Info: Link coloring OFF on input line 64.
+Package hyperref Info: Link coloring OFF on input line 56.
 
 (./main.out) (./main.out)
-\@outlinefile=\write4
-\openout4 = `main.out'.
+\@outlinefile=\write3
+\openout3 = `main.out'.
 
 
 *geometry* driver: auto-detecting
@@ -541,71 +534,72 @@ Package hyperref Info: Link coloring OFF on input line 64.
 
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 68.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 60.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 68.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 60.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 6
-8.
+0.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 ) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./main.toc)
-\tf@toc=\write5
-\openout5 = `main.toc'.
+\tf@toc=\write4
+\openout4 = `main.toc'.
 
  [2] [3] [4] [5] [6] [7] [8]
-[9] [10] [11] (./main.aux)
+[9] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 583C05D66A876A6BB20BD55E6FE58724;3952.
+(rerunfilecheck)             Checksum: 8F7B1CDC5CB59BD59CDE32D31F4CCF2F;3605.
  ) 
 Here is how much of TeX's memory you used:
- 15461 strings out of 476182
- 252665 string characters out of 5795595
- 1933975 words of memory out of 5000000
- 37181 multiletter control sequences out of 15000+600000
- 576835 words of font info for 83 fonts, out of 8000000 for 9000
+ 15572 strings out of 476182
+ 255284 string characters out of 5795595
+ 1936975 words of memory out of 5000000
+ 37290 multiletter control sequences out of 15000+600000
+ 578696 words of font info for 90 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,9n,79p,934b,516s stack positions out of 10000i,1000n,20000p,200000b,200000s
- </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600
-pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.60
+ 75i,9n,79p,825b,548s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1200.600
+pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.60
 0pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0800.6
-00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1200.
-600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1200
-.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx172
-8.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm12
-00.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1
-095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx
-1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ect
-t1440.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
-rm1440.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-cbx2074.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmb
-x12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pf
-b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmsy8.pfb>
-Output written on main.pdf (11 pages, 242686 bytes).
+00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.
+600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1200
+.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx120
+0.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx17
+28.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1
+200.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm
+1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecb
+x1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
+tt1440.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/e
+crm1440.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/
+ecbx2074.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+bx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmsy8.pfb>
+Output written on main.pdf (9 pages, 256595 bytes).
 PDF statistics:
- 741 PDF objects out of 1000 (max. 8388607)
- 317 compressed objects within 4 object streams
- 89 named destinations out of 1000 (max. 500000)
- 193 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 776 PDF objects out of 1000 (max. 8388607)
+ 316 compressed objects within 4 object streams
+ 90 named destinations out of 1000 (max. 500000)
+ 201 words of extra memory for PDF output out of 10000 (max. 10000000)
 
