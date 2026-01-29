@@ -4,16 +4,101 @@ import matplotlib.pyplot as plt
 import warnings
 
 from statsmodels.tsa.arima.model import ARIMA
-
-# Reuse DGP and forecasting wrappers from modules
-from dgps.static import simulate_ms_ar1_phi_only
-from estimators.forecasters import (
-    forecast_sarima_global,
-    forecast_sarima_rolling,
-    forecast_markov_switching_ar,
-)
+from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 warnings.filterwarnings("ignore")
+
+# =====================================================
+# 1) DGP: Markov-switching AR(1), Gaussian
+# =====================================================
+def simulate_ms_ar1_phi_only(
+    T=400,
+    p00=0.97,
+    p11=0.97,
+    phi0=0.2,
+    phi1=0.9,
+    sigma=1.0,
+    y0=0.0,
+    rng=None
+):
+    if rng is None:
+        rng = np.random.default_rng()
+
+    y = np.zeros(T)
+    s = np.zeros(T, dtype=int)
+
+    y[0] = y0
+    s[0] = rng.integers(0, 2)
+
+    for t in range(1, T):
+        if s[t - 1] == 0:
+            s[t] = 0 if rng.random() < p00 else 1
+        else:
+            s[t] = 1 if rng.random() < p11 else 0
+
+        eps = rng.normal(0.0, sigma)
+        phi = phi0 if s[t] == 0 else phi1
+        y[t] = phi * y[t - 1] + eps
+
+    return y, s
+
+# =====================================================
+# 2) Forecasting models (1-step ahead)
+# =====================================================
+
+# ---- Global SARIMA (replaces Global AR) ----
+def forecast_global_sarima(y):
+    try:
+        return float(
+            ARIMA(
+                y,
+                order=(1, 0, 1),
+                seasonal_order=(1, 0, 0, 12),
+                trend="n"
+            ).fit().forecast(1)[0]
+        )
+    except Exception:
+        return np.nan
+
+# ---- Rolling SARIMA (replaces Rolling AR) ----
+def forecast_rolling_sarima(y, window=60):
+    try:
+        return float(
+            ARIMA(
+                y[-window:],
+                order=(1, 0, 1),
+                seasonal_order=(1, 0, 0, 12),
+                trend="n"
+            ).fit().forecast(1)[0]
+        )
+    except Exception:
+        return np.nan
+
+# ---- MS-AR (unchanged) ----
+def forecast_markov_switching_ar(y):
+    try:
+        y_dep = y[1:]
+        x = y[:-1].reshape(-1, 1)
+
+        model = MarkovRegression(
+            y_dep,
+            k_regimes=2,
+            trend="n",
+            exog=x,
+            switching_exog=True,
+            switching_variance=False
+        ).fit(disp=False)
+
+        probs = model.filtered_marginal_probabilities[-1]
+        params = dict(zip(model.model.param_names, model.params))
+
+        phi0 = params["x1[0]"]
+        phi1 = params["x1[1]"]
+
+        return float((probs[0] * phi0 + probs[1] * phi1) * y[-1])
+
+    except Exception:
+        return np.nan
 
 # =====================================================
 # 3) Metrics (NaN-safe)
@@ -206,4 +291,3 @@ if __name__ == "__main__":
     plot_metric_bars(df_results, "MAE")
     plot_metric_bars(df_results, "Bias")
     plot_dgp_by_persistence(persistence_levels)
-
