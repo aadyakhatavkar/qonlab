@@ -764,6 +764,80 @@ Implemented as state-space SARIMAX with exogenous break indicators:
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Parameter Breaks: Recurring RMSE, MAE, and Bias across Persistence}
+\begin{columns}[T]
+\column{0.33\textwidth}
+\centering
+\small \textbf{RMSE} \\
+\includegraphics[width=\textwidth]{figures/RMSE recurring.png}
+
+\column{0.33\textwidth}
+\centering
+\small \textbf{MAE} \\
+\includegraphics[width=\textwidth]{figures/MAE recurring.png}
+
+\column{0.33\textwidth}
+\centering
+\small \textbf{Bias} \\
+\includegraphics[width=\textwidth]{figures/Bias recurring.png}
+\end{columns}
+
+\vspace{0.3cm}
+
+\textbf{Key insight:} As regime persistence increases ($p: 0.90 \to 0.995$):
+\begin{itemize}
+  \item MS-AR achieves lowest errors across all metrics at $p \ge 0.97$
+  \item Global SARIMA exhibits negative bias that compounds with persistence
+  \item Structural models exploit regime structure; misspecified models accumulate errors
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Parameter Breaks: Data and Error Distributions}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\centering
+\small \textbf{DGP (Single Break)} \\
+\includegraphics[width=\textwidth]{figures/Single break DGP.png}
+
+\column{0.5\textwidth}
+\centering
+\small \textbf{Error Distributions} \\
+\includegraphics[width=\textwidth]{figures/Distribution recurring.png}
+\end{columns}
+
+\vspace{0.3cm}
+
+\begin{itemize}[<+->]
+  \item DGP shows regime switching frequency increases as persistence decreases
+  \item Error distributions narrow as persistence increases (more stable forecasting environment)
+  \item MS-AR achieves tighter, centered distributions; Global SARIMA exhibits persistent tails
+  \item Structural modeling reduces variance (precision), not bias (accuracy)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Parameter Breaks: Sample Size Effects and Real-World Application}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\centering
+\small \textbf{RMSE over DoF} \\
+\includegraphics[width=\textwidth]{figures/RMSE over Dof single break.png}
+
+\column{0.5\textwidth}
+\centering
+\small \textbf{GDP-like Series} \\
+\includegraphics[width=\textwidth]{figures/GDP_recurring break.png}
+\end{columns}
+
+\vspace{0.3cm}
+
+\begin{itemize}[<+->]
+  \item \textbf{Convergence:} MS-AR approximates oracle rate; Global ARMA converges slower
+  \item \textbf{Real data:} Parameter breaks common in macro (policy regimes, structural shocks)
+  \item \textbf{Recurring regimes:} Multiple switches require robust identification mechanisms
+  \item \textbf{Implication:} Regime persistence critically determines forecasting gains from structural modeling
+\end{itemize}
+\end{frame}
+
 %==============================================================================
 \section{Robustness: Heavy-Tailed Innovations}
 %==============================================================================
