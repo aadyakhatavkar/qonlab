@@ -126,8 +126,8 @@ def mc_parameter_breaks_full(
     if innovations is None:
         innovations = [
             ("Gaussian", "normal", None),
-            ("Student-t df=100", "student", 100),
-            ("Student-t df=50", "student", 50),
+            ("Student-t df=5", "student", 5),
+            ("Student-t df=3", "student", 3),
         ]
     
     all_err = {}

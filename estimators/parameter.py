@@ -7,6 +7,7 @@ Uses auto-selected ARMA orders via AIC/BIC (Box-Jenkins methodology).
 import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
+from estimators.forecasters import forecast_sarima_global, forecast_sarima_rolling
 
 
 def _auto_select_arma_order(y, max_p=3, max_q=3, criterion='aic'):
@@ -137,6 +138,16 @@ def param_forecast_markov_switching_ar(y):
     phi1 = params["x1[1]"]
 
     return float((probs[0] * phi0 + probs[1] * phi1) * y[-1])
+
+
+def param_forecast_sarima_global(y):
+    """Alias to SARIMA global forecast for parameter experiments."""
+    return forecast_sarima_global(y)
+
+
+def param_forecast_sarima_rolling(y, window=80):
+    """Alias to SARIMA rolling forecast for parameter experiments."""
+    return forecast_sarima_rolling(y, window=window)
 
 
 def param_metrics(errors):

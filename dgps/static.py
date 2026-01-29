@@ -249,3 +249,42 @@ def calculate_rv_from_returns(returns, intervals_per_day=1):
         rv[period] = np.sqrt(np.sum(returns[start_idx:end_idx]**2))
     
     return rv
+
+
+def simulate_ms_ar1_phi_only(
+    T=400,
+    p00=0.97,
+    p11=0.97,
+    phi0=0.2,
+    phi1=0.9,
+    sigma=1.0,
+    y0=0.0,
+    rng=None
+):
+    """
+    Simulate a Markov-switching AR(1) with regime-specific phi (phi-only switching).
+
+    Returns:
+        y: series of length T
+        s: regime indicators (0/1)
+    """
+    if rng is None:
+        rng = np.random.default_rng()
+
+    y = np.zeros(T)
+    s = np.zeros(T, dtype=int)
+
+    y[0] = y0
+    s[0] = rng.integers(0, 2)
+
+    for t in range(1, T):
+        if s[t - 1] == 0:
+            s[t] = 0 if rng.random() < p00 else 1
+        else:
+            s[t] = 1 if rng.random() < p11 else 0
+
+        eps = rng.normal(0.0, sigma)
+        phi = phi0 if s[t] == 0 else phi1
+        y[t] = phi * y[t - 1] + eps
+
+    return y, s

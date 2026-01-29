@@ -4,114 +4,45 @@ import matplotlib.pyplot as plt
 import warnings
 
 from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
+
+# Reuse DGP and forecasting wrappers from modules
+from dgps.static import simulate_ms_ar1_phi_only
+from estimators.forecasters import (
+    forecast_sarima_global,
+    forecast_sarima_rolling,
+    forecast_markov_switching_ar,
+)
 
 warnings.filterwarnings("ignore")
 
 # =====================================================
-# 1) DGP: Markov-switching AR(1), Gaussian
-# =====================================================
-def simulate_ms_ar1_phi_only(
-    T=400,
-    p00=0.97,
-    p11=0.97,
-    phi0=0.2,
-    phi1=0.9,
-    sigma=1.0,
-    y0=0.0,
-    rng=None
-):
-    if rng is None:
-        rng = np.random.default_rng()
-
-    y = np.zeros(T)
-    s = np.zeros(T, dtype=int)
-
-    y[0] = y0
-    s[0] = rng.integers(0, 2)
-
-    for t in range(1, T):
-        if s[t - 1] == 0:
-            s[t] = 0 if rng.random() < p00 else 1
-        else:
-            s[t] = 1 if rng.random() < p11 else 0
-
-        eps = rng.normal(0.0, sigma)
-        phi = phi0 if s[t] == 0 else phi1
-        y[t] = phi * y[t - 1] + eps
-
-    return y, s
-
-
-# =====================================================
-# 2) Forecasting models (1-step ahead)
-# =====================================================
-def forecast_global_ar(y):
-    return float(
-        ARIMA(y, order=(1, 0, 0), trend="n")
-        .fit()
-        .forecast(1)[0]
-    )
-
-
-def forecast_rolling_ar(y, window=80):
-    return float(
-        ARIMA(y[-window:], order=(1, 0, 0), trend="n")
-        .fit()
-        .forecast(1)[0]
-    )
-
-
-def forecast_markov_switching_ar(y):
-    y_dep = y[1:]
-    x = y[:-1].reshape(-1, 1)
-
-    model = MarkovRegression(
-        y_dep,
-        k_regimes=2,
-        trend="n",
-        exog=x,
-        switching_exog=True,
-        switching_variance=False
-    ).fit(disp=False)
-
-    probs = model.filtered_marginal_probabilities[-1]
-    params = dict(zip(model.model.param_names, model.params))
-
-    phi0 = params["x1[0]"]
-    phi1 = params["x1[1]"]
-
-    return float((probs[0] * phi0 + probs[1] * phi1) * y[-1])
-
-
-# =====================================================
-# 3) Metrics
+# 3) Metrics (NaN-safe)
 # =====================================================
 def metrics(e):
     e = np.asarray(e)
+    e = e[~np.isnan(e)]
     return {
         "RMSE": np.sqrt(np.mean(e ** 2)),
         "MAE": np.mean(np.abs(e)),
         "Bias": np.mean(e)
     }
 
-
 # =====================================================
-# 4) Monte Carlo experiment
+# 4) Monte Carlo experiment (recurring breaks)
 # =====================================================
 def monte_carlo_recurring(
     p,
     n_sim=300,
     T=400,
     t0=300,
-    window=80,
+    window=60,
     seed=123
 ):
     rng = np.random.default_rng(seed)
 
     err = {
-        "Global AR": [],
-        "Rolling AR": [],
+        "Global SARIMA": [],
+        "Rolling SARIMA": [],
         "MS AR": []
     }
 
@@ -126,12 +57,17 @@ def monte_carlo_recurring(
         y_train = y[:t0]
         y_true = y[t0]
 
-        err["Global AR"].append(y_true - forecast_global_ar(y_train))
-        err["Rolling AR"].append(y_true - forecast_rolling_ar(y_train, window))
-        err["MS AR"].append(y_true - forecast_markov_switching_ar(y_train))
+        err["Global SARIMA"].append(
+            y_true - forecast_global_sarima(y_train)
+        )
+        err["Rolling SARIMA"].append(
+            y_true - forecast_rolling_sarima(y_train, window)
+        )
+        err["MS AR"].append(
+            y_true - forecast_markov_switching_ar(y_train)
+        )
 
     return err
-
 
 # =====================================================
 # 5) Combined error distribution figure
@@ -147,6 +83,8 @@ def plot_error_distributions_all(err_by_p, persistence_levels):
 
     for ax, p in zip(axes, persistence_levels):
         for model, e in err_by_p[p].items():
+            e = np.asarray(e)
+            e = e[~np.isnan(e)]
             ax.hist(e, bins=40, density=True, alpha=0.4, label=model)
 
         ax.axvline(0, color="black", linestyle="--", linewidth=1)
@@ -162,13 +100,12 @@ def plot_error_distributions_all(err_by_p, persistence_levels):
     plt.tight_layout()
     plt.show()
 
-
 # =====================================================
 # 6) Bar charts for RMSE / MAE / Bias
 # =====================================================
 def plot_metric_bars(df, metric):
     persistences = df["Persistence"].unique()
-    models = ["Global AR", "Rolling AR", "MS AR"]
+    models = ["Global SARIMA", "Rolling SARIMA", "MS AR"]
 
     x = np.arange(len(persistences))
     width = 0.25
@@ -192,9 +129,8 @@ def plot_metric_bars(df, metric):
     plt.tight_layout()
     plt.show()
 
-
 # =====================================================
-# 7) DGP plots (all persistence levels)
+# 7) DGP plots
 # =====================================================
 def plot_dgp_by_persistence(
     persistence_levels,
@@ -236,7 +172,6 @@ def plot_dgp_by_persistence(
     plt.tight_layout()
     plt.show()
 
-
 # =====================================================
 # 8) RUN
 # =====================================================
@@ -271,3 +206,4 @@ if __name__ == "__main__":
     plot_metric_bars(df_results, "MAE")
     plot_metric_bars(df_results, "Bias")
     plot_dgp_by_persistence(persistence_levels)
+
