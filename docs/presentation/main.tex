@@ -12,18 +12,25 @@
 \usepackage{xcolor}
 \usepackage{tikz}
 \usepackage{subcaption}
+\usepackage{multirow}
 
 % Custom commands
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\text{Var}}
 \newcommand{\I}[1]{\mathbf{1}\{#1\}}
 \newcommand{\iid}{\stackrel{\text{iid}}{\sim}}
+\newcommand{\argmin}{\operatorname{arg\,min}}
+\newcommand{\argmax}{\operatorname{arg\,max}}
 
 % Theme and colors
 \usetheme{Madrid}
 \usecolortheme{default}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
+
+% Fix rotated sidebar on title page
+\setbeamertemplate{sidebar right}{}
+\setbeamertemplate{sidebar left}{}
 
 % Custom footer
 \setbeamertemplate{footline}%
@@ -53,7 +60,7 @@
   \normalsize Variance, Mean, and Parameter Breaks in Time Series
 }
 \author{%
-  Aadya Khatavkar \and Bakhodir Mirkhonov\\
+  Aadya Khatavkar \and Bakhodir Izzatulloyev \and Mahir Beylerov\\
   \textit{University of Bonn}
 }
 \date{Winter Semester 2025/26}
@@ -411,7 +418,7 @@ P(s_t = j | s_{t-1} = i) = p_{ij}, \quad p_{ii} \in \{0.90, 0.95, 0.97, 0.995\}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{SARIMA Methods (Bakhodir's Contribution)}
+\begin{frame}{SARIMA Methods (Bakhodir Izzatulloyev's Contribution)}
 \textbf{Seasonal ARIMA:} Jointly models level shifts AND seasonal patterns
 
 \[
@@ -442,6 +449,9 @@ Implemented as state-space SARIMAX with exogenous break indicators:
 \vspace{0.3cm}
 
 \textbf{Computational note:} MLE in SARIMAX requires careful initialization to ensure convergence
+
+\vspace{0.3cm}
+\textit{\small \textbf{Credit:} All SARIMA methodology and empirical results implemented and developed by Bakhodir Izzatulloyev}
 \end{frame}
 
 %==============================================================================
@@ -523,204 +533,159 @@ Implemented as state-space SARIMAX with exogenous break indicators:
 \section{Results: Mean Breaks}
 %==============================================================================
 
-\begin{frame}{Mean Breaks: Single vs. Multiple Breaks}
-\begin{columns}
-  \column{0.5\textwidth}
-  \textbf{Single Break (Simple mean shift):}
-  \begin{itemize}
-    \item Level steps from $\mu_0 \to \mu_1$
-    \item All methods fail initially
-    \item Break dummy (oracle) best (knows date)
-    \item Rolling window good, ARMA poor
-  \end{itemize}
-  
-  \column{0.5\textwidth}
-  \textbf{Multiple Breaks with Seasonality:}
-  \begin{itemize}
-    \item Level shifts + seasonal component
-    \item SARIMA + oracle dummies excel
-    \item SARIMA rolling competitive
-    \item Simple methods struggle with interaction
-  \end{itemize}
-\end{columns}
-
-\vspace{1cm}
-
-\textbf{Key insight:} Seasonal component requires explicit modelling. SARIMA's success motivates future work on structural models for seasonal breaks.
-\end{frame}
-
-\begin{frame}{Mean Breaks: SARIMA Comparison Results}
+\begin{frame}{Mean Breaks: DGP Visualization}
 \begin{center}
-  \small
-  \begin{tabular}{lcccc}
-    \hline
-    \textbf{Method} & \textbf{RMSE} & \textbf{MAE} & \textbf{Bias} & \textbf{Fails} \\
-    \hline
-    \textbf{Single Break:} & & & & \\
-    SARIMA + Break Dummy (oracle) & 1.455 & 1.194 & 1.006 & 0 \\
-    Simple Exp. Smoothing & 1.496 & 1.225 & 1.015 & 0 \\
-    SARIMA Rolling & 1.525 & 1.257 & 1.029 & 0 \\
-    SARIMA + Est. Break (grid) & 1.635 & 1.368 & 1.243 & 0 \\
-    SARIMA Global & 1.692 & 1.423 & 1.302 & 0 \\
-    \hline
-    \textbf{Multiple Breaks:} & & & & \\
-    SARIMA + 2 Break Dummies & 0.985 & 0.781 & 0.106 & 0 \\
-    SARIMA Global & 1.042 & 0.836 & -0.045 & 0 \\
-    SARIMA + Est. Breaks (grid) & 1.046 & 0.845 & -0.125 & 0 \\
-    Holt--Winters Seasonal & 1.094 & 0.857 & -0.001 & 0 \\
-    SARIMA Rolling & 1.122 & 0.884 & 0.299 & 0 \\
-    \hline
-  \end{tabular}
+  \fbox{\includegraphics[width=0.9\textwidth]{../../figures/mean/mean_dgp_visualization.png}}
 \end{center}
 
 \vspace{0.3cm}
 
-\textbf{Conclusion:} Knowing break dates (oracle) is huge advantage. Estimated breaks via grid search perform reasonably well. Multiple breaks benefit dramatically from explicit dummy variables.
+\textbf{Top:} Single break: $\mu_0 = 0.0 \to \mu_1 = 2.0$ at $T_b = 150$
+
+\textbf{Bottom:} Multiple breaks with seasonality: Mean shifts to 1.5 then 3.0, plus seasonal component ($s=12$, amplitude $A=0.5$)
 \end{frame}
 
-\begin{frame}{Mean Breaks: Seasonality Effect}
-\textbf{With seasonality (amplitude $A = 0.5$, period $s = 12$):}
+\begin{frame}{Mean Breaks: RMSE Comparison (Bakhodir's Results)}
+\begin{center}
+  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/mean/single_break_RMSE.png}}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Single Break RMSE:} SARIMA methods outperform naive approaches
+\end{frame}
+
+\begin{frame}{Mean Breaks: MAE and Bias Analysis}
+\begin{center}
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/single_break_MAE.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/single_break_Bias.png}
+  \end{minipage}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Complementary metrics:} MAE and Bias show SARIMA consistency
+\end{frame}
+
+\begin{frame}{Mean Breaks: Seasonal Series Examples}
+\begin{center}
+  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/mean/single_break_seasonal_series.png}}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Simulated time series:} Single break with strong seasonality
+\end{frame}
+
+\begin{frame}{Mean Breaks: Single vs Multiple Breaks}
+\begin{center}
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/compare_RMSE_single_vs_multiple.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/compare_MAE_single_vs_multiple.png}
+  \end{minipage}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Multiple breaks increase difficulty:} Adaptive methods needed
+\end{frame}
+
+\begin{frame}{Mean Breaks: Multiple Break Scenario}
+\begin{center}
+  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/mean/multiple_break_seasonal_series.png}}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Complex scenario:} Two breaks with seasonal component
+\end{frame}
+
+\begin{frame}{Mean Breaks: Why SARIMA Matters}
+\textbf{Bakhodir's Key Insight:} Many real economic variables are seasonal
 
 \vspace{0.3cm}
 
+\textbf{SARIMA captures:}
+\begin{enumerate}
+  \item \textbf{Seasonal pattern:} Explicit $(P,D,Q)_s$ component for periodicity
+  \item \textbf{Trend:} AR/MA for autocorrelation
+  \item \textbf{Integration:} Differencing for stationarity
+  \item \textbf{Structural breaks:} Via exogenous dummies
+\end{enumerate}
+
+\vspace{0.5cm}
+
+\textbf{Advantage over ARMA:} 
 \[
-y_t = \mu_t + \underbrace{A \sin(2\pi t / s)}_{\text{seasonal}} + \phi y_{t-1} + \varepsilon_t
+\text{SARIMA RMSE improvement} \approx 10\text{--}15\% \text{ when seasonal structure present}
 \]
 
-\vspace{0.5cm}
+\vspace{0.3cm}
 
-\textbf{Observations:}
-\begin{itemize}
-  \item \textbf{SARIMA} captures seasonal patterns explicitly $\Rightarrow$ RMSE improves by 10--15\%
-  
-  \vspace{0.3cm}
-  
-  \item \textbf{ARMA} ignores seasonality $\Rightarrow$ residuals remain correlated at lag 12
-  
-  \vspace{0.3cm}
-  
-  \item \textbf{Adaptive value:} Rolling windows also benefit from seasonality (more recent seasonal cycles)
-  
-  \vspace{0.3cm}
-  
-  \item \textbf{Interaction:} Multiple breaks + seasonality = complex dynamics. SARIMA's edge grows with seasonality strength
-\end{itemize}
-
-\vspace{0.5cm}
-
-\textbf{Recommendation:} Always use SARIMA when seasonal component present in real data (many economic variables).
+\textbf{Example:} Sales data (monthly, strong seasonality) $\Rightarrow$ SARIMA required; ARMA ignores seasonal lags
 \end{frame}
 
 %==============================================================================
 \section{Results: Parameter Breaks}
 %==============================================================================
 
-\begin{frame}{Parameter Breaks: Single Break Results}
-\textbf{Persistence shift:} $\phi_1 = 0.2 \to \phi_2 = 0.9$ at $T_b = 200$
-
-\vspace{0.5cm}
-
+\begin{frame}{Parameter Breaks: DGP Visualization}
 \begin{center}
-  \small
-  \begin{tabular}{lcccc}
-    \hline
-    \textbf{Method} & \textbf{RMSE} & \textbf{MAE} & \textbf{Bias} & \textbf{N} \\
-    \hline
-    Global ARMA & 0.256 & 0.201 & 0.042 & 200 \\
-    Rolling ARMA ($w=80$) & 0.198 & 0.159 & 0.021 & 200 \\
-    Markov-Switching AR & 0.187 & 0.147 & 0.009 & 200 \\
-    Break Dummy (oracle) & 0.165 & 0.130 & 0.002 & 200 \\
-    \hline
-  \end{tabular}
+  \fbox{\includegraphics[width=0.9\textwidth]{../../figures/parameter/parameter_dgp_visualization.png}}
 \end{center}
 
-\vspace{0.5cm}
+\vspace{0.3cm}
 
-\textbf{Ranking:} 
+\textbf{Top:} Single persistence break: $\phi_1 = 0.2 \to \phi_2 = 0.9$ at $T_b = 150$ (low to high persistence)
+
+\textbf{Bottom:} Markov-switching with varying regime persistence: $p \in \{0.90, 0.95, 0.97, 0.995\}$
+\end{frame}
+
+\begin{frame}{Parameter Breaks: Single Break Results}
+\begin{center}
+  \fbox{\includegraphics[width=0.85\textwidth]{../../figures/parameter/parameter_rmse_mae_comparison.png}}
+\end{center}
+
+\vspace{0.3cm}
+
+\textbf{Ranking (Single Break):}
 \[
-\text{Oracle} < \text{Markov-Switching} < \text{Rolling} < \text{Global}
+\text{Oracle} (0.165) < \text{Markov-Switching} (0.187) < \text{Rolling ARMA} (0.198) < \text{Global ARMA} (0.256)
 \]
-
-\vspace{0.5cm}
 
 \textbf{Interpretation:}
 \begin{itemize}
-  \item Global ARMA severely underestimates persistence after break $\Rightarrow$ systematic underprediction
-  \item Rolling window adapts but includes pre-break data in window
-  \item Markov-Switching infers regime change probabilistically (no date needed!)
-  \item Oracle breaks the ceiling: perfect foreknowledge yields best RMSE
+  \item Global ARMA severely underestimates persistence after break $\Rightarrow$ underpredicts
+  \item Markov-Switching infers regime change without knowing date (automatic!)
+  \item Oracle break dummy provides upper bound: 13\% better than best adaptive method
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Parameter Breaks: Recurring Breaks (Regime Persistence)}
-\textbf{Markov-Switching AR with varying persistence $p$:}
+\begin{frame}{Parameter Breaks: Recurring Breaks (Persistence Analysis)}
+\begin{center}
+  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/parameter/parameter_persistence_analysis.png}}
+\end{center}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
-\[
-P(s_t = 1 | s_{t-1} = 1) = p \in \{0.90, 0.95, 0.97, 0.995\}
-\]
-
-\vspace{0.5cm}
-
-\textbf{Key Finding: Persistence THRESHOLDS}
-
+\textbf{Four critical findings:}
 \begin{itemize}
-  \item \textbf{Low persistence} ($p = 0.90, 0.95$): All methods perform similarly
-  \begin{itemize}
-    \item Frequent regime switches $\Rightarrow$ regimes too short to identify
-    \item Markov-Switching gains minimal edge
-  \end{itemize}
-  
-  \vspace{0.3cm}
-  
-  \item \textbf{Moderate persistence} ($p = 0.97$): Markov-Switching outperforms
-  \begin{itemize}
-    \item Regime spells long enough for inference
-    \item 5--10\% RMSE improvement over rolling window
-  \end{itemize}
-  
-  \vspace{0.3cm}
-  
-  \item \textbf{High persistence} ($p = 0.995$): Markov-Switching dominates
-  \begin{itemize}
-    \item Near-permanent regime spells = close to deterministic breaks
-    \item Oracle-like performance of regime-switching model
-  \end{itemize}
+  \item \textbf{RMSE:} Markov-Switching dominates at high persistence ($p \ge 0.97$), performs similarly at low $p$
+  \item \textbf{MAE:} Same pattern; systematic errors reduced by regime-switching
+  \item \textbf{Bias:} Global ARMA has large negative bias (underestimated persistence)
+  \item \textbf{Gaps:} Markov-Switching gain only $\ge 5\%$ when $p \ge 0.97$
 \end{itemize}
-\end{frame}
-
-\begin{frame}{Parameter Breaks: Error Distributions}
-\textbf{Forecast error distributions under recurring breaks:}
-
-\vspace{0.5cm}
-
-\begin{itemize}
-  \item \textbf{Low persistence:} Wide, overlapping error distributions
-  \begin{itemize}
-    \item Frequent regime confusion $\Rightarrow$ high variance, near-zero bias
-  \end{itemize}
-  
-  \vspace{0.3cm}
-  
-  \item \textbf{High persistence:} Concentrated distributions
-  \begin{itemize}
-    \item Markov-Switching achieves tighter clustering
-    \item Reduced dispersion = more reliable intervals
-  \end{itemize}
-  
-  \vspace{0.3cm}
-  
-  \item \textbf{Bias:} Small across all models (mostly variance-driven)
-  \begin{itemize}
-    \item Global ARMA: slight negative bias (underestimated persistence)
-    \item Markov-Switching: bias closer to zero (regime-specific estimates)
-  \end{itemize}
-\end{itemize}
-
-\vspace{0.5cm}
-
-\textbf{Implication:} Parameter breaks create \textbf{precision loss}, not systematic bias. Interval forecasts (coverage, prediction intervals) become critical.
 \end{frame}
 
 %==============================================================================
@@ -805,48 +770,31 @@ where $df \in \{50, 100, \infty\}$ (Gaussian).
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Practical Decision Tree}
-\begin{center}
-  \begin{tikzpicture}[
-    scale=1,
-    every node/.style={rectangle, rounded corners, minimum width=2.5cm, minimum height=0.8cm, text centered, font=\small}
-  ]
-  
-  \node[fill=blue!20] (root) at (5, 8) {Is there a break?};
-  
-  \node[fill=green!20] (yes) at (2, 6.5) {Yes};
-  \node[fill=red!20] (no) at (8, 6.5) {No (stationary)};
-  
-  \node[fill=yellow!20] (type) at (2, 5) {Break Type?};
-  
-  \node[fill=orange!20] (var) at (0, 3.5) {Variance};
-  \node[fill=orange!20] (mean) at (2, 3.5) {Mean};
-  \node[fill=orange!20] (param) at (4, 3.5) {Parameter};
-  
-  \node[fill=cyan!20] (var\_rec) at (0, 2) {GARCH or\,Rolling ARIMA};
-  \node[fill=cyan!20] (mean\_rec) at (2, 2) {SARIMA Rolling\,or Break Dummy};
-  \node[fill=cyan!20] (param\_rec) at (4, 2) {Markov-Switching\,or Rolling};
-  
-  \node[fill=green!20] (global) at (8, 2) {Use Global\,ARIMA};
-  
-  % Edges
-  \draw[->] (root) -- (yes);
-  \draw[->] (root) -- (no);
-  \draw[->] (yes) -- (type);
-  \draw[->] (type) -- (var);
-  \draw[->] (type) -- (mean);
-  \draw[->] (type) -- (param);
-  \draw[->] (var) -- (var\_rec);
-  \draw[->] (mean) -- (mean\_rec);
-  \draw[->] (param) -- (param\_rec);
-  \draw[->] (no) -- (global);
-  
-  \end{tikzpicture}
-\end{center}
+\begin{frame}{Practical Decision Rule}
+\textbf{Step 1: Test for Breaks}
+\begin{itemize}
+  \item Statistical tests: Chow test, CUSUM, Bai-Perron multiple breaks
+  \item If no breaks detected $\Rightarrow$ use global ARIMA (most efficient)
+\end{itemize}
 
 \vspace{0.5cm}
 
-\textbf{Practical Rule:} Test for breaks first (e.g., Chow, CUSUM). If detected, apply break-adaptive method matching break type.
+\textbf{Step 2: Identify Break Type}
+\begin{enumerate}
+  \item \textbf{Variance break} (GARCH process) $\Rightarrow$ \textbf{Use GARCH or rolling ARIMA}
+  \item \textbf{Mean break} (level shift) $\Rightarrow$ \textbf{Use SARIMA rolling or break dummy}
+  \item \textbf{Parameter break} (persistence shift) $\Rightarrow$ \textbf{Use Markov-Switching or rolling}
+\end{enumerate}
+
+\vspace{0.5cm}
+
+\textbf{Step 3: Optimize Implementation}
+\begin{itemize}
+  \item If break date \textbf{known} (e.g., policy change): use break dummy (oracle-like)
+  \item If break date \textbf{unknown}: use rolling window or grid-search estimated break
+  \item For seasonal data: always prefer SARIMA variants
+  \item For recurring breaks: prefer Markov-Switching if persistence $\ge 0.97$
+\end{itemize}
 \end{frame}
 
 %==============================================================================
@@ -964,6 +912,11 @@ where $df \in \{50, 100, \infty\}$ (Gaussian).
   \vspace{1cm}
   
   \normalsize
+  \textbf{Aadya Khatavkar} (Lead) | \textbf{Bakhodir Izzatulloyev} | \textbf{Mahir Beylerov}\\
+  University of Bonn
+  
+  \vspace{0.5cm}
+  
   Code and replication materials available at:\\
   \texttt{github.com/qonlab/structural-break-forecasting}
 \end{center}
