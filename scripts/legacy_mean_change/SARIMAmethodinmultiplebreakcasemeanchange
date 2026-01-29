@@ -1,0 +1,300 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
+
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing, ExponentialSmoothing
+
+
+# =========================================================
+# 1) DGPs: Single break + seasonality, Multiple breaks + seasonality
+# =========================================================
+def simulate_single_break_with_seasonality(
+    T=300, Tb=150, mu0=0.0, mu1=2.0, phi=0.6, sigma=1.0, s=12, A=1.0, y0=0.0, rng=None
+):
+    if rng is None:
+        rng = np.random.default_rng()
+    y = np.zeros(T, dtype=float)
+    y[0] = y0
+    for t in range(1, T):
+        mu = mu0 if t <= Tb else mu1
+        seasonal = A * np.sin(2*np.pi*t/s)
+        y[t] = mu + seasonal + phi*y[t-1] + rng.normal(0.0, sigma)
+    return y
+
+def simulate_multiple_breaks_with_seasonality(
+    T=300, b1=100, b2=200, mu0=0.0, mu1=2.0, mu2=-2.0, phi=0.6, sigma=1.0, s=12, A=1.0, y0=0.0, rng=None
+):
+    if rng is None:
+        rng = np.random.default_rng()
+    y = np.zeros(T, dtype=float)
+    y[0] = y0
+    for t in range(1, T):
+        if t <= b1:
+            mu = mu0
+        elif t <= b2:
+            mu = mu1
+        else:
+            mu = mu2
+        seasonal = A * np.sin(2*np.pi*t/s)
+        y[t] = mu + seasonal + phi*y[t-1] + rng.normal(0.0, sigma)
+    return y
+
+
+# =========================================================
+# 2) SARIMA forecasting helpers
+# =========================================================
+def forecast_sarima(y_train, order=(1,0,0), seasonal_order=(1,0,0,12), exog=None, exog_next=None):
+    m = SARIMAX(
+        y_train,
+        order=order,
+        seasonal_order=seasonal_order,
+        exog=exog,
+        trend="c",
+        enforce_stationarity=False,
+        enforce_invertibility=False
+    ).fit(disp=False)
+    if exog is None:
+        return float(m.forecast(1)[0])
+    return float(m.forecast(1, exog=exog_next)[0])
+
+
+def forecast_sarima_global(y_train, order, seasonal_order):
+    return forecast_sarima(y_train, order=order, seasonal_order=seasonal_order)
+
+def forecast_sarima_rolling(y_train, window, order, seasonal_order):
+    sub = y_train[-window:] if len(y_train) > window else y_train
+    return forecast_sarima(sub, order=order, seasonal_order=seasonal_order)
+
+def forecast_sarima_break_dummy_oracle_single(y_train, Tb, order, seasonal_order):
+    y = np.asarray(y_train, dtype=float)
+    t_idx = np.arange(len(y))
+    d = (t_idx > Tb).astype(float).reshape(-1,1)
+    d_next = np.array([[1.0 if len(y) > Tb else 0.0]])
+    return forecast_sarima(y, order, seasonal_order, exog=d, exog_next=d_next)
+
+def forecast_sarima_break_dummy_oracle_multiple(y_train, b1, b2, order, seasonal_order):
+    y = np.asarray(y_train, dtype=float)
+    t_idx = np.arange(len(y))
+    d1 = (t_idx > b1).astype(float)
+    d2 = (t_idx > b2).astype(float)
+    exog = np.column_stack([d1, d2])
+    exog_next = np.array([[1.0 if len(y) > b1 else 0.0, 1.0 if len(y) > b2 else 0.0]])
+    return forecast_sarima(y, order, seasonal_order, exog=exog, exog_next=exog_next)
+
+
+# --- simple break estimation (mean-only SSE) for report-friendly realism
+def estimate_single_break_mean_only(y_train, trim=0.15):
+    y = np.asarray(y_train, dtype=float)
+    Tn = len(y)
+    lo = max(int(trim*Tn), 10)
+    hi = min(int((1-trim)*Tn)-1, Tn-10)
+    best_Tb, best_sse = None, np.inf
+    for Tb in range(lo, hi):
+        m1 = np.mean(y[:Tb+1]); m2 = np.mean(y[Tb+1:])
+        sse = np.sum((y[:Tb+1]-m1)**2) + np.sum((y[Tb+1:]-m2)**2)
+        if sse < best_sse:
+            best_sse, best_Tb = sse, Tb
+    return int(best_Tb if best_Tb is not None else Tn//2)
+
+def estimate_two_breaks_mean_only(y_train, trim=0.15, min_seg=25):
+    y = np.asarray(y_train, dtype=float)
+    Tn = len(y)
+    lo = max(int(trim*Tn), min_seg)
+    hi = min(int((1-trim)*Tn), Tn-min_seg)
+    best = (Tn//3, 2*Tn//3)
+    best_sse = np.inf
+    for b1 in range(lo, hi-min_seg):
+        for b2 in range(b1+min_seg, hi):
+            seg1 = y[:b1+1]; seg2 = y[b1+1:b2+1]; seg3 = y[b2+1:]
+            if len(seg1)<min_seg or len(seg2)<min_seg or len(seg3)<min_seg:
+                continue
+            m1,m2,m3 = np.mean(seg1), np.mean(seg2), np.mean(seg3)
+            sse = np.sum((seg1-m1)**2)+np.sum((seg2-m2)**2)+np.sum((seg3-m3)**2)
+            if sse < best_sse:
+                best_sse = sse
+                best = (b1,b2)
+    return int(best[0]), int(best[1])
+
+def forecast_sarima_estimated_break_single(y_train, order, seasonal_order, trim=0.15):
+    Tb_hat = estimate_single_break_mean_only(y_train, trim=trim)
+    return forecast_sarima_break_dummy_oracle_single(y_train, Tb=Tb_hat, order=order, seasonal_order=seasonal_order)
+
+def forecast_sarima_estimated_breaks_multiple(y_train, order, seasonal_order, trim=0.15, min_seg=25):
+    b1_hat, b2_hat = estimate_two_breaks_mean_only(y_train, trim=trim, min_seg=min_seg)
+    return forecast_sarima_break_dummy_oracle_multiple(y_train, b1=b1_hat, b2=b2_hat, order=order, seasonal_order=seasonal_order)
+
+
+# Smoothing methods
+def forecast_ses(y_train):
+    m = SimpleExpSmoothing(y_train, initialization_method="estimated").fit(optimized=True)
+    return float(m.forecast(1)[0])
+
+def forecast_holt_winters_seasonal(y_train, s=12):
+    m = ExponentialSmoothing(y_train, trend=None, seasonal="add", seasonal_periods=s).fit(optimized=True)
+    return float(m.forecast(1)[0])
+
+
+# =========================================================
+# 3) Monte Carlo runners: single vs multiple
+# =========================================================
+def mc_single_sarima(
+    n_sim=200, T=300, Tb=150, window=60, seed=123,
+    mu0=0.0, mu1=2.0, phi=0.6, sigma=1.0, s=12, A=1.0,
+    gap_after_break=20,
+    order=(1,0,0), seasonal_order=(1,0,0,12),
+    trim=0.15
+):
+    rng = np.random.default_rng(seed)
+    t0 = Tb + gap_after_break
+
+    methods = [
+        ("SARIMA Global", lambda ytr: forecast_sarima_global(ytr, order, seasonal_order)),
+        ("SARIMA Rolling", lambda ytr: forecast_sarima_rolling(ytr, window, order, seasonal_order)),
+        ("SARIMA + Break Dummy (oracle Tb)", lambda ytr: forecast_sarima_break_dummy_oracle_single(ytr, Tb, order, seasonal_order)),
+        ("SARIMA + Estimated Break (grid)", lambda ytr: forecast_sarima_estimated_break_single(ytr, order, seasonal_order, trim=trim)),
+        ("SES (level smoothing)", lambda ytr: forecast_ses(ytr)),
+    ]
+
+    errors = {m: [] for m,_ in methods}
+    fails  = {m: 0  for m,_ in methods}
+
+    for _ in range(n_sim):
+        y = simulate_single_break_with_seasonality(T, Tb, mu0, mu1, phi, sigma, s, A, rng=rng)
+        y_train, y_true = y[:t0], float(y[t0])
+        for name, func in methods:
+            try:
+                f = func(y_train)
+                errors[name].append(y_true - f)
+            except Exception:
+                fails[name] += 1
+
+    rows = []
+    for name in errors:
+        e = np.asarray(errors[name], float)
+        if len(e)==0:
+            rows.append({"Method":name,"RMSE":np.nan,"MAE":np.nan,"Bias":np.nan,"N":0,"Fails":fails[name]})
+        else:
+            rows.append({
+                "Method": name,
+                "RMSE": float(np.sqrt(np.mean(e**2))),
+                "MAE":  float(np.mean(np.abs(e))),
+                "Bias": float(np.mean(e)),
+                "N": int(len(e)),
+                "Fails": fails[name],
+            })
+    res = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
+    res["Scenario"] = "Single break"
+    return res
+
+def mc_multiple_sarima(
+    n_sim=200, T=300, b1=100, b2=200, window=60, seed=456,
+    mu0=0.0, mu1=2.0, mu2=-2.0, phi=0.6, sigma=1.0, s=12, A=1.0,
+    gap_after_last_break=20,
+    order=(1,0,0), seasonal_order=(1,0,0,12),
+    trim=0.15, min_seg=25
+):
+    rng = np.random.default_rng(seed)
+    t0 = b2 + gap_after_last_break
+
+    methods = [
+        ("SARIMA Global", lambda ytr: forecast_sarima_global(ytr, order, seasonal_order)),
+        ("SARIMA Rolling", lambda ytr: forecast_sarima_rolling(ytr, window, order, seasonal_order)),
+        ("SARIMA + 2 Break Dummies (oracle)", lambda ytr: forecast_sarima_break_dummy_oracle_multiple(ytr, b1, b2, order, seasonal_order)),
+        ("SARIMA + 2 Breaks Estimated (grid)", lambda ytr: forecast_sarima_estimated_breaks_multiple(ytr, order, seasonal_order, trim=trim, min_seg=min_seg)),
+        ("Holt-Winters Seasonal Smoothing", lambda ytr: forecast_holt_winters_seasonal(ytr, s=s)),
+    ]
+
+    errors = {m: [] for m,_ in methods}
+    fails  = {m: 0  for m,_ in methods}
+
+    for _ in range(n_sim):
+        y = simulate_multiple_breaks_with_seasonality(T, b1, b2, mu0, mu1, mu2, phi, sigma, s, A, rng=rng)
+        y_train, y_true = y[:t0], float(y[t0])
+        for name, func in methods:
+            try:
+                f = func(y_train)
+                errors[name].append(y_true - f)
+            except Exception:
+                fails[name] += 1
+
+    rows = []
+    for name in errors:
+        e = np.asarray(errors[name], float)
+        if len(e)==0:
+            rows.append({"Method":name,"RMSE":np.nan,"MAE":np.nan,"Bias":np.nan,"N":0,"Fails":fails[name]})
+        else:
+            rows.append({
+                "Method": name,
+                "RMSE": float(np.sqrt(np.mean(e**2))),
+                "MAE":  float(np.mean(np.abs(e))),
+                "Bias": float(np.mean(e)),
+                "N": int(len(e)),
+                "Fails": fails[name],
+            })
+    res = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
+    res["Scenario"] = "Multiple breaks"
+    return res
+
+
+# =========================================================
+# 4) RUN BOTH + COMBINE + PRINT
+# =========================================================
+single = mc_single_sarima()
+multi  = mc_multiple_sarima()
+all_results = pd.concat([single, multi], ignore_index=True)
+
+print("\n=== COMPARISON TABLE (SARIMA single vs SARIMA multiple) ===")
+print(all_results.sort_values(["Scenario","RMSE"], na_position="last").to_string(index=False))
+
+for scen in ["Single break", "Multiple breaks"]:
+    sub = all_results[(all_results["Scenario"]==scen) & (~all_results["RMSE"].isna())].sort_values("RMSE")
+    if len(sub)>0:
+        best = sub.iloc[0]
+        print(f"\nBest method for {scen}: {best['Method']} (RMSE={best['RMSE']:.4f}, MAE={best['MAE']:.4f})")
+
+
+# =========================================================
+# 5) GRAPHS: RMSE/MAE comparison across scenarios
+# =========================================================
+def bar_compare(metric="RMSE"):
+    pivot = all_results.pivot_table(index="Method", columns="Scenario", values=metric, aggfunc="first")
+    ax = pivot.plot(kind="bar", figsize=(12,5))
+    ax.set_title(f"{metric} Comparison: Single vs Multiple Breaks (SARIMA setting)")
+    ax.set_ylabel(metric)
+    ax.grid(True, axis="y", alpha=0.3)
+    plt.xticks(rotation=25, ha="right")
+    plt.tight_layout()
+    plt.show()
+
+bar_compare("RMSE")
+bar_compare("MAE")
+
+
+# =========================================================
+# 6) Example series plots (single vs multiple) with breaks
+# =========================================================
+rng_demo = np.random.default_rng(999)
+y1 = simulate_single_break_with_seasonality(rng=rng_demo)
+y2 = simulate_multiple_breaks_with_seasonality(rng=rng_demo)
+
+plt.figure(figsize=(12,4))
+plt.plot(y1, label="Single break series")
+plt.axvline(150, linestyle="--", linewidth=2, label="Tb=150")
+plt.title("Example: Single break + seasonality")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(12,4))
+plt.plot(y2, label="Multiple breaks series")
+plt.axvline(100, linestyle="--", linewidth=2, label="b1=100")
+plt.axvline(200, linestyle="--", linewidth=2, label="b2=200")
+plt.title("Example: Multiple breaks + seasonality")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
