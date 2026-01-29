@@ -4,7 +4,7 @@
 \beamer@sectionintoc {4}{Monte Carlo Design}{14}{0}{4}
 \beamer@sectionintoc {5}{Results: Variance Breaks}{15}{0}{5}
 \beamer@sectionintoc {6}{Results: Mean Breaks}{18}{0}{6}
-\beamer@sectionintoc {7}{Results: Parameter Breaks}{21}{0}{7}
-\beamer@sectionintoc {8}{Robustness: Heavy-Tailed Innovations}{24}{0}{8}
-\beamer@sectionintoc {9}{Comparative Analysis}{25}{0}{9}
-\beamer@sectionintoc {10}{Conclusions}{27}{0}{10}
+\beamer@sectionintoc {7}{Results: Parameter Breaks}{25}{0}{7}
+\beamer@sectionintoc {8}{Robustness: Heavy-Tailed Innovations}{28}{0}{8}
+\beamer@sectionintoc {9}{Comparative Analysis}{29}{0}{9}
+\beamer@sectionintoc {10}{Conclusions}{31}{0}{10}
