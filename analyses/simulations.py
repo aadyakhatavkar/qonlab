@@ -11,7 +11,7 @@ from dgps.variance import simulate_variance_break_ar1
 from dgps.mean import simulate_mean_break_ar1
 from dgps.parameter import simulate_parameter_break_ar1
 from dgps.utils import validate_scenarios
-from estimators.forecasters import (
+from estimators.variance import (
     forecast_variance_dist_arima_global,
     forecast_variance_dist_arima_rolling,
     forecast_garch_variance,
@@ -20,7 +20,6 @@ from estimators.forecasters import (
     variance_interval_coverage,
     variance_log_score_normal,
 )
-
 
 
 # NOTE: Grid search for optimal window selection (Pesaran 2013) has been removed.
@@ -37,6 +36,13 @@ def mc_variance_breaks(
     scenarios=None,
     seed=42
 ):
+    """
+    Unified Monte Carlo engine for all break types (variance, mean, parameter).
+    
+    For variance breaks: Uses ARIMA/GARCH forecasters with point+variance metrics.
+    For mean breaks: Uses ARIMA/Markov forecasters with point metrics.
+    For parameter breaks: Uses ARIMA/Markov forecasters with point metrics.
+    """
     rng = np.random.default_rng(seed)
     scenarios = validate_scenarios(scenarios, T)
 
@@ -47,140 +53,261 @@ def mc_variance_breaks(
         name = sc["name"]
         task = sc.get("task", "variance")
 
-        v_point_g = []
-        v_point_r = []
-        v_point_garch = []
-        v_point_pb = []
-        v_unc_g = []
-        v_unc_r = []
-        v_unc_garch = []
-        v_unc_pb = []
-
-        seeds = [int(rng.integers(0, 1_000_000_000)) for _ in range(n_sim)]
-
-        def _run_one(s):
-            if task == "variance":
-                y = simulate_variance_break_ar1(
-                    T=T, Tb=sc["variance_Tb"], phi=phi, 
-                    sigma1=sc["variance_sigma1"], sigma2=sc["variance_sigma2"], 
-                    distribution=sc.get("distribution", "normal"), nu=sc.get("nu", 3), seed=s
-                )
-            elif task == "mean":
-                y = simulate_mean_break_ar1(
-                    T=T, Tb=sc["Tb"], mu0=sc["mu0"], mu1=sc["mu1"], 
-                    phi=sc.get("phi", phi), sigma=sc.get("sigma", 1.0), seed=s
-                )
-            elif task == "parameter":
-                y = simulate_parameter_break_ar1(
-                    T=T, Tb=sc["Tb"], phi1=sc["phi1"], phi2=sc["phi2"], 
-                    sigma=sc.get("sigma", 1.0), seed=s
-                )
-            else:
-                raise ValueError(f"Unknown task: {task}")
-
-            y_train = y[:-horizon]
-            y_test = y[-horizon:]
-
-            mg, vg = forecast_variance_dist_arima_global(y_train, horizon=horizon)
-            mr, vr = forecast_variance_dist_arima_rolling(y_train, window=window, horizon=horizon)
-            try:
-                mgarch, vgarch = forecast_garch_variance(y_train, horizon=horizon)
-            except Exception:
-                mgarch = np.full(horizon, np.nan)
-                vgarch = np.full(horizon, np.nan)
-            
-            try:
-                mpb, vpb = forecast_variance_arima_post_break(y_train, horizon=horizon)
-            except Exception:
-                mpb = np.full(horizon, np.nan)
-                vpb = np.full(horizon, np.nan)
-
-            return (
-                variance_rmse_mae_bias(y_test, mg),
-                variance_rmse_mae_bias(y_test, mr),
-                variance_rmse_mae_bias(y_test, mgarch),
-                variance_rmse_mae_bias(y_test, mpb),
-                (
-                    variance_interval_coverage(y_test, mg, vg, 0.80),
-                    variance_interval_coverage(y_test, mg, vg, 0.95),
-                    variance_log_score_normal(y_test, mg, vg)
-                ),
-                (
-                    variance_interval_coverage(y_test, mr, vr, 0.80),
-                    variance_interval_coverage(y_test, mr, vr, 0.95),
-                    variance_log_score_normal(y_test, mr, vr)
-                ),
-                (
-                    variance_interval_coverage(y_test, mgarch, vgarch, 0.80),
-                    variance_interval_coverage(y_test, mgarch, vgarch, 0.95),
-                    variance_log_score_normal(y_test, mgarch, vgarch)
-                ),
-                (
-                    variance_interval_coverage(y_test, mpb, vpb, 0.80),
-                    variance_interval_coverage(y_test, mpb, vpb, 0.95),
-                    variance_log_score_normal(y_test, mpb, vpb)
-                ),
+        # Task-specific initialization
+        if task == "variance":
+            _run_variance_scenario(
+                sc, n_sim, T, phi, window, horizon, rng,
+                variance_point_rows, variance_unc_rows
+            )
+        elif task == "mean":
+            _run_mean_scenario(
+                sc, n_sim, T, phi, window, horizon, rng,
+                variance_point_rows, variance_unc_rows
+            )
+        elif task == "parameter":
+            _run_parameter_scenario(
+                sc, n_sim, T, window, horizon, rng,
+                variance_point_rows, variance_unc_rows
             )
 
-        if Parallel is not None:
-            results = Parallel(n_jobs=1)(delayed(_run_one)(s) for s in seeds)
-        else:
-            results = [_run_one(s) for s in seeds]
-
-        for res in results:
-            pg_val, pr_val, pgarch_val, ppb_val, ug_val, ur_val, ugarch_val, upb_val = res
-            v_point_g.append(pg_val)
-            v_point_r.append(pr_val)
-            v_point_garch.append(pgarch_val)
-            v_point_pb.append(ppb_val)
-            v_unc_g.append(ug_val)
-            v_unc_r.append(ur_val)
-            v_unc_garch.append(ugarch_val)
-            v_unc_pb.append(upb_val)
-
-        v_pg = np.mean(np.array(v_point_g), axis=0) if v_point_g else np.zeros(3)
-        v_pr = np.mean(np.array(v_point_r), axis=0) if v_point_r else np.zeros(3)
-        v_pgarch = np.mean(np.array(v_point_garch), axis=0) if v_point_garch else np.zeros(3)
-        v_ppb = np.mean(np.array(v_point_pb), axis=0) if v_point_pb else np.zeros(3)
-        v_ug = np.mean(np.array(v_unc_g), axis=0) if v_unc_g else np.zeros(3)
-        v_ur = np.mean(np.array(v_unc_r), axis=0) if v_unc_r else np.zeros(3)
-        v_ugarch = np.mean(np.array(v_unc_garch), axis=0) if v_unc_garch else np.zeros(3)
-        v_upb = np.mean(np.array(v_unc_pb), axis=0) if v_unc_pb else np.zeros(3)
-
-        for metric, idx in [("RMSE", 0), ("MAE", 1), ("Bias", 2)]:
-            variance_point_rows.append({
-                "Scenario": name,
-                "Metric": metric,
-                "ARIMA Global": v_pg[idx],
-                "ARIMA Rolling": v_pr[idx],
-                "GARCH": v_pgarch[idx] if len(v_point_garch) > 0 else np.nan,
-                "ARIMA PostBreak": v_ppb[idx] if len(v_point_pb) > 0 else np.nan,
-            })
-
-        for metric, idx in [("Coverage80", 0), ("Coverage95", 1), ("LogScore", 2)]:
-            variance_unc_rows.append({
-                "Scenario": name,
-                "Metric": metric,
-                "ARIMA Global": v_ug[idx],
-                "ARIMA Rolling": v_ur[idx],
-                "GARCH": v_ugarch[idx] if len(v_unc_garch) > 0 else np.nan,
-                "ARIMA PostBreak": v_upb[idx] if len(v_unc_pb) > 0 else np.nan,
-            })
-
     return pd.DataFrame(variance_point_rows), pd.DataFrame(variance_unc_rows)
+
+
+def _run_variance_scenario(sc, n_sim, T, phi, window, horizon, rng, point_rows, unc_rows):
+    """Run variance break Monte Carlo simulation."""
+    from estimators.variance import (
+        forecast_variance_dist_arima_global, forecast_variance_dist_arima_rolling,
+        forecast_garch_variance, forecast_variance_arima_post_break,
+        variance_rmse_mae_bias, variance_interval_coverage, variance_log_score_normal
+    )
+    
+    name = sc["name"]
+    v_point_g, v_point_r, v_point_garch, v_point_pb = [], [], [], []
+    v_unc_g, v_unc_r, v_unc_garch, v_unc_pb = [], [], [], []
+    
+    seeds = [int(rng.integers(0, 1_000_000_000)) for _ in range(n_sim)]
+    
+    def _run_one(s):
+        y = simulate_variance_break_ar1(
+            T=T, Tb=sc["variance_Tb"], phi=phi,
+            sigma1=sc["variance_sigma1"], sigma2=sc["variance_sigma2"],
+            distribution=sc.get("distribution", "normal"), nu=sc.get("nu", 3), seed=s
+        )
+        y_train = y[:-horizon]
+        y_test = y[-horizon:]
+        
+        mg, vg = forecast_variance_dist_arima_global(y_train, horizon=horizon)
+        mr, vr = forecast_variance_dist_arima_rolling(y_train, window=window, horizon=horizon)
+        try:
+            mgarch, vgarch = forecast_garch_variance(y_train, horizon=horizon)
+        except Exception:
+            mgarch = np.full(horizon, np.nan)
+            vgarch = np.full(horizon, np.nan)
+        
+        try:
+            mpb, vpb = forecast_variance_arima_post_break(y_train, horizon=horizon)
+        except Exception:
+            mpb = np.full(horizon, np.nan)
+            vpb = np.full(horizon, np.nan)
+        
+        return (
+            variance_rmse_mae_bias(y_test, mg),
+            variance_rmse_mae_bias(y_test, mr),
+            variance_rmse_mae_bias(y_test, mgarch),
+            variance_rmse_mae_bias(y_test, mpb),
+            (variance_interval_coverage(y_test, mg, vg, 0.80), variance_interval_coverage(y_test, mg, vg, 0.95), variance_log_score_normal(y_test, mg, vg)),
+            (variance_interval_coverage(y_test, mr, vr, 0.80), variance_interval_coverage(y_test, mr, vr, 0.95), variance_log_score_normal(y_test, mr, vr)),
+            (variance_interval_coverage(y_test, mgarch, vgarch, 0.80), variance_interval_coverage(y_test, mgarch, vgarch, 0.95), variance_log_score_normal(y_test, mgarch, vgarch)),
+            (variance_interval_coverage(y_test, mpb, vpb, 0.80), variance_interval_coverage(y_test, mpb, vpb, 0.95), variance_log_score_normal(y_test, mpb, vpb)),
+        )
+    
+    if Parallel is not None:
+        results = Parallel(n_jobs=1)(delayed(_run_one)(s) for s in seeds)
+    else:
+        results = [_run_one(s) for s in seeds]
+    
+    for res in results:
+        pg_val, pr_val, pgarch_val, ppb_val, ug_val, ur_val, ugarch_val, upb_val = res
+        v_point_g.append(pg_val)
+        v_point_r.append(pr_val)
+        v_point_garch.append(pgarch_val)
+        v_point_pb.append(ppb_val)
+        v_unc_g.append(ug_val)
+        v_unc_r.append(ur_val)
+        v_unc_garch.append(ugarch_val)
+        v_unc_pb.append(upb_val)
+    
+    v_pg = np.mean(np.array(v_point_g), axis=0) if v_point_g else np.zeros(3)
+    v_pr = np.mean(np.array(v_point_r), axis=0) if v_point_r else np.zeros(3)
+    v_pgarch = np.mean(np.array(v_point_garch), axis=0) if v_point_garch else np.zeros(3)
+    v_ppb = np.mean(np.array(v_point_pb), axis=0) if v_point_pb else np.zeros(3)
+    v_ug = np.mean(np.array(v_unc_g), axis=0) if v_unc_g else np.zeros(3)
+    v_ur = np.mean(np.array(v_unc_r), axis=0) if v_unc_r else np.zeros(3)
+    v_ugarch = np.mean(np.array(v_unc_garch), axis=0) if v_unc_garch else np.zeros(3)
+    v_upb = np.mean(np.array(v_unc_pb), axis=0) if v_unc_pb else np.zeros(3)
+    
+    for metric, idx in [("RMSE", 0), ("MAE", 1), ("Bias", 2)]:
+        point_rows.append({
+            "Scenario": name,
+            "Metric": metric,
+            "ARIMA Global": v_pg[idx],
+            "ARIMA Rolling": v_pr[idx],
+            "GARCH": v_pgarch[idx] if len(v_point_garch) > 0 else np.nan,
+            "ARIMA PostBreak": v_ppb[idx] if len(v_point_pb) > 0 else np.nan,
+        })
+    
+    for metric, idx in [("Coverage80", 0), ("Coverage95", 1), ("LogScore", 2)]:
+        unc_rows.append({
+            "Scenario": name,
+            "Metric": metric,
+            "ARIMA Global": v_ug[idx],
+            "ARIMA Rolling": v_ur[idx],
+            "GARCH": v_ugarch[idx] if len(v_unc_garch) > 0 else np.nan,
+            "ARIMA PostBreak": v_upb[idx] if len(v_unc_pb) > 0 else np.nan,
+        })
+
+
+def _run_mean_scenario(sc, n_sim, T, phi, window, horizon, rng, point_rows, unc_rows):
+    """Run mean break Monte Carlo simulation."""
+    from estimators.mean import (
+        forecast_mean_ar1_global, forecast_mean_ar1_rolling,
+        forecast_mean_oracle_single, forecast_mean_markov
+    )
+    from estimators.mean import mean_metrics
+    
+    name = sc["name"]
+    seeds = [int(rng.integers(0, 1_000_000_000)) for _ in range(n_sim)]
+    
+    results_by_method = {}
+    
+    def _run_one(s):
+        y = simulate_mean_break_ar1(
+            T=T, Tb=sc["Tb"], mu0=sc["mu0"], mu1=sc["mu1"],
+            phi=sc.get("phi", phi), sigma=sc.get("sigma", 1.0), seed=s
+        )
+        y_train = y[:-horizon]
+        y_test = y[-horizon:]
+        
+        methods = {
+            "AR1 Global": lambda: forecast_mean_ar1_global(y_train, horizon=horizon),
+            "AR1 Rolling": lambda: forecast_mean_ar1_rolling(y_train, window=window, horizon=horizon),
+            "Oracle": lambda: forecast_mean_oracle_single(y_train, Tb=sc["Tb"], horizon=horizon),
+            "Markov Switching": lambda: forecast_mean_markov(y_train, horizon=horizon)
+        }
+        
+        res = {}
+        for mname, mfunc in methods.items():
+            try:
+                pred = mfunc()
+                res[mname] = y_test - pred
+            except Exception:
+                res[mname] = np.full(horizon, np.nan)
+        return res
+    
+    if Parallel is not None:
+        results = Parallel(n_jobs=1)(delayed(_run_one)(s) for s in seeds)
+    else:
+        results = [_run_one(s) for s in seeds]
+    
+    for res in results:
+        for method, errors in res.items():
+            if method not in results_by_method:
+                results_by_method[method] = []
+            results_by_method[method].append(errors)
+    
+    for method, error_list in results_by_method.items():
+        all_errors = np.concatenate(error_list)
+        metrics = mean_metrics(all_errors)
+        point_rows.append({
+            "Scenario": name,
+            "Metric": "RMSE",
+            "Method": method,
+            "Value": metrics["RMSE"]
+        })
+        point_rows.append({
+            "Scenario": name,
+            "Metric": "MAE",
+            "Method": method,
+            "Value": metrics["MAE"]
+        })
+
+
+def _run_parameter_scenario(sc, n_sim, T, window, horizon, rng, point_rows, unc_rows):
+    """Run parameter break Monte Carlo simulation."""
+    from estimators.parameter import (
+        forecast_param_ar1_global, forecast_param_ar1_rolling,
+        forecast_param_markov
+    )
+    from estimators.parameter import param_metrics
+    
+    name = sc["name"]
+    seeds = [int(rng.integers(0, 1_000_000_000)) for _ in range(n_sim)]
+    
+    results_by_method = {}
+    
+    def _run_one(s):
+        y = simulate_parameter_break_ar1(
+            T=T, Tb=sc["Tb"], phi1=sc["phi1"], phi2=sc["phi2"],
+            sigma=sc.get("sigma", 1.0), seed=s
+        )
+        y_train = y[:-horizon]
+        y_test = y[-horizon:]
+        
+        methods = {
+            "AR1 Global": lambda: forecast_param_ar1_global(y_train, horizon=horizon),
+            "AR1 Rolling": lambda: forecast_param_ar1_rolling(y_train, window=window, horizon=horizon),
+            "Markov Switching": lambda: forecast_param_markov(y_train, horizon=horizon)
+        }
+        
+        res = {}
+        for mname, mfunc in methods.items():
+            try:
+                pred = mfunc()
+                res[mname] = y_test - pred
+            except Exception:
+                res[mname] = np.full(horizon, np.nan)
+        return res
+    
+    if Parallel is not None:
+        results = Parallel(n_jobs=1)(delayed(_run_one)(s) for s in seeds)
+    else:
+        results = [_run_one(s) for s in seeds]
+    
+    for res in results:
+        for method, errors in res.items():
+            if method not in results_by_method:
+                results_by_method[method] = []
+            results_by_method[method].append(errors)
+    
+    for method, error_list in results_by_method.items():
+        all_errors = np.concatenate(error_list)
+        metrics = param_metrics(all_errors)
+        point_rows.append({
+            "Scenario": name,
+            "Metric": "RMSE",
+            "Method": method,
+            "Value": metrics["RMSE"]
+        })
+        point_rows.append({
+            "Scenario": name,
+            "Metric": "MAE",
+            "Method": method,
+            "Value": metrics["MAE"]
+        })
+
 
 
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run variance-break Monte Carlo experiments")
+    parser = argparse.ArgumentParser(description="Run Monte Carlo experiments for structural breaks")
     parser.add_argument("--quick", action="store_true", help="run a short, fast simulation")
-    # Grid search removed - practitioners prefer fixed window and break detection
     parser.add_argument("--n-sim", type=int, default=200, help="number of Monte Carlo simulations")
     parser.add_argument("--T", type=int, default=400, help="sample size T")
     parser.add_argument("--phi", type=float, default=0.6, help="AR(1) coefficient")
     parser.add_argument("--window", type=int, default=100, help="rolling-window size")
     parser.add_argument("--horizon", type=int, default=20, help="forecast horizon")
+    parser.add_argument("--scenarios", type=str, default=None, help="JSON file with scenarios")
     args = parser.parse_args()
 
     if args.quick:
@@ -194,18 +321,25 @@ def main():
         window = args.window
         horizon = args.horizon
 
+    scenarios = None
+    if args.scenarios:
+        import json
+        with open(args.scenarios) as f:
+            scenarios = json.load(f)
+
     df_point, df_unc = mc_variance_breaks(
         n_sim=n_sim,
         T=T,
         phi=args.phi,
         window=window,
         horizon=horizon,
+        scenarios=scenarios,
     )
 
-    print("\n=== VARIANCE BREAK: POINT METRICS ===")
+    print("\n=== POINT METRICS ===")
     print(df_point.round(4).to_string(index=False))
 
-    print("\n=== VARIANCE BREAK: UNCERTAINTY METRICS ===")
+    print("\n=== UNCERTAINTY METRICS ===")
     print(df_unc.round(4).to_string(index=False))
 
 

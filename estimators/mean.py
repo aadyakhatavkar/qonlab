@@ -186,3 +186,154 @@ def mean_metrics(errors):
         "MAE": float(np.mean(np.abs(e))),
         "Bias": float(np.mean(e))
     }
+
+# =========================================================
+# SARIMA Methods (Seasonal ARIMA for mean breaks)
+# =========================================================
+
+def forecast_sarima_global(y_train, order=(1, 0, 0), seasonal_order=(1, 0, 0, 12)):
+    """
+    SARIMA(p,d,q)(P,D,Q)_s forecasting (1-step ahead).
+    
+    Parameters:
+        y_train: Training data
+        order: (p, d, q) ARIMA order
+        seasonal_order: (P, D, Q, s) seasonal order with period s
+    
+    Returns:
+        1-step ahead forecast
+    """
+    try:
+        from statsmodels.tsa.statespace.sarimax import SARIMAX
+        
+        m = SARIMAX(
+            y_train,
+            order=order,
+            seasonal_order=seasonal_order,
+            trend="c",
+            enforce_stationarity=False,
+            enforce_invertibility=False
+        ).fit(disp=False)
+        return float(m.forecast(1)[0])
+    except Exception:
+        # Fallback: simple mean
+        return float(np.mean(y_train[-min(10, len(y_train)):]))
+
+
+def forecast_sarima_rolling(y_train, window=60, order=(1, 0, 0), seasonal_order=(1, 0, 0, 12)):
+    """
+    SARIMA forecasting with rolling window.
+    
+    Parameters:
+        y_train: Training data
+        window: Rolling window size
+        order: (p, d, q) ARIMA order
+        seasonal_order: (P, D, Q, s) seasonal order
+    
+    Returns:
+        1-step ahead forecast
+    """
+    try:
+        from statsmodels.tsa.statespace.sarimax import SARIMAX
+        
+        sub = y_train[-window:] if len(y_train) > window else y_train
+        m = SARIMAX(
+            sub,
+            order=order,
+            seasonal_order=seasonal_order,
+            trend="c",
+            enforce_stationarity=False,
+            enforce_invertibility=False
+        ).fit(disp=False)
+        return float(m.forecast(1)[0])
+    except Exception:
+        return float(np.mean(sub[-10:]))
+
+
+def forecast_sarima_with_break_dummy(y_train, Tb, order=(1, 0, 0), seasonal_order=(1, 0, 0, 12)):
+    """
+    SARIMA with exogenous break dummy (oracle Tb).
+    
+    Parameters:
+        y_train: Training data
+        Tb: Known break point
+        order: (p, d, q) ARIMA order
+        seasonal_order: (P, D, Q, s) seasonal order
+    
+    Returns:
+        1-step ahead forecast
+    """
+    try:
+        from statsmodels.tsa.statespace.sarimax import SARIMAX
+        
+        y = np.asarray(y_train, dtype=float)
+        t_idx = np.arange(len(y))
+        d = (t_idx > Tb).astype(float).reshape(-1, 1)
+        
+        m = SARIMAX(
+            y,
+            order=order,
+            seasonal_order=seasonal_order,
+            exog=d,
+            trend="c",
+            enforce_stationarity=False,
+            enforce_invertibility=False
+        ).fit(disp=False)
+        
+        d_next = np.array([[1.0 if len(y) > Tb else 0.0]])
+        return float(m.forecast(1, exog=d_next)[0])
+    except Exception:
+        return float(np.mean(y_train[-10:]))
+
+
+def forecast_sarima_with_estimated_break(y_train, order=(1, 0, 0), seasonal_order=(1, 0, 0, 12), trim=0.15):
+    """
+    SARIMA with estimated break point.
+    Estimates Tb via grid search on mean-only model, then uses dummy.
+    
+    Parameters:
+        y_train: Training data
+        order: (p, d, q) ARIMA order
+        seasonal_order: (P, D, Q, s) seasonal order
+        trim: Trimming fraction for break detection
+    
+    Returns:
+        1-step ahead forecast
+    """
+    try:
+        from statsmodels.tsa.statespace.sarimax import SARIMAX
+        
+        y = np.asarray(y_train, dtype=float)
+        Tn = len(y)
+        lo = max(int(trim * Tn), 10)
+        hi = min(int((1 - trim) * Tn) - 1, Tn - 10)
+        
+        # Estimate break point via SSE minimization
+        best_Tb, best_sse = None, np.inf
+        for Tb in range(lo, hi):
+            m1 = np.mean(y[:Tb+1])
+            m2 = np.mean(y[Tb+1:])
+            sse = np.sum((y[:Tb+1] - m1)**2) + np.sum((y[Tb+1:] - m2)**2)
+            if sse < best_sse:
+                best_sse, best_Tb = sse, Tb
+        
+        Tb_hat = best_Tb if best_Tb is not None else Tn // 2
+        
+        # Fit SARIMA with break dummy
+        t_idx = np.arange(len(y))
+        d = (t_idx > Tb_hat).astype(float).reshape(-1, 1)
+        
+        m = SARIMAX(
+            y,
+            order=order,
+            seasonal_order=seasonal_order,
+            exog=d,
+            trend="c",
+            enforce_stationarity=False,
+            enforce_invertibility=False
+        ).fit(disp=False)
+        
+        d_next = np.array([[1.0 if len(y) > Tb_hat else 0.0]])
+        return float(m.forecast(1, exog=d_next)[0])
+    except Exception:
+        return float(np.mean(y_train[-10:]))

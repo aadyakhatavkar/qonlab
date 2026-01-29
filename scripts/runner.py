@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""pixi: small experiment runner for variance-break work
+"""Experiment runner for structural break forecasting (variance, mean, parameter)
 
 Usage examples:
-  scripts/pixi.py --quick
-  scripts/pixi.py --n-sim 100 --T 400 --window 100 --horizon 20
-  scripts/pixi.py --scenarios scenarios.json
+  scripts/runner.py --quick
+  scripts/runner.py --n-sim 100 --T 400 --window 100 --horizon 20
+  scripts/runner.py --scenarios scenarios.json
 
 Saves results CSVs to `results/` with timestamped filenames.
 """
@@ -45,9 +45,9 @@ def _check_dependencies():
 # run dependency check early
 _check_dependencies()
 
-from analyses.simulations import mc_variance_breaks, mc_variance_breaks_grid
+from analyses.simulations import mc_variance_breaks
 from dgps.static import simulate_variance_break
-from estimators.forecasters import (
+from estimators.variance import (
     forecast_variance_dist_arima_rolling,
     variance_log_score_normal,
     variance_interval_coverage,
@@ -122,7 +122,7 @@ def save_dfs(df_point, df_unc, tag=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='pixi: run variance-break experiments')
+    parser = argparse.ArgumentParser(description='Experiment runner for structural break forecasting')
     parser.add_argument('--quick', action='store_true', help='short quick run')
     parser.add_argument('--n-sim', type=int, default=200)
     parser.add_argument('--T', type=int, default=400)
@@ -185,13 +185,8 @@ def main():
                 prices = data['Adj Close'].dropna()
                 returns = np.log(prices).diff().dropna().values
                 print(f'Fetched {len(returns)} return observations')
-                # Run a small grid analysis on the real returns (use smaller n_sim)
-                df_grid = mc_variance_breaks_grid(n_sim=min(20, n_sim), T=len(returns), phi=args.phi, horizon=horizon, window_sizes=[20,50,100], break_magnitudes=[1.5,3.0])
-                # save grid
-                os.makedirs('results', exist_ok=True)
-                outcsv = f"results/sp500_variance_grid_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-                df_grid.to_csv(outcsv, index=False)
-                print('Saved S&P variance grid to:', outcsv)
+                # Grid search functionality was removed in favor of fixed window approach
+                # See simulations.py for rationale (Pesaran 2013 practice)
                 df_point = pd.DataFrame()
                 df_unc = pd.DataFrame()
             except Exception as e:

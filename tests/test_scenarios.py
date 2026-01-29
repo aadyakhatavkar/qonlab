@@ -2,9 +2,9 @@ import json
 from pathlib import Path
 
 
-def test_example_scenarios_have_task_and_owner():
-    p = Path('scenarios/example_scenarios.json')
-    assert p.exists(), 'example_scenarios.json missing'
+def test_scenarios_have_task_and_owner():
+    p = Path('scenarios.json')
+    assert p.exists(), 'scenarios.json missing'
     data = json.loads(p.read_text())
     assert isinstance(data, list) and len(data) > 0
     for sc in data:

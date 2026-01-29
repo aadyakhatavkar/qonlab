@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from dgps.variance import simulate_variance_break_ar1
-from estimators.forecasters import (
+from estimators.variance import (
     forecast_variance_dist_arima_rolling,
     variance_log_score_normal,
     variance_interval_coverage,

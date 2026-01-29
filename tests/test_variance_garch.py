@@ -8,8 +8,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 from dgps.variance import simulate_variance_break_ar1
-from estimators.forecasters import forecast_garch_variance, variance_rmse_mae_bias
-import estimators.forecasters as ols_mod
+from estimators.variance import forecast_garch_variance, variance_rmse_mae_bias
+import estimators.variance as variance_mod
 
 
 def test_simulate_variance_break_seed():
@@ -19,7 +19,7 @@ def test_simulate_variance_break_seed():
 
 
 def test_forecast_garch_shapes():
-    if getattr(ols_mod, 'arch_model', None) is None:
+    if getattr(variance_mod, 'arch_model', None) is None:
         pytest.skip('arch not installed')
     y = simulate_variance_break_ar1(T=120, Tb=60, seed=1)
     y_train = y[:-5]

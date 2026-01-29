@@ -1,5 +1,5 @@
 # Variance forecasters
-from .forecasters import (
+from .variance import (
     forecast_variance_dist_arima_global,
     forecast_variance_dist_arima_rolling,
     forecast_garch_variance,

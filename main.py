@@ -13,7 +13,7 @@ Examples:
   python main.py variance --quick
   python main.py mean --n-sim 100
   python main.py parameter --innovation student --df 50
-  python main.py runner --scenarios scenarios/example_scenarios.json
+  python main.py runner --scenarios scenarios.json
 """
 import sys
 import argparse
@@ -28,7 +28,7 @@ def main():
 Examples:
   python main.py variance --quick
   python main.py mean --n-sim 100 --Tb 150
-  python main.py runner --scenarios scenarios/example_scenarios.json
+  python main.py runner --scenarios scenarios.json
         """
     )
     sub = parser.add_subparsers(dest='cmd', help='Available commands')

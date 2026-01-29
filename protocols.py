@@ -1,14 +1,30 @@
-from typing import Protocol
+from typing import Protocol, Tuple
 import numpy as np
 
 
 class DGPProtocol(Protocol):
-    def simulate(self, *args, **kwargs) -> np.ndarray: ...
+    """Protocol for Data-Generating Processes."""
+    
+    def simulate(self, T: int, seed: int | None = None) -> np.ndarray:
+        """Simulate a time series."""
+        ...
 
 
 class EstimatorProtocol(Protocol):
-    def fit(self, y: np.ndarray): ...
+    """Protocol for Forecasting Methods."""
+    
+    def fit(self, y: np.ndarray) -> None:
+        """Fit/train on data."""
+        ...
 
-    def predict(self, horizon: int): ...
+    def predict(self, horizon: int) -> Tuple[np.ndarray, np.ndarray | None]:
+        """Generate forecasts for specified horizon.
+        
+        Returns:
+            mean: Point forecast of shape (horizon,)
+            variance: Forecast variance of shape (horizon,), or None if not available
+        """
+        ...
+
 
 __all__ = ["DGPProtocol", "EstimatorProtocol"]
