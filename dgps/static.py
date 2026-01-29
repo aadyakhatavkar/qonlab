@@ -113,56 +113,6 @@ def simulate_parameter_break(
     return y
 
 
-def estimate_variance_break_point(y, trim=0.15):
-    """
-    Estimate the variance break point using grid search on squared residuals.
-    
-    Fits AR(1) in two regimes and finds the break point that minimizes
-    sum of squared residuals.
-    """
-    y = np.asarray(y, dtype=float)
-    T = len(y)
-    lo = max(int(np.floor(trim * T)), 10)
-    hi = min(int(np.ceil((1 - trim) * T)) - 1, T - 11)
-    
-    best_variance_Tb, best_sse = None, np.inf
-    
-    for variance_Tb_cand in range(lo, hi):
-        # Fit AR(1) in regime 1
-        y1 = y[:variance_Tb_cand+1]
-        if len(y1) < 3:
-            continue
-        y1_dep = y1[1:]
-        y1_lag = y1[:-1]
-        X1 = np.column_stack([np.ones_like(y1_lag), y1_lag])
-        try:
-            beta1 = np.linalg.lstsq(X1, y1_dep, rcond=None)[0]
-            resid1 = y1_dep - X1 @ beta1
-            sse1 = float(np.sum(resid1**2))
-        except Exception:
-            continue
-        
-        # Fit AR(1) in regime 2
-        y2 = y[variance_Tb_cand+1:]
-        if len(y2) < 3:
-            continue
-        y2_dep = y2[1:]
-        y2_lag = y2[:-1]
-        X2 = np.column_stack([np.ones_like(y2_lag), y2_lag])
-        try:
-            beta2 = np.linalg.lstsq(X2, y2_dep, rcond=None)[0]
-            resid2 = y2_dep - X2 @ beta2
-            sse2 = float(np.sum(resid2**2))
-        except Exception:
-            continue
-        
-        sse = sse1 + sse2
-        if sse < best_sse:
-            best_sse, best_variance_Tb = sse, variance_Tb_cand
-    
-    return int(best_variance_Tb if best_variance_Tb is not None else T // 2)
-
-
 def _validate_scenarios(scenarios, T):
     if scenarios is None:
         return [{"name": "Single variance break", "variance_Tb": max(1, T // 2), "variance_sigma1": 1.0, "variance_sigma2": 2.0, "task": "variance"}]
