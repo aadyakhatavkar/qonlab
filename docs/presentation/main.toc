@@ -6,6 +6,6 @@
 \beamer@sectionintoc {6}{Results: Variance Breaks}{18}{0}{6}
 \beamer@sectionintoc {7}{Results: Mean Breaks}{21}{0}{7}
 \beamer@sectionintoc {8}{Results: Parameter Breaks}{28}{0}{8}
-\beamer@sectionintoc {9}{Robustness: Heavy-Tailed Innovations}{31}{0}{9}
-\beamer@sectionintoc {10}{Comparative Analysis}{32}{0}{10}
-\beamer@sectionintoc {11}{Conclusions}{34}{0}{11}
+\beamer@sectionintoc {9}{Robustness: Heavy-Tailed Innovations}{40}{0}{9}
+\beamer@sectionintoc {10}{Comparative Analysis}{41}{0}{10}
+\beamer@sectionintoc {11}{Conclusions}{43}{0}{11}

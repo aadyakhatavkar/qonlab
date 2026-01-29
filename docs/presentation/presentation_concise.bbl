@@ -1,10 +1,20 @@
 \begin{thebibliography}{}
 
-\bibitem[Bai and Perron, 1998]{bai1998}
-Bai, J. and Perron, P. (1998).
-\newblock Estimating and testing linear models with multiple structural
-  changes.
-\newblock {\em Econometrica}, 66(1):47--78.
+\bibitem[Boot and Pick, 2020]{boot2020}
+Boot, T. and Pick, A. (2020).
+\newblock Does modeling structural breaks improve forecast accuracy?
+\newblock {\em Journal of Econometrics}, 215(1):35--59.
+
+\bibitem[Cai, 2007]{cai2007}
+Cai, Z. (2007).
+\newblock Trending time-varying coefficient time series models with serially
+  correlated errors.
+\newblock {\em Journal of Econometrics}, 136(1):163--188.
+
+\bibitem[Delgado et~al., 2000]{delgado2000}
+Delgado, M.~A., Hidalgo, J., and Velasco, C. (2000).
+\newblock Nonparametric inference on structural breaks.
+\newblock {\em Journal of Econometrics}, 96(1):113--144.
 
 \bibitem[Hamilton, 1989]{hamilton1989}
 Hamilton, J.~D. (1989).
@@ -12,16 +22,38 @@ Hamilton, J.~D. (1989).
   and the business cycle.
 \newblock {\em Econometrica}, 57(2):357--384.
 
-\bibitem[Pesaran, 2013]{pesaran2013}
-Pesaran, M.~H. (2013).
-\newblock The role of structural breaks in forecasting.
-\newblock In Elliott, G. and Timmermann, A., editors, {\em Handbook of Economic
-  Forecasting}, volume~2B, pages 1159--1191. Elsevier.
+\bibitem[Koo et~al., 2012]{koo2012}
+Koo, B., Linton, O., and Whang, Y.-J. (2012).
+\newblock Estimation of semiparametric locally stationary diffusion models.
+\newblock {\em Journal of Econometrics}, 170(2):210--233.
 
-\bibitem[Rossi, 2013]{rossi2013}
-Rossi, B. (2013).
-\newblock Advances in forecasting under instability.
-\newblock {\em Handbook of Economic Forecasting}, 2B:1203--1324.
+\bibitem[Koo and Seo, 2015]{kooseo2015}
+Koo, B. and Seo, M.~H. (2015).
+\newblock Structural-break models under misspecification: Implications for
+  forecasting.
+\newblock {\em Journal of Econometrics}, 188(1):166--181.
+
+\bibitem[Koop and Potter, 2005]{koop2005}
+Koop, G. and Potter, S.~M. (2005).
+\newblock The importance of structural change in forecasting.
+\newblock In {\em Handbook of Economic Forecasting}, volume~1, pages 915--1003.
+  Elsevier.
+
+\bibitem[Perron et~al., 2006]{perron2006}
+Perron, P., Zhu, X., and Yabu, T. (2006).
+\newblock Estimating restricted structural change models.
+\newblock {\em Journal of Econometrics}, 134(2):373--399.
+
+\bibitem[Pesaran et~al., 2013]{pesaran2013_jo}
+Pesaran, M.~H., Pick, A., and Timmermann, A. (2013).
+\newblock Optimal forecasts in the presence of structural breaks.
+\newblock {\em Journal of Econometrics}, 177(2):134--152.
+
+\bibitem[Siliverstovs and van Dijk, 2002]{siliverstovs2002}
+Siliverstovs, B. and van Dijk, D. (2002).
+\newblock Forecasting the daily temperature in the netherlands: a comparison of
+  forecasting methods.
+\newblock {\em International Journal of Forecasting}, 19(3):435--453.
 
 \bibitem[Stock and Watson, 1996]{stock1996}
 Stock, J.~H. and Watson, M.~W. (1996).

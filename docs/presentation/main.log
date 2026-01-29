@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  29 JAN 2026 17:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  29 JAN 2026 19:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**main
+**main.tex
 (./main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -1306,42 +1306,425 @@ Overfull \vbox (173.28853pt too high) detected at line 765
 [30
 
  <../../figures/parameter/parameter_persistence_analysis.png>]
-Overfull \vbox (77.35162pt too high) detected at line 804
+
+LaTeX Warning: File `figures/RMSE recurring.png' not found on input line 793.
+
+
+! Package pdftex.def Error: File `figures/RMSE recurring.png' not found: using 
+draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.793 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 7
+93.
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
+
+LaTeX Warning: File `figures/MAE recurring.png' not found on input line 793.
+
+
+! Package pdftex.def Error: File `figures/MAE recurring.png' not found: using d
+raft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.793 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/Bias recurring.png' not found on input line 793.
+
+
+! Package pdftex.def Error: File `figures/Bias recurring.png' not found: using 
+draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.793 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (8.94731pt too high) detected at line 793
  []
 
 [31
 
 ]
-Overfull \vbox (15.84752pt too high) detected at line 847
+
+LaTeX Warning: File `figures/Single break DGP.png' not found on input line 816.
+
+
+
+! Package pdftex.def Error: File `figures/Single break DGP.png' not found: usin
+g draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/Distribution recurring.png' not found on input lin
+e 816.
+
+
+! Package pdftex.def Error: File `figures/Distribution recurring.png' not found
+: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (85.82298pt too high) detected at line 816
  []
 
 [32
 
-] [33
+]
 
-] [34
+LaTeX Warning: File `figures/Single break DGP.png' not found on input line 816.
 
-] [35
+
+
+! Package pdftex.def Error: File `figures/Single break DGP.png' not found: usin
+g draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/Distribution recurring.png' not found on input lin
+e 816.
+
+
+! Package pdftex.def Error: File `figures/Distribution recurring.png' not found
+: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (85.82298pt too high) detected at line 816
+ []
+
+[33
 
 ]
-Overfull \vbox (5.4784pt too high) detected at line 978
+
+LaTeX Warning: File `figures/Single break DGP.png' not found on input line 816.
+
+
+
+! Package pdftex.def Error: File `figures/Single break DGP.png' not found: usin
+g draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/Distribution recurring.png' not found on input lin
+e 816.
+
+
+! Package pdftex.def Error: File `figures/Distribution recurring.png' not found
+: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (85.82298pt too high) detected at line 816
+ []
+
+[34
+
+]
+
+LaTeX Warning: File `figures/Single break DGP.png' not found on input line 816.
+
+
+
+! Package pdftex.def Error: File `figures/Single break DGP.png' not found: usin
+g draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/Distribution recurring.png' not found on input lin
+e 816.
+
+
+! Package pdftex.def Error: File `figures/Distribution recurring.png' not found
+: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.816 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (85.82298pt too high) detected at line 816
+ []
+
+[35
+
+]
+
+LaTeX Warning: File `figures/RMSE over Dof single break.png' not found on input
+ line 839.
+
+
+! Package pdftex.def Error: File `figures/RMSE over Dof single break.png' not f
+ound: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/GDP_recurring break.png' not found on input line 8
+39.
+
+
+! Package pdftex.def Error: File `figures/GDP_recurring break.png' not found: u
+sing draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (96.06143pt too high) detected at line 839
  []
 
 [36
 
 ]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 9
-99.
- (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) [37
+
+LaTeX Warning: File `figures/RMSE over Dof single break.png' not found on input
+ line 839.
+
+
+! Package pdftex.def Error: File `figures/RMSE over Dof single break.png' not f
+ound: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/GDP_recurring break.png' not found on input line 8
+39.
+
+
+! Package pdftex.def Error: File `figures/GDP_recurring break.png' not found: u
+sing draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (96.06143pt too high) detected at line 839
+ []
+
+[37
+
+]
+
+LaTeX Warning: File `figures/RMSE over Dof single break.png' not found on input
+ line 839.
+
+
+! Package pdftex.def Error: File `figures/RMSE over Dof single break.png' not f
+ound: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/GDP_recurring break.png' not found on input line 8
+39.
+
+
+! Package pdftex.def Error: File `figures/GDP_recurring break.png' not found: u
+sing draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (96.06143pt too high) detected at line 839
+ []
+
+[38
+
+]
+
+LaTeX Warning: File `figures/RMSE over Dof single break.png' not found on input
+ line 839.
+
+
+! Package pdftex.def Error: File `figures/RMSE over Dof single break.png' not f
+ound: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File `figures/GDP_recurring break.png' not found on input line 8
+39.
+
+
+! Package pdftex.def Error: File `figures/GDP_recurring break.png' not found: u
+sing draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.839 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \vbox (96.06143pt too high) detected at line 839
+ []
+
+[39
+
+]
+Overfull \vbox (77.35162pt too high) detected at line 878
+ []
+
+[40
+
+]
+Overfull \vbox (15.84752pt too high) detected at line 921
+ []
+
+[41
+
+] [42
+
+] [43
+
+] [44
+
+]
+Overfull \vbox (5.4784pt too high) detected at line 1052
+ []
+
+[45
+
+] [46
 
 ] (./main.bbl
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `\translate ' on input line 1.
 
-) [38
+) [47
 
 ]
 \tf@nav=\write6
@@ -1370,42 +1753,43 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: C7E8A9521D916C53B7645C59AFF0036E;1749.
  ) 
 Here is how much of TeX's memory you used:
- 27771 strings out of 476182
- 547039 string characters out of 5795595
+ 28004 strings out of 476182
+ 555673 string characters out of 5795595
  1937975 words of memory out of 5000000
- 49138 multiletter control sequences out of 15000+600000
- 582043 words of font info for 88 fonts, out of 8000000 for 9000
+ 49352 multiletter control sequences out of 15000+600000
+ 582356 words of font info for 89 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 101i,15n,107p,375b,698s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 101i,15n,107p,379b,698s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1095.600
 pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx1440.60
-0pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecso1000.6
-00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi0600.
-600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/tcss1095
-.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi080
-0.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx10
-00.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi1
-095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss
-1200.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecs
-s0600.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
-ss1440.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-css1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/
-ecss0800.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec
-/ecsi1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/e
-c/ecss1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/
-ec/ecsx1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen
-/ec/ecsx1200.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi
-10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb>
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/
-share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/t
-exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (38 pages, 3841838 bytes).
+0pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1000.6
+00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecso1000.
+600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi0600
+.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/tcss109
+5.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi08
+00.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx1
+000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi
+1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecs
+s1200.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
+ss0600.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/e
+css1440.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/
+ecss1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec
+/ecss0800.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/e
+c/ecsi1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/
+ec/ecss1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen
+/ec/ecsx1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappe
+n/ec/ecsx1200.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
+i10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb
+></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/
+texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (47 pages, 3862666 bytes).
 PDF statistics:
- 969 PDF objects out of 1000 (max. 8388607)
- 352 compressed objects within 4 object streams
- 91 named destinations out of 1000 (max. 500000)
+ 1056 PDF objects out of 1200 (max. 8388607)
+ 397 compressed objects within 4 object streams
+ 109 named destinations out of 1000 (max. 500000)
  304 words of extra memory for PDF output out of 10000 (max. 10000000)
 

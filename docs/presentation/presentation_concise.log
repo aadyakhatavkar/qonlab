@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  29 JAN 2026 18:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  29 JAN 2026 21:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**presentation_concise
+**presentation_concise.tex
 (./presentation_concise.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -1118,99 +1118,186 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 78.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [2
 
-] [3
-
-] [4
-
 ]
-Overfull \hbox (5.5311pt too wide) in paragraph at lines 147--147
- [] 
+Overfull \vbox (17.0051pt too high) detected at line 96
  []
 
-[5
+[3
 
 ]
-<../../figures/variance/variance_forecasts_comparison.png, id=84, 1074.1731pt x
- 714.2685pt>
+Overfull \vbox (8.26137pt too high) detected at line 117
+ []
+
+[4
+
+]
+<../../figures/mean/single_break_RMSE.png, id=81, 849.8952pt x 281.853pt>
+File: ../../figures/mean/single_break_RMSE.png Graphic file (type png)
+<use ../../figures/mean/single_break_RMSE.png>
+Package pdftex.def Info: ../../figures/mean/single_break_RMSE.png  used on inpu
+t line 144.
+(pdftex.def)             Requested size: 152.96123pt x 50.72704pt.
+<../../figures/mean/single_break_Bias.png, id=83, 849.8952pt x 281.853pt>
+File: ../../figures/mean/single_break_Bias.png Graphic file (type png)
+<use ../../figures/mean/single_break_Bias.png>
+Package pdftex.def Info: ../../figures/mean/single_break_Bias.png  used on inpu
+t line 144.
+(pdftex.def)             Requested size: 152.96123pt x 50.72704pt.
+<../../figures/mean/single_break_MAE.png, id=84, 849.8952pt x 281.853pt>
+File: ../../figures/mean/single_break_MAE.png Graphic file (type png)
+<use ../../figures/mean/single_break_MAE.png>
+Package pdftex.def Info: ../../figures/mean/single_break_MAE.png  used on input
+ line 144.
+(pdftex.def)             Requested size: 152.96123pt x 50.72704pt.
+<../../figures/mean/single_break_seasonal_series.png, id=85, 859.2903pt x 281.8
+53pt>
+File: ../../figures/mean/single_break_seasonal_series.png Graphic file (type pn
+g)
+<use ../../figures/mean/single_break_seasonal_series.png>
+Package pdftex.def Info: ../../figures/mean/single_break_seasonal_series.png  u
+sed on input line 144.
+(pdftex.def)             Requested size: 152.96123pt x 50.17226pt.
+ [5
+
+ <../../figures/mean/single_break_RMSE.png> <../../figures/mean/single_break_Bi
+as.png> <../../figures/mean/single_break_MAE.png> <../../figures/mean/single_br
+eak_seasonal_series.png>]
+<../../figures/mean/compare_RMSE_single_vs_multiple.png, id=97, 855.6768pt x 35
+4.123pt>
+File: ../../figures/mean/compare_RMSE_single_vs_multiple.png Graphic file (type
+ png)
+<use ../../figures/mean/compare_RMSE_single_vs_multiple.png>
+Package pdftex.def Info: ../../figures/mean/compare_RMSE_single_vs_multiple.png
+  used on input line 168.
+(pdftex.def)             Requested size: 172.07956pt x 71.21239pt.
+<../../figures/mean/compare_MAE_single_vs_multiple.png, id=98, 855.6768pt x 354
+.123pt>
+File: ../../figures/mean/compare_MAE_single_vs_multiple.png Graphic file (type 
+png)
+<use ../../figures/mean/compare_MAE_single_vs_multiple.png>
+Package pdftex.def Info: ../../figures/mean/compare_MAE_single_vs_multiple.png 
+ used on input line 168.
+(pdftex.def)             Requested size: 172.07956pt x 71.21239pt.
+<../../figures/mean/multiple_break_seasonal_series.png, id=99, 859.2903pt x 281
+.853pt>
+File: ../../figures/mean/multiple_break_seasonal_series.png Graphic file (type 
+png)
+<use ../../figures/mean/multiple_break_seasonal_series.png>
+Package pdftex.def Info: ../../figures/mean/multiple_break_seasonal_series.png 
+ used on input line 168.
+(pdftex.def)             Requested size: 239.00558pt x 78.3936pt.
+
+Overfull \vbox (13.08118pt too high) detected at line 168
+ []
+
+[6
+
+ <../../figures/mean/compare_RMSE_single_vs_multiple.png> <../../figures/mean/c
+ompare_MAE_single_vs_multiple.png> <../../figures/mean/multiple_break_seasonal_
+series.png>] [7
+
+] [8
+
+]
+<Single break DGP.png, id=120, 925.056pt x 500.1084pt>
+File: Single break DGP.png Graphic file (type png)
+<use Single break DGP.png>
+Package pdftex.def Info: Single break DGP.png  used on input line 243.
+(pdftex.def)             Requested size: 131.45245pt x 71.06015pt.
+<Distribution Single break.png, id=121, 925.056pt x 500.1084pt>
+File: Distribution Single break.png Graphic file (type png)
+<use Distribution Single break.png>
+Package pdftex.def Info: Distribution Single break.png  used on input line 243.
+
+(pdftex.def)             Requested size: 131.45245pt x 71.06015pt.
+<RMSE over Dof single break.png, id=122, 925.056pt x 500.1084pt>
+File: RMSE over Dof single break.png Graphic file (type png)
+<use RMSE over Dof single break.png>
+Package pdftex.def Info: RMSE over Dof single break.png  used on input line 243
+.
+(pdftex.def)             Requested size: 131.45245pt x 71.06015pt.
+ [9
+
+ <./Single break DGP.png> <./Distribution Single break.png> <./RMSE over Dof si
+ngle break.png>]
+<RMSE recurring.png, id=131, 925.056pt x 500.1084pt>
+File: RMSE recurring.png Graphic file (type png)
+<use RMSE recurring.png>
+Package pdftex.def Info: RMSE recurring.png  used on input line 262.
+(pdftex.def)             Requested size: 131.45245pt x 71.06015pt.
+<MAE recurring.png, id=132, 650.43pt x 361.35pt>
+File: MAE recurring.png Graphic file (type png)
+<use MAE recurring.png>
+Package pdftex.def Info: MAE recurring.png  used on input line 262.
+(pdftex.def)             Requested size: 131.45245pt x 73.02962pt.
+<Bias recurring.png, id=133, 650.43pt x 361.35pt>
+File: Bias recurring.png Graphic file (type png)
+<use Bias recurring.png>
+Package pdftex.def Info: Bias recurring.png  used on input line 262.
+(pdftex.def)             Requested size: 131.45245pt x 73.02962pt.
+ [10
+
+ <./RMSE recurring.png> <./MAE recurring.png> <./Bias recurring.png>]
+<GDP_recurring break.png, id=142, 925.056pt x 500.1084pt>
+File: GDP_recurring break.png Graphic file (type png)
+<use GDP_recurring break.png>
+Package pdftex.def Info: GDP_recurring break.png  used on input line 282.
+(pdftex.def)             Requested size: 179.25114pt x 96.90645pt.
+<Distribution recurring.png, id=143, 925.056pt x 500.1084pt>
+File: Distribution recurring.png Graphic file (type png)
+<use Distribution recurring.png>
+Package pdftex.def Info: Distribution recurring.png  used on input line 282.
+(pdftex.def)             Requested size: 179.25114pt x 96.90645pt.
+ [11
+
+ <./GDP_recurring break.png> <./Distribution recurring.png>]
+<../../figures/variance/variance_forecasts_comparison.png, id=151, 1074.1731pt 
+x 714.2685pt>
 File: ../../figures/variance/variance_forecasts_comparison.png Graphic file (ty
 pe png)
 <use ../../figures/variance/variance_forecasts_comparison.png>
 Package pdftex.def Info: ../../figures/variance/variance_forecasts_comparison.p
-ng  used on input line 163.
+ng  used on input line 298.
 (pdftex.def)             Requested size: 199.1693pt x 132.43187pt.
- [6
+ [12
 
  <../../figures/variance/variance_forecasts_comparison.png>]
-<../../figures/mean/single_break_RMSE.png, id=92, 849.8952pt x 281.853pt>
-File: ../../figures/mean/single_break_RMSE.png Graphic file (type png)
-<use ../../figures/mean/single_break_RMSE.png>
-Package pdftex.def Info: ../../figures/mean/single_break_RMSE.png  used on inpu
-t line 179.
-(pdftex.def)             Requested size: 199.1693pt x 66.05052pt.
- [7
+<../../figures/variance/variance_loss_surfaces.png, id=158, 1281.588pt x 354.12
+3pt>
+File: ../../figures/variance/variance_loss_surfaces.png Graphic file (type png)
 
- <../../figures/mean/single_break_RMSE.png>]
-<../../figures/parameter/parameter_persistence_analysis.png, id=100, 932.283pt 
-x 641.0349pt>
-File: ../../figures/parameter/parameter_persistence_analysis.png Graphic file (
-type png)
-<use ../../figures/parameter/parameter_persistence_analysis.png>
-Package pdftex.def Info: ../../figures/parameter/parameter_persistence_analysis
-.png  used on input line 195.
-(pdftex.def)             Requested size: 239.00558pt x 164.33716pt.
- [8
+<use ../../figures/variance/variance_loss_surfaces.png>
+Package pdftex.def Info: ../../figures/variance/variance_loss_surfaces.png  use
+d on input line 310.
+(pdftex.def)             Requested size: 338.59023pt x 93.55576pt.
 
- <../../figures/parameter/parameter_persistence_analysis.png>] [9
-
-]
-<../../figures/parameter/parameter_rmse_mae_comparison.png, id=112, 715.473pt x
- 425.4294pt>
-File: ../../figures/parameter/parameter_rmse_mae_comparison.png Graphic file (t
-ype png)
-<use ../../figures/parameter/parameter_rmse_mae_comparison.png>
-Package pdftex.def Info: ../../figures/parameter/parameter_rmse_mae_comparison.
-png  used on input line 227.
-(pdftex.def)             Requested size: 239.00558pt x 142.11238pt.
-
-Overfull \vbox (42.07434pt too high) detected at line 227
+Overfull \vbox (7.029pt too high) detected at line 310
  []
 
-[10
+[13
 
- <../../figures/parameter/parameter_rmse_mae_comparison.png>]
-Overfull \vbox (15.41225pt too high) detected at line 252
- []
+ <../../figures/variance/variance_loss_surfaces.png>] [14
 
-[11
-
-] [12
+] [15
 
 ]
-
-Package natbib Warning: Citation `bai2003' undefined on input line 269.
-
-
-Package natbib Warning: Citation `wang2013' undefined on input line 269.
-
-
-Package natbib Warning: Citation `antoshin2008' undefined on input line 269.
-
 (./presentation_concise.bbl
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `\translate ' on input line 1.
 
-) [13
+)
+Overfull \vbox (4.01743pt too high) detected at line 356
+ []
 
-] [14
-
+[16
 
 ]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 2
-81.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 3
+68.
  (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) [15
+) [17
 
 ]
 \tf@nav=\write6
@@ -1223,9 +1310,6 @@ File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 \openout8 = `presentation_concise.snm'.
 
 
-
-Package natbib Warning: There were undefined citations.
-
 (./presentation_concise.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
@@ -1235,36 +1319,45 @@ Package rerunfilecheck Info: File `presentation_concise.out' has not changed.
 (rerunfilecheck)             Checksum: AEA4B6A8AE45636C75679C2F0DFA4493;93.
  ) 
 Here is how much of TeX's memory you used:
- 29100 strings out of 476182
- 586208 string characters out of 5795595
- 1937975 words of memory out of 5000000
- 50486 multiletter control sequences out of 15000+600000
- 578705 words of font info for 79 fonts, out of 8000000 for 9000
+ 29172 strings out of 476182
+ 589470 string characters out of 5795595
+ 1940975 words of memory out of 5000000
+ 50540 multiletter control sequences out of 15000+600000
+ 585819 words of font info for 94 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 101i,18n,107p,1905b,1055s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 101i,13n,107p,1909b,1055s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt0900.600
 pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx2488.60
-0pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss0600.6
-00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi0600.
-600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi0800
-.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi109
-5.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss09
-00.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss1
-095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx
-1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/tcs
-s1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
-sx1200.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-css0800.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/
-ecss1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec
-/ecss1200.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/e
-c/ecsx1440.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10
-.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><
-/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on presentation_concise.pdf (15 pages, 1231674 bytes).
+0pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi0600.6
+00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss0600.
+600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi0900
+.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsi100
+0.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/tcss08
+00.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx0
+800.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss
+0700.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecs
+i0700.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
+sx1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/t
+css1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/
+ecsi0800.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec
+/ecsi1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/e
+c/ecss0900.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/
+ec/ecss1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen
+/ec/ecsx1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappe
+n/ec/tcss1095.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknapp
+en/ec/ecsx1200.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknap
+pen/ec/ecss0800.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jkna
+ppen/ec/ecss1000.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jkn
+appen/ec/ecss1200.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jk
+nappen/ec/ecsx1440.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
+10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+
+Output written on presentation_concise.pdf (17 pages, 1805589 bytes).
 PDF statistics:
- 647 PDF objects out of 1000 (max. 8388607)
- 173 compressed objects within 2 object streams
- 37 named destinations out of 1000 (max. 500000)
- 167 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 887 PDF objects out of 1000 (max. 8388607)
+ 220 compressed objects within 3 object streams
+ 47 named destinations out of 1000 (max. 500000)
+ 232 words of extra memory for PDF output out of 10000 (max. 10000000)
 
