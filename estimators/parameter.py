@@ -52,6 +52,29 @@ def _auto_select_arma_order(y, max_p=3, max_q=3, criterion='aic'):
     return best_order
 
 
+def param_forecast_global_sarima(y):
+    """
+    Forecast using global SARIMA model.
+    Order=(1,0,1), seasonal_order=(1,0,0,12), trend='n'.
+    
+    Parameters:
+        y: Training data
+    
+    Returns:
+        One-step ahead forecast
+    """
+    return float(
+        ARIMA(
+            y,
+            order=(1, 0, 1),
+            seasonal_order=(1, 0, 0, 12),
+            trend="n"
+        )
+        .fit()
+        .forecast(1)[0]
+    )
+
+
 def param_forecast_global_arma(y, auto_select=True, order=None):
     """
     Forecast using global auto-selected ARMA model without trend.
@@ -71,6 +94,30 @@ def param_forecast_global_arma(y, auto_select=True, order=None):
     
     return float(
         ARIMA(y, order=(p, 0, q), trend="n")
+        .fit()
+        .forecast(1)[0]
+    )
+
+
+def param_forecast_rolling_sarima(y, window=80):
+    """
+    Forecast using rolling window SARIMA model.
+    Order=(1,0,1), seasonal_order=(1,0,0,12), trend='n'.
+    
+    Parameters:
+        y: Training data
+        window: Rolling window size
+    
+    Returns:
+        One-step ahead forecast
+    """
+    return float(
+        ARIMA(
+            y[-window:],
+            order=(1, 0, 1),
+            seasonal_order=(1, 0, 0, 12),
+            trend="n"
+        )
         .fit()
         .forecast(1)[0]
     )
@@ -104,14 +151,14 @@ def param_forecast_rolling_arma(y, window=80, auto_select=True, order=None):
 
 
 # Backward compatibility aliases
-def param_forecast_global_ar(y):
-    """Deprecated: Use param_forecast_global_arma instead."""
-    return param_forecast_global_arma(y, auto_select=True)
+def param_forecast_global_ar_legacy(y):
+    """Deprecated: Use param_forecast_global_ar instead."""
+    return param_forecast_global_ar(y)
 
 
-def param_forecast_rolling_ar(y, window=80):
-    """Deprecated: Use param_forecast_rolling_arma instead."""
-    return param_forecast_rolling_arma(y, window=window, auto_select=True)
+def param_forecast_rolling_ar_legacy(y, window=80):
+    """Deprecated: Use param_forecast_rolling_ar instead."""
+    return param_forecast_rolling_ar(y, window=window)
 
 
 def param_forecast_markov_switching_ar(y):
@@ -141,12 +188,12 @@ def param_forecast_markov_switching_ar(y):
 
 
 def param_forecast_sarima_global(y):
-    """Alias to SARIMA global forecast for parameter experiments."""
+    """Alias to SARIMA global forecast for parameter experiments (deprecated)."""
     return forecast_sarima_global(y)
 
 
 def param_forecast_sarima_rolling(y, window=80):
-    """Alias to SARIMA rolling forecast for parameter experiments."""
+    """Alias to SARIMA rolling forecast for parameter experiments (deprecated)."""
     return forecast_sarima_rolling(y, window=window)
 
 

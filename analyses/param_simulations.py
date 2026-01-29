@@ -9,8 +9,8 @@ import pandas as pd
 
 from dgps.parameter import simulate_parameter_break_ar1
 from estimators.parameter import (
-    param_forecast_global_arma,
-    param_forecast_rolling_arma,
+    param_forecast_global_sarima,
+    param_forecast_rolling_sarima,
     param_forecast_markov_switching_ar,
     param_metrics,
 )
@@ -53,8 +53,8 @@ def mc_parameter_breaks_post(
     rng = np.random.default_rng(seed)
 
     err = {
-        "Global ARMA (auto)": [],
-        "Rolling ARMA (auto)": [],
+        "Global SARIMA": [],
+        "Rolling SARIMA": [],
         "MS AR": []
     }
 
@@ -80,12 +80,12 @@ def mc_parameter_breaks_post(
         y_true = y[t_post]
 
         try:
-            err["Global ARMA (auto)"].append(y_true - param_forecast_global_arma(y_train))
+            err["Global SARIMA"].append(y_true - param_forecast_global_sarima(y_train))
         except Exception:
             pass
-        
+
         try:
-            err["Rolling ARMA (auto)"].append(y_true - param_forecast_rolling_arma(y_train, window))
+            err["Rolling SARIMA"].append(y_true - param_forecast_rolling_sarima(y_train, window))
         except Exception:
             pass
         
