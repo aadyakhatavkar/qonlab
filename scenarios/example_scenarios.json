@@ -28,14 +28,51 @@
     "tag": "param_single"
   },
   {
-    "name": "Single mean break example",
-    "Tb": 150,
+    "name": "Single mean break - moderate",
+    "task": "mean",
+    "T": 400,
+    "Tb": 200,
     "mu0": 0.0,
     "mu1": 2.0,
     "phi": 0.6,
     "sigma": 1.0,
-    "task": "mean",
     "owner": "aadya",
-    "tag": "mean_single"
+    "tag": "mean_moderate"
+  },
+  {
+    "name": "Single mean break - large",
+    "task": "mean",
+    "T": 400,
+    "Tb": 200,
+    "mu0": 0.0,
+    "mu1": 4.0,
+    "phi": 0.6,
+    "sigma": 1.0,
+    "owner": "aadya",
+    "tag": "mean_large"
+  },
+  {
+    "name": "Single mean break - early",
+    "task": "mean",
+    "T": 400,
+    "Tb": 100,
+    "mu0": 0.0,
+    "mu1": 2.0,
+    "phi": 0.6,
+    "sigma": 1.0,
+    "owner": "aadya",
+    "tag": "mean_early"
+  },
+  {
+    "name": "Single mean break - late",
+    "task": "mean",
+    "T": 400,
+    "Tb": 300,
+    "mu0": 0.0,
+    "mu1": 2.0,
+    "phi": 0.6,
+    "sigma": 1.0,
+    "owner": "aadya",
+    "tag": "mean_late"
   }
 ]
