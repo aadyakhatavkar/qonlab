@@ -10,12 +10,11 @@ from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 warnings.filterwarnings("ignore")
 
 # =====================================================
-# VERSION / EXECUTION CHECK (MUST BE AT TOP)
+# VERSION / EXECUTION CHECK
 # =====================================================
-print("RUNNING parameter_single_break.py")
+print("RUNNING parameter_single_break.py (SARIMA + MS-AR, NaN-safe)")
 print("FILE:", __file__)
 print("=" * 60)
-
 
 # =====================================================
 # 1) DGP: AR(1) with SINGLE deterministic break in phi
@@ -41,6 +40,8 @@ def simulate_single_break_ar1(
         if innovation == "normal":
             eps = rng.normal(0.0, sigma)
         elif innovation == "student":
+            if df <= 2:
+                raise ValueError("df must be > 2 for finite variance")
             eps = rng.standard_t(df) * sigma / np.sqrt(df / (df - 2))
         else:
             raise ValueError("Unknown innovation")
@@ -49,62 +50,76 @@ def simulate_single_break_ar1(
 
     return y
 
-
 # =====================================================
 # 2) Forecasting models (1-step ahead)
 # =====================================================
-def forecast_global_ar(y):
+
+# ---- Global SARIMA ----
+def forecast_global_sarima(y):
     return float(
-        ARIMA(y, order=(1, 0, 0), trend="n")
+        ARIMA(
+            y,
+            order=(1, 0, 1),
+            seasonal_order=(1, 0, 0, 12),
+            trend="n"
+        )
         .fit()
         .forecast(1)[0]
     )
 
-
-def forecast_rolling_ar(y, window=80):
+# ---- Rolling SARIMA ----
+def forecast_rolling_sarima(y, window=80):
     return float(
-        ARIMA(y[-window:], order=(1, 0, 0), trend="n")
+        ARIMA(
+            y[-window:],
+            order=(1, 0, 1),
+            seasonal_order=(1, 0, 0, 12),
+            trend="n"
+        )
         .fit()
         .forecast(1)[0]
     )
 
-
+# ---- MS-AR (NaN-safe) ----
 def forecast_markov_switching_ar(y):
-    y_lag = y[:-1]
-    y_curr = y[1:]
+    try:
+        y_lag = y[:-1]
+        y_curr = y[1:]
 
-    model = MarkovRegression(
-        endog=y_curr,
-        k_regimes=2,
-        trend="n",
-        exog=y_lag.reshape(-1, 1),
-        switching_exog=True,
-        switching_variance=False
-    ).fit(disp=False)
+        model = MarkovRegression(
+            endog=y_curr,
+            k_regimes=2,
+            trend="n",
+            exog=y_lag.reshape(-1, 1),
+            switching_exog=True,
+            switching_variance=False
+        ).fit(disp=False)
 
-    params = dict(zip(model.model.param_names, model.params))
-    probs = model.filtered_marginal_probabilities[-1]
+        params = dict(zip(model.model.param_names, model.params))
+        probs = model.filtered_marginal_probabilities[-1]
 
-    phi0 = params["x1[0]"]
-    phi1 = params["x1[1]"]
+        phi0 = params["x1[0]"]
+        phi1 = params["x1[1]"]
 
-    return float((probs[0] * phi0 + probs[1] * phi1) * y[-1])
+        return float((probs[0] * phi0 + probs[1] * phi1) * y[-1])
 
+    except Exception:
+        return np.nan
 
 # =====================================================
-# 3) Metrics
+# 3) Metrics (NaN-filtered)
 # =====================================================
 def metrics(e):
     e = np.asarray(e)
+    e = e[~np.isnan(e)]   # CRITICAL FIX
     return {
         "RMSE": float(np.sqrt(np.mean(e ** 2))),
         "MAE": float(np.mean(np.abs(e))),
         "Bias": float(np.mean(e))
     }
 
-
 # =====================================================
-# 4) Monte Carlo — POST-BREAK ONLY (WITH PROGRESS)
+# 4) Monte Carlo — POST-BREAK ONLY
 # =====================================================
 def monte_carlo_single_break_post(
     n_sim=300,
@@ -119,8 +134,8 @@ def monte_carlo_single_break_post(
     rng = np.random.default_rng(seed)
 
     err = {
-        "Global AR": [],
-        "Rolling AR": [],
+        "Global SARIMA": [],
+        "Rolling SARIMA": [],
         "MS AR": []
     }
 
@@ -141,14 +156,22 @@ def monte_carlo_single_break_post(
         y_train = y[:t_post]
         y_true = y[t_post]
 
-        err["Global AR"].append(y_true - forecast_global_ar(y_train))
-        err["Rolling AR"].append(y_true - forecast_rolling_ar(y_train, window))
-        err["MS AR"].append(y_true - forecast_markov_switching_ar(y_train))
+        err["Global SARIMA"].append(
+            y_true - forecast_global_sarima(y_train)
+        )
+        err["Rolling SARIMA"].append(
+            y_true - forecast_rolling_sarima(y_train, window)
+        )
+        err["MS AR"].append(
+            y_true - forecast_markov_switching_ar(y_train)
+        )
 
-    print(f"--- Monte Carlo END | innovation={innovation} ---\n")
+    print(
+        f"--- Monte Carlo END | innovation={innovation} "
+        f"| MS-AR NaNs: {np.isnan(err['MS AR']).sum()} ---\n"
+    )
 
     return err
-
 
 # =====================================================
 # 5) Plots
@@ -158,6 +181,8 @@ def plot_combined_distributions(all_err):
 
     for ax, (label, err) in zip(axes, all_err.items()):
         for model, e in err.items():
+            e = np.asarray(e)
+            e = e[~np.isnan(e)]
             ax.hist(e, bins=40, density=True, alpha=0.4, label=model)
 
         ax.axvline(0, color="black", linestyle="--", linewidth=1)
@@ -169,10 +194,9 @@ def plot_combined_distributions(all_err):
     plt.tight_layout()
     plt.show()
 
-
 def plot_rmse_by_innovation(df_results):
-    innovations = ["Gaussian", "Student-t df=5", "Student-t df=3"]
-    models = ["Global AR", "Rolling AR", "MS AR"]
+    innovations = df_results["Innovation"].unique()
+    models = ["Global SARIMA", "Rolling SARIMA", "MS AR"]
 
     x = np.arange(len(innovations))
     width = 0.25
@@ -193,11 +217,10 @@ def plot_rmse_by_innovation(df_results):
     plt.xticks(x, innovations)
     plt.xlabel("Innovation")
     plt.ylabel("RMSE")
-    plt.title("RMSE by Innovation Distribution and Model")
+    plt.title("RMSE (Innovations Standardized to Unit Variance)")
     plt.legend()
     plt.tight_layout()
     plt.show()
-
 
 def plot_single_break_dgp(
     T=400,
@@ -225,7 +248,6 @@ def plot_single_break_dgp(
     plt.title("DGP: Single Deterministic Parameter Break")
     plt.tight_layout()
     plt.show()
-
 
 # =====================================================
 # 6) RUN
@@ -259,7 +281,7 @@ if __name__ == "__main__":
         for model, e in err.items():
             m = metrics(e)
             rows.append({
-                "Scenario": "Single break (post-break)",
+                "Scenario": "Single break",
                 "Innovation": label,
                 "Model": model,
                 "RMSE": m["RMSE"],
