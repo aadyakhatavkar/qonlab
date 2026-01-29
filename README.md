@@ -3,20 +3,9 @@
   <p align="center">
     <strong>A Monte Carlo Study of Time Series Forecasting Under Parameter Instability</strong>
   </p>
-  <p align="center">
-    <a href="#-quick-start">Quick Start</a> •
-    <a href="#-documentation">Documentation</a> •
-    <a href="#-methods">Methods</a> •
-    <a href="#-notebooks">Notebooks</a> •
-    <a href="#-paper">Paper</a>
-  </p>
 </p>
 
 ---
-
-[![CI](https://github.com/aadyakhatavkar/qonlab/actions/workflows/ci.yml/badge.svg)](https://github.com/aadyakhatavkar/qonlab/actions)
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Research Module in Econometrics and Statistics**  
 University of Bonn | Winter Semester 2025/26  
@@ -27,45 +16,58 @@ University of Bonn | Winter Semester 2025/26
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
+- [Team](#-team)
 - [Quick Start](#-quick-start)
 - [Break Types](#-break-types)
 - [Methods](#-methods)
 - [Metrics](#-metrics)
-- [Notebooks](#-notebooks)
-- [Paper](#-paper)
+- [Project Structure](#-project-structure)
 - [API Reference](#-api-reference)
+- [Scenarios](#-scenarios)
+- [Paper](#-paper)
 - [References](#-references)
+- [Changelog](#-changelog)
 
 ---
 
 ## 🎯 Overview
 
-This project investigates **forecasting performance under structural breaks** using Monte Carlo simulations. We implement:
-
-- **3 types of structural breaks** (variance, mean, parameter)
-- **6 forecasting methods** (ARIMA, GARCH, Markov Switching, etc.)
-- **Heavy-tailed distributions** (Student-t with standardization)
-- **Optimal window selection** (Pesaran 2013 grid search)
-- **Comprehensive evaluation** (RMSE, Coverage, Log-score)
+This project investigates **forecasting performance under structural breaks** using Monte Carlo simulations.
 
 ### Research Questions
 
 1. How do forecasting methods perform under different break types?
 2. What is the optimal rolling window size for different break magnitudes?
 3. Can adaptive methods match oracle specifications?
+4. How do heavy-tailed (Student-t) distributions affect results?
+
+### Key Features
+
+- **3 types of structural breaks:** variance, mean, parameter
+- **6+ forecasting methods:** ARIMA, GARCH, Markov Switching, etc.
+- **Heavy-tailed distributions:** Student-t with standardization
+- **Optimal window selection:** Pesaran (2013) grid search
+- **Comprehensive evaluation:** RMSE, Coverage, Log-score
 
 ---
 
-## � Quick Start
+## 👥 Team
+
+| Section | Owner | Status |
+|---------|-------|--------|
+| **Variance Breaks** | Aadya | ✅ Integrated |
+| **Mean Breaks** | Bakhodir | 🔄 In Progress |
+| **Parameter Breaks** | Mahir | 🔄 In Progress |
+
+---
+
+## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-# Clone repository
 git clone https://github.com/aadyakhatavkar/qonlab.git
 cd qonlab
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -80,6 +82,9 @@ python main.py mc --n-sim 200 --T 400 --horizon 20
 
 # Grid search for optimal window
 python main.py mc --grid
+
+# Custom scenarios
+python main.py mc --scenarios scenarios/example_scenarios.json
 ```
 
 ### Run Tests
@@ -92,28 +97,30 @@ pytest tests/ -v
 
 ## 📊 Break Types
 
-| Break Type | Description | DGP | Parameters |
-|------------|-------------|-----|------------|
-| **Variance** | Volatility shift | $y_t = \phi y_{t-1} + \sigma_t \varepsilon_t$ | $\sigma_1 \to \sigma_2$ |
-| **Mean** | Intercept shift | $y_t = \mu_t + \phi y_{t-1} + \varepsilon_t$ | $\mu_0 \to \mu_1$ |
-| **Parameter** | AR coefficient shift | $y_t = \phi_t y_{t-1} + \varepsilon_t$ | $\phi_1 \to \phi_2$ |
+| Break Type | Description | DGP | Owner |
+|------------|-------------|-----|-------|
+| **Variance** | Volatility shift | $y_t = \phi y_{t-1} + \sigma_t \varepsilon_t$ | Aadya |
+| **Mean** | Intercept shift | $y_t = \mu_t + \phi y_{t-1} + \varepsilon_t$ | Bakhodir |
+| **Parameter** | AR coefficient shift | $y_t = \phi_t y_{t-1} + \varepsilon_t$ | Mahir |
 
 ### Code Examples
 
 ```python
-from dgps.static import simulate_variance_break, simulate_mean_break, simulate_parameter_break
+from dgps.static import simulate_variance_break, simulate_mean_break
 
 # Variance break (volatility doubles at t=200)
 y = simulate_variance_break(T=400, variance_Tb=200, variance_sigma1=1.0, variance_sigma2=2.0)
 
-# Mean break (intercept shifts from 0 to 2)
-y = simulate_mean_break(T=300, Tb=150, mu0=0.0, mu1=2.0)
-
-# Parameter break (AR coef changes from 0.2 to 0.9)
-y = simulate_parameter_break(T=400, Tb=200, phi1=0.2, phi2=0.9)
-
-# Heavy-tailed innovations (Student-t)
+# With Student-t innovations
 y = simulate_variance_break(T=400, distribution='t', nu=3)
+
+# Mean break
+from analyses.mean_simulations import simulate_mean_break_ar1
+y = simulate_mean_break_ar1(T=300, Tb=150, mu0=0.0, mu1=2.0)
+
+# Parameter break
+from analyses.param_simulations import simulate_parameter_break_ar1
+y = simulate_parameter_break_ar1(T=400, Tb=200, phi1=0.2, phi2=0.9)
 ```
 
 ---
@@ -122,76 +129,42 @@ y = simulate_variance_break(T=400, distribution='t', nu=3)
 
 ### Forecasting Methods
 
-| Method | Description | Code |
-|--------|-------------|------|
-| **Global ARIMA** | Full-sample fit | `forecast_variance_dist_arima_global()` |
-| **Rolling ARIMA** | Window-based adaptive | `forecast_variance_dist_arima_rolling()` |
-| **GARCH(1,1)** | Conditional variance | `forecast_garch_variance()` |
-| **Post-Break ARIMA** | Estimated break point | `forecast_variance_arima_post_break()` |
-| **Averaged Window** | Ensemble over windows | `forecast_variance_averaged_window()` |
-| **Markov Switching** | Regime-switching | `forecast_markov_switching()` |
+| Method | Description | Break Type |
+|--------|-------------|------------|
+| **Global ARIMA** | Full-sample fit with auto-order | All |
+| **Rolling ARIMA** | Window-based adaptive | All |
+| **GARCH(1,1)** | Conditional variance | Variance |
+| **Post-Break ARIMA** | Estimated break point | All |
+| **Break Dummy (Oracle)** | Known break date | Mean |
+| **Markov Switching** | Regime-switching | All |
 
-### Key Features
+### Key Technical Features
 
 - ✅ **Automatic ARIMA order selection** via AIC/BIC
 - ✅ **Heavy-tailed distributions** (standardized Student-t)
 - ✅ **Optimal window grid search** (Pesaran 2013)
 - ✅ **Break point estimation** via SSE minimization
+- ✅ **Realized volatility functions** for empirical data
 
 ---
 
-## � Metrics
+## 📈 Metrics
 
-### Point Forecast Metrics
+### Point Forecast
 
 | Metric | Formula | Interpretation |
 |--------|---------|----------------|
 | **RMSE** | $\sqrt{\frac{1}{N}\sum e_i^2}$ | Penalizes large errors |
-| **MAE** | $\frac{1}{N}\sum \|e_i\|$ | Average error magnitude |
-| **Bias** | $\frac{1}{N}\sum e_i$ | Systematic over/under-forecasting |
+| **MAE** | $\frac{1}{N}\sum \|e_i\|$ | Average magnitude |
+| **Bias** | $\frac{1}{N}\sum e_i$ | Systematic error |
 
-### Uncertainty Metrics
+### Uncertainty
 
 | Metric | Target | Interpretation |
 |--------|--------|----------------|
-| **Coverage 80%** | 0.80 | Interval captures 80% of observations |
-| **Coverage 95%** | 0.95 | Interval captures 95% of observations |
-| **Log-score** | Higher is better | Probabilistic forecast quality |
-
----
-
-## 📓 Notebooks
-
-| Notebook | Description | 
-|----------|-------------|
-| [`Variance_Change_Documentation.ipynb`](Variance_Change_Documentation.ipynb) | � Full documentation with theory, examples, and best practices |
-| [`variance_workflow.ipynb`](variance_workflow.ipynb) | ⚡ Quick workflow demonstration |
-
-**Run notebooks:**
-```bash
-jupyter notebook Variance_Change_Documentation.ipynb
-```
-
----
-
-## � Paper
-
-The LaTeX paper is in [`docs/paper/`](docs/paper/):
-
-```bash
-cd docs/paper
-make          # Compile PDF
-make clean    # Remove auxiliary files
-```
-
-**Paper sections:**
-1. Introduction
-2. Data-Generating Processes
-3. Forecasting Methods
-4. Monte Carlo Design
-5. Evaluation Metrics
-6. Results
-7. Conclusion
+| **Coverage 80%** | 0.80 | Interval captures 80% |
+| **Coverage 95%** | 0.95 | Interval captures 95% |
+| **Log-score** | Higher=better | Probabilistic quality |
 
 ---
 
@@ -202,40 +175,39 @@ qonlab/
 ├── dgps/                              # Data-Generating Processes
 │   ├── static.py                      # Variance breaks + shared utilities
 │   ├── mean.py                        # Mean break DGPs
-│   ├── mean_multiplebreaks.py         # Multiple mean break DGPs
 │   ├── parameter.py                   # Parameter break DGPs
-│   └── variance.py                    # Variance break DGPs
+│   └── variance.py                    # Variance-specific DGPs
 ├── estimators/                        # Forecasting Methods
-│   ├── forecasters.py                 # Variance: ARIMA, GARCH, etc.
+│   ├── forecasters.py                 # Variance: ARIMA, GARCH, Markov
 │   ├── mean.py                        # Mean break forecasters
-│   ├── mean_multiplebreaks.py         # Multiple mean break forecasters
 │   └── parameter.py                   # Parameter break forecasters
 ├── analyses/                          # Monte Carlo Engines
-│   ├── simulations.py                 # MC runner (all break types)
+│   ├── simulations.py                 # Variance MC runner
+│   ├── mean_simulations.py            # Mean MC runner + forecasters
+│   ├── param_simulations.py           # Parameter MC runner + forecasters
 │   └── plots.py                       # Visualization
-├── scripts/
-│   ├── runner.py                      # Main experiment CLI
-│   ├── legacy_mean_change/            # 📁 Original mean break scripts
-│   └── legacy_parameter_change/       # 📁 Original parameter break scripts
+├── legacy/                            # Original standalone scripts
+│   ├── legacy_mean_change/            # Bakhodir's original scripts
+│   └── legacy_parameter_change/       # Mahir's original scripts
 ├── scenarios/                         # Experiment configurations
-├── tests/                             # Test suite
+│   └── example_scenarios.json         # Pre-defined scenarios
 ├── docs/paper/                        # LaTeX paper
-├── Variance_Change_Documentation.ipynb # Runnable notebook
-├── CHANGES.md                         # Technical changelog
+├── tests/                             # Test suite
+├── Variance_Change_Documentation.ipynb # Runnable documentation
 └── main.py                            # CLI entrypoint
 ```
 
 ---
 
-## � API Reference
+## 🔧 API Reference
 
-### Main CLI
+### CLI
 
 ```bash
 python main.py mc [OPTIONS]
 
 Options:
-  --quick           Quick test (10 reps, small sample)
+  --quick           Quick test (10 reps)
   --grid            Grid search for optimal window
   --n-sim INT       MC replications (default: 200)
   --T INT           Sample size (default: 400)
@@ -248,21 +220,65 @@ Options:
 ### Python API
 
 ```python
-# Monte Carlo simulation
+# Variance MC
 from analyses.simulations import mc_variance_breaks, mc_variance_breaks_grid
-
 df_point, df_unc = mc_variance_breaks(n_sim=200, T=400, horizon=20)
 
-# Grid search
-df_grid = mc_variance_breaks_grid(
-    window_sizes=[20, 50, 100, 200],
-    break_magnitudes=[1.5, 2.0, 3.0, 5.0]
-)
+# Mean MC
+from analyses.mean_simulations import mc_mean_breaks
+df = mc_mean_breaks(n_sim=200, T=300, Tb=150)
+
+# Parameter MC
+from analyses.param_simulations import mc_parameter_breaks_post
+err = mc_parameter_breaks_post(n_sim=300, T=400, Tb=200)
 ```
 
 ---
 
-## � References
+## 📋 Scenarios
+
+Scenarios are defined in `scenarios/example_scenarios.json`:
+
+| Task | Owner | Scenarios |
+|------|-------|-----------|
+| **variance** | Aadya | Small break, Late break |
+| **parameter** | Mahir | Single break (φ₁=0.2 → φ₂=0.9) |
+| **mean** | Bakhodir | Moderate, Large, Early, Late |
+
+### Scenario Format
+
+```json
+{
+  "name": "Single mean break - moderate",
+  "task": "mean",
+  "T": 400,
+  "Tb": 200,
+  "mu0": 0.0,
+  "mu1": 2.0,
+  "owner": "bakhodir"
+}
+```
+
+---
+
+## 📄 Paper
+
+```bash
+cd docs/paper && make
+```
+
+**Sections:**
+1. Introduction
+2. Data-Generating Processes
+3. Forecasting Methods
+4. Monte Carlo Design
+5. Evaluation Metrics
+6. Results
+7. Conclusion
+
+---
+
+## 📚 References
 
 | Reference | Topic |
 |-----------|-------|
@@ -271,31 +287,35 @@ df_grid = mc_variance_breaks_grid(
 | [Francq & Zakoïan (2019)](https://www.wiley.com/en-us/GARCH+Models) | GARCH models |
 | [Bollerslev (1986)](https://doi.org/10.1016/0304-4076(86)90063-1) | GARCH |
 | [Hamilton (1989)](https://doi.org/10.2307/1912559) | Markov switching |
+| [Bai & Perron (1998)](https://doi.org/10.2307/2998540) | Break detection |
 
 ---
 
 ## 📝 Changelog
 
-See [CHANGES.md](CHANGES.md) for detailed technical changelog.
+### January 2026
 
-**Recent updates (Jan 2026):**
-- ✅ Unified simulation engine for all break types
-- ✅ Student-t distributions with standardization
-- ✅ Auto ARIMA order selection (AIC/BIC)
-- ✅ Markov switching forecaster
-- ✅ Realized volatility functions
+**Structural Changes:**
+- Renamed `mean_change/`, `parameter_change/` → `legacy/`
+- Created modular `analyses/mean_simulations.py`, `analyses/param_simulations.py`
+- Consolidated DGPs into `dgps/` with separate files per break type
+- Merged `experiments/` into `scenarios/`
+
+**Technical Features:**
+- Student-t distributions with standardization
+- Auto ARIMA order selection (AIC/BIC)
+- Markov switching forecaster
+- Realized volatility functions
+- Unified simulation engine for all break types
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contact
 
-This is a research module project. For questions, contact:
-
-**Aadya Khatavkar**  
-📧 s38akhat@uni-bonn.de
+**Aadya Khatavkar** — s38akhat@uni-bonn.de
 
 ---
 
 <p align="center">
-  <sub>Built for the <a href="https://vladislav-morozov.github.io/simulations-course/">Research Module in Econometrics and Statistics</a> at University of Bonn</sub>
+  <sub>Built for the <a href="https://vladislav-morozov.github.io/simulations-course/">Research Module</a> at University of Bonn</sub>
 </p>
