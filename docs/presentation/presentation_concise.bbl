@@ -1,0 +1,32 @@
+\begin{thebibliography}{}
+
+\bibitem[Bai and Perron, 1998]{bai1998}
+Bai, J. and Perron, P. (1998).
+\newblock Estimating and testing linear models with multiple structural
+  changes.
+\newblock {\em Econometrica}, 66(1):47--78.
+
+\bibitem[Hamilton, 1989]{hamilton1989}
+Hamilton, J.~D. (1989).
+\newblock A new approach to the economic analysis of nonstationary time series
+  and the business cycle.
+\newblock {\em Econometrica}, 57(2):357--384.
+
+\bibitem[Pesaran, 2013]{pesaran2013}
+Pesaran, M.~H. (2013).
+\newblock The role of structural breaks in forecasting.
+\newblock In Elliott, G. and Timmermann, A., editors, {\em Handbook of Economic
+  Forecasting}, volume~2B, pages 1159--1191. Elsevier.
+
+\bibitem[Rossi, 2013]{rossi2013}
+Rossi, B. (2013).
+\newblock Advances in forecasting under instability.
+\newblock {\em Handbook of Economic Forecasting}, 2B:1203--1324.
+
+\bibitem[Stock and Watson, 1996]{stock1996}
+Stock, J.~H. and Watson, M.~W. (1996).
+\newblock Evidence on structural instability in macroeconomic time series
+  relations.
+\newblock {\em Journal of Business \& Economic Statistics}, 14(1):11--30.
+
+\end{thebibliography}
