@@ -7,12 +7,10 @@ except Exception:
     Parallel = None
     delayed = None
 
-from dgps.static import (
-    simulate_variance_break, 
-    simulate_mean_break, 
-    simulate_parameter_break,
-    _validate_scenarios
-)
+from dgps.variance import simulate_variance_break_ar1
+from dgps.mean import simulate_mean_break_ar1
+from dgps.parameter import simulate_parameter_break_ar1
+from dgps.utils import validate_scenarios
 from estimators.forecasters import (
     forecast_variance_dist_arima_global,
     forecast_variance_dist_arima_rolling,
@@ -88,7 +86,7 @@ def mc_variance_breaks(
     seed=42
 ):
     rng = np.random.default_rng(seed)
-    scenarios = _validate_scenarios(scenarios, T)
+    scenarios = validate_scenarios(scenarios, T)
 
     variance_point_rows = []
     variance_unc_rows = []
@@ -110,18 +108,18 @@ def mc_variance_breaks(
 
         def _run_one(s):
             if task == "variance":
-                y = simulate_variance_break(
-                    T=T, variance_Tb=sc["variance_Tb"], phi=phi, 
-                    variance_sigma1=sc["variance_sigma1"], variance_sigma2=sc["variance_sigma2"], 
+                y = simulate_variance_break_ar1(
+                    T=T, Tb=sc["variance_Tb"], phi=phi, 
+                    sigma1=sc["variance_sigma1"], sigma2=sc["variance_sigma2"], 
                     distribution=sc.get("distribution", "normal"), nu=sc.get("nu", 3), seed=s
                 )
             elif task == "mean":
-                y = simulate_mean_break(
+                y = simulate_mean_break_ar1(
                     T=T, Tb=sc["Tb"], mu0=sc["mu0"], mu1=sc["mu1"], 
                     phi=sc.get("phi", phi), sigma=sc.get("sigma", 1.0), seed=s
                 )
             elif task == "parameter":
-                y = simulate_parameter_break(
+                y = simulate_parameter_break_ar1(
                     T=T, Tb=sc["Tb"], phi1=sc["phi1"], phi2=sc["phi2"], 
                     sigma=sc.get("sigma", 1.0), seed=s
                 )

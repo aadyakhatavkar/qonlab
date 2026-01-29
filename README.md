@@ -199,23 +199,30 @@ make clean    # Remove auxiliary files
 
 ```
 qonlab/
-├── dgps/                       # Data-Generating Processes
-│   └── static.py               # Break simulations + RV functions
-├── estimators/                 # Forecasting Methods
-│   └── forecasters.py          # ARIMA, GARCH, Markov Switching
-├── analyses/                   # Monte Carlo Engines
-│   ├── simulations.py          # MC runner
-│   └── plots.py                # Visualization
-├── scripts/                    # Runners
-│   └── runner.py               # Experiment CLI
-├── scenarios/                  # Configurations
-│   └── example_scenarios.json  # Pre-defined experiments
-├── tests/                      # Test suite
-├── docs/paper/                 # LaTeX paper
-├── *.ipynb                     # Runnable notebooks
-├── CHANGES.md                  # Technical changelog
-├── RESEARCH.md                 # Research documentation
-└── main.py                     # CLI entrypoint
+├── dgps/                              # Data-Generating Processes
+│   ├── static.py                      # Variance breaks + shared utilities
+│   ├── mean.py                        # Mean break DGPs
+│   ├── mean_multiplebreaks.py         # Multiple mean break DGPs
+│   ├── parameter.py                   # Parameter break DGPs
+│   └── variance.py                    # Variance break DGPs
+├── estimators/                        # Forecasting Methods
+│   ├── forecasters.py                 # Variance: ARIMA, GARCH, etc.
+│   ├── mean.py                        # Mean break forecasters
+│   ├── mean_multiplebreaks.py         # Multiple mean break forecasters
+│   └── parameter.py                   # Parameter break forecasters
+├── analyses/                          # Monte Carlo Engines
+│   ├── simulations.py                 # MC runner (all break types)
+│   └── plots.py                       # Visualization
+├── scripts/
+│   ├── runner.py                      # Main experiment CLI
+│   ├── legacy_mean_change/            # 📁 Original mean break scripts
+│   └── legacy_parameter_change/       # 📁 Original parameter break scripts
+├── scenarios/                         # Experiment configurations
+├── tests/                             # Test suite
+├── docs/paper/                        # LaTeX paper
+├── Variance_Change_Documentation.ipynb # Runnable notebook
+├── CHANGES.md                         # Technical changelog
+└── main.py                            # CLI entrypoint
 ```
 
 ---

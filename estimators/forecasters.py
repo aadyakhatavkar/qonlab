@@ -135,7 +135,7 @@ def forecast_variance_arima_post_break(y_train, horizon=1, order=None, auto_sele
     Returns:
         mean, variance forecasts
     """
-    from dgps.static import estimate_variance_break_point
+    from dgps.variance import estimate_variance_break_point
     
     y = np.asarray(y_train, dtype=float)
     

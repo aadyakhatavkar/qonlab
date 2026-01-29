@@ -9,7 +9,7 @@ Run: `from analyses.plots import plot_loss_surfaces` or `python -m analyses.plot
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from dgps.static import simulate_variance_break
+from dgps.variance import simulate_variance_break_ar1
 from analyses.simulations import mc_variance_breaks_grid
 from estimators.forecasters import (
     forecast_variance_dist_arima_rolling,
@@ -101,7 +101,7 @@ def plot_logscore_comparison():
         for method in methods:
             logscore_values = []
             for sim in range(n_sims):
-                y = simulate_variance_break(T=200, variance_Tb=100, variance_sigma1=1.0, variance_sigma2=3.0)
+                y = simulate_variance_break_ar1(T=200, Tb=100, sigma1=1.0, sigma2=3.0)
                 y_train = y[:-20]
                 y_test = y[-20:]
                 try:
@@ -142,7 +142,7 @@ def plot_logscore_comparison():
 def plot_time_series_example():
     print("\n[3/3] Generating Time Series visualization...")
     np.random.seed(42)
-    y = simulate_variance_break(T=250, variance_Tb=125, variance_sigma1=1.0, variance_sigma2=3.0)
+    y = simulate_variance_break_ar1(T=250, Tb=125, sigma1=1.0, sigma2=3.0)
     y_train = y[:200]
     y_test = y[200:]
     mean_arima, var_arima = forecast_variance_dist_arima_rolling(y_train, window=50, horizon=len(y_test))
