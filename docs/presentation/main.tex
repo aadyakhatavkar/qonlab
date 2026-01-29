@@ -805,48 +805,31 @@ where $df \in \{50, 100, \infty\}$ (Gaussian).
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Practical Decision Tree}
-\begin{center}
-  \begin{tikzpicture}[
-    scale=1,
-    every node/.style={rectangle, rounded corners, minimum width=2.5cm, minimum height=0.8cm, text centered, font=\small}
-  ]
-  
-  \node[fill=blue!20] (root) at (5, 8) {Is there a break?};
-  
-  \node[fill=green!20] (yes) at (2, 6.5) {Yes};
-  \node[fill=red!20] (no) at (8, 6.5) {No (stationary)};
-  
-  \node[fill=yellow!20] (type) at (2, 5) {Break Type?};
-  
-  \node[fill=orange!20] (var) at (0, 3.5) {Variance};
-  \node[fill=orange!20] (mean) at (2, 3.5) {Mean};
-  \node[fill=orange!20] (param) at (4, 3.5) {Parameter};
-  
-  \node[fill=cyan!20] (var\_rec) at (0, 2) {GARCH or\,Rolling ARIMA};
-  \node[fill=cyan!20] (mean\_rec) at (2, 2) {SARIMA Rolling\,or Break Dummy};
-  \node[fill=cyan!20] (param\_rec) at (4, 2) {Markov-Switching\,or Rolling};
-  
-  \node[fill=green!20] (global) at (8, 2) {Use Global\,ARIMA};
-  
-  % Edges
-  \draw[->] (root) -- (yes);
-  \draw[->] (root) -- (no);
-  \draw[->] (yes) -- (type);
-  \draw[->] (type) -- (var);
-  \draw[->] (type) -- (mean);
-  \draw[->] (type) -- (param);
-  \draw[->] (var) -- (var\_rec);
-  \draw[->] (mean) -- (mean\_rec);
-  \draw[->] (param) -- (param\_rec);
-  \draw[->] (no) -- (global);
-  
-  \end{tikzpicture}
-\end{center}
+\begin{frame}{Practical Decision Rule}
+\textbf{Step 1: Test for Breaks}
+\begin{itemize}
+  \item Statistical tests: Chow test, CUSUM, Bai-Perron multiple breaks
+  \item If no breaks detected $\Rightarrow$ use global ARIMA (most efficient)
+\end{itemize}
 
 \vspace{0.5cm}
 
-\textbf{Practical Rule:} Test for breaks first (e.g., Chow, CUSUM). If detected, apply break-adaptive method matching break type.
+\textbf{Step 2: Identify Break Type}
+\begin{enumerate}
+  \item \textbf{Variance break} (GARCH process) $\Rightarrow$ \textbf{Use GARCH or rolling ARIMA}
+  \item \textbf{Mean break} (level shift) $\Rightarrow$ \textbf{Use SARIMA rolling or break dummy}
+  \item \textbf{Parameter break} (persistence shift) $\Rightarrow$ \textbf{Use Markov-Switching or rolling}
+\end{enumerate}
+
+\vspace{0.5cm}
+
+\textbf{Step 3: Optimize Implementation}
+\begin{itemize}
+  \item If break date \textbf{known} (e.g., policy change): use break dummy (oracle-like)
+  \item If break date \textbf{unknown}: use rolling window or grid-search estimated break
+  \item For seasonal data: always prefer SARIMA variants
+  \item For recurring breaks: prefer Markov-Switching if persistence $\ge 0.97$
+\end{itemize}
 \end{frame}
 
 %==============================================================================
