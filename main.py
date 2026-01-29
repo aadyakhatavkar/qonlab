@@ -1,51 +1,137 @@
 #!/usr/bin/env python3
-"""Top-level CLI for the project.
+"""
+Main CLI for Structural Break Forecasting Project
+==================================================
 
 Subcommands:
-  mc    - run Monte Carlo variance-break analyses
-  runner - run variance analysis experiments
+  variance  - Run variance break Monte Carlo experiments
+  mean      - Run mean break Monte Carlo experiments
+  parameter - Run parameter break Monte Carlo experiments
+  runner    - Run full experiment pipeline with scenarios
 
-This file is the canonical entrypoint to avoid duplicate entrypoints.
+Examples:
+  python main.py variance --quick
+  python main.py mean --n-sim 100
+  python main.py parameter --innovation student --df 50
+  python main.py runner --scenarios scenarios/example_scenarios.json
 """
 import sys
 import argparse
 
 
-def _call_module_main(mod, argv):
-    # Call a module's main function with argv (excluding program name)
-    try:
-        main = getattr(mod, 'main')
-    except Exception as e:
-        print(f"Module {mod} does not expose a callable main(): {e}")
-        return 2
-    # Some modules expect to parse sys.argv directly; provide argv slice
-    return main()
-
-
 def main():
-    parser = argparse.ArgumentParser(prog='main.py', description='Project CLI')
-    sub = parser.add_subparsers(dest='cmd')
+    parser = argparse.ArgumentParser(
+        prog='main.py',
+        description='Structural Break Forecasting CLI',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python main.py variance --quick
+  python main.py mean --n-sim 100 --Tb 150
+  python main.py runner --scenarios scenarios/example_scenarios.json
+        """
+    )
+    sub = parser.add_subparsers(dest='cmd', help='Available commands')
 
-    sub.add_parser('mc', help='Run Monte Carlo variance-break experiments')
-    sub.add_parser('runner', help='Run variance analysis experiments')
+    # Variance subcommand
+    var_parser = sub.add_parser('variance', help='Run variance break MC experiments')
+    var_parser.add_argument('--quick', action='store_true', help='Quick test (10 reps)')
+    # Grid search removed - practitioners prefer fixed window and break detection
+    var_parser.add_argument('--n-sim', type=int, default=200, help='MC replications')
+    var_parser.add_argument('--T', type=int, default=400, help='Sample size')
+    var_parser.add_argument('--phi', type=float, default=0.6, help='AR coefficient')
+    var_parser.add_argument('--window', type=int, default=100, help='Rolling window size')
+    var_parser.add_argument('--horizon', type=int, default=20, help='Forecast horizon')
 
-    args, remaining = parser.parse_known_args()
+    # Mean subcommand
+    mean_parser = sub.add_parser('mean', help='Run mean break MC experiments')
+    mean_parser.add_argument('--quick', action='store_true', help='Quick test (10 reps)')
+    mean_parser.add_argument('--n-sim', type=int, default=200, help='MC replications')
+    mean_parser.add_argument('--T', type=int, default=300, help='Sample size')
+    mean_parser.add_argument('--Tb', type=int, default=150, help='Break point')
+    mean_parser.add_argument('--window', type=int, default=60, help='Rolling window size')
 
-    if args.cmd == 'mc':
-        # delegate to analyses.simulations.main
-        from analyses import simulations as mc_mod
-        # pass through remaining args via sys.argv for the delegated module
-        sys.argv = [sys.argv[0]] + remaining
-        return _call_module_main(mc_mod, remaining)
+    # Parameter subcommand
+    param_parser = sub.add_parser('parameter', help='Run parameter break MC experiments')
+    param_parser.add_argument('--quick', action='store_true', help='Quick test (10 reps)')
+    param_parser.add_argument('--n-sim', type=int, default=300, help='MC replications')
+    param_parser.add_argument('--T', type=int, default=400, help='Sample size')
+    param_parser.add_argument('--Tb', type=int, default=200, help='Break point')
+    param_parser.add_argument('--window', type=int, default=80, help='Rolling window size')
+    param_parser.add_argument('--innovation', type=str, default='normal', help='Innovation type: normal or student')
+    param_parser.add_argument('--df', type=int, default=None, help='Degrees of freedom for Student-t')
 
-    if args.cmd == 'runner':
-        # delegate to scripts.runner.main
+    # Runner subcommand (full pipeline)
+    run_parser = sub.add_parser('runner', help='Run full experiment pipeline')
+    run_parser.add_argument('--scenarios', type=str, help='JSON scenario file')
+    run_parser.add_argument('--quick', action='store_true', help='Quick test mode')
+    run_parser.add_argument('--plot', action='store_true', help='Save summary figures')
+
+    args = parser.parse_args()
+
+    if args.cmd == 'variance':
+        from analyses.simulations import mc_variance_breaks
+        
+        n_sim = 10 if args.quick else args.n_sim
+        T = 100 if args.quick else args.T
+        
+        print(f"Running variance break MC (n_sim={n_sim}, T={T})...")
+        df_point, df_unc = mc_variance_breaks(
+            n_sim=n_sim, T=T, phi=args.phi,
+            window=args.window, horizon=args.horizon
+        )
+        print("\nPoint Metrics:")
+        print(df_point.round(4).to_string(index=False))
+        print("\nUncertainty Metrics:")
+        print(df_unc.round(4).to_string(index=False))
+        return 0
+
+    elif args.cmd == 'mean':
+        from analyses.mean_simulations import mc_mean_breaks
+        
+        n_sim = 10 if args.quick else args.n_sim
+        T = 100 if args.quick else args.T
+        Tb = min(args.Tb, T - 20)
+        
+        print(f"Running mean break MC (n_sim={n_sim}, T={T}, Tb={Tb})...")
+        df = mc_mean_breaks(
+            n_sim=n_sim, T=T, Tb=Tb, window=args.window
+        )
+        print("\nResults:")
+        print(df.round(4).to_string(index=False))
+        return 0
+
+    elif args.cmd == 'parameter':
+        from analyses.param_simulations import mc_parameter_breaks_post
+        from estimators.parameter import param_metrics
+        
+        n_sim = 10 if args.quick else args.n_sim
+        T = 100 if args.quick else args.T
+        Tb = min(args.Tb, T - 50)
+        
+        print(f"Running parameter break MC (n_sim={n_sim}, innovation={args.innovation})...")
+        err = mc_parameter_breaks_post(
+            n_sim=n_sim, T=T, Tb=Tb, window=args.window,
+            innovation=args.innovation, df=args.df
+        )
+        
+        print("\nResults (RMSE):")
+        for model, e in err.items():
+            if len(e) > 0:
+                m = param_metrics(e)
+                print(f"  {model}: RMSE={m['RMSE']:.4f}, MAE={m['MAE']:.4f}, Bias={m['Bias']:.4f}")
+        return 0
+
+    elif args.cmd == 'runner':
         from scripts import runner
-        sys.argv = [sys.argv[0]] + remaining
-        return _call_module_main(runner, remaining)
+        # Pass through to full runner
+        sys.argv = ['runner'] + sys.argv[2:]
+        runner.main()
+        return 0
 
-    parser.print_help()
-    return 0
+    else:
+        parser.print_help()
+        return 0
 
 
 if __name__ == '__main__':

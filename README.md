@@ -173,27 +173,28 @@ y = simulate_parameter_break_ar1(T=400, Tb=200, phi1=0.2, phi2=0.9)
 ```
 qonlab/
 ├── dgps/                              # Data-Generating Processes
-│   ├── static.py                      # Variance breaks + shared utilities
+│   ├── variance.py                    # Variance break DGPs
 │   ├── mean.py                        # Mean break DGPs
-│   ├── parameter.py                   # Parameter break DGPs
-│   └── variance.py                    # Variance-specific DGPs
+│   ├── parameter.py                   # Parameter break DGPs (with Student-t)
+│   ├── recurring.py                   # Markov-switching DGPs
+│   └── static.py                      # Legacy/shared utilities
 ├── estimators/                        # Forecasting Methods
-│   ├── forecasters.py                 # Variance: ARIMA, GARCH, Markov
-│   ├── mean.py                        # Mean break forecasters
-│   └── parameter.py                   # Parameter break forecasters
-├── analyses/                          # Monte Carlo Engines
+│   ├── forecasters.py                 # Variance: ARIMA, GARCH, metrics
+│   ├── mean.py                        # Mean: AR1, oracle, break detection
+│   └── parameter.py                   # Parameter: AR, Markov switching
+├── analyses/                          # Monte Carlo Simulations
 │   ├── simulations.py                 # Variance MC runner
-│   ├── mean_simulations.py            # Mean MC runner + forecasters
-│   ├── param_simulations.py           # Parameter MC runner + forecasters
-│   └── plots.py                       # Visualization
+│   ├── mean_simulations.py            # Mean MC runner
+│   ├── param_simulations.py           # Parameter MC runner
+│   ├── plots.py                       # Variance plots
+│   ├── plots_mean.py                  # Mean break plots
+│   └── plots_parameter.py             # Parameter break plots
+├── scripts/                           # Experiment Runners
+│   └── runner.py                      # Full pipeline with scenarios
 ├── legacy/                            # Original standalone scripts
-│   ├── legacy_mean_change/            # Bakhodir's original scripts
-│   └── legacy_parameter_change/       # Mahir's original scripts
-├── scenarios/                         # Experiment configurations
-│   └── example_scenarios.json         # Pre-defined scenarios
+├── scenarios/                         # JSON experiment configs
 ├── docs/paper/                        # LaTeX paper
 ├── tests/                             # Test suite
-├── Variance_Change_Documentation.ipynb # Runnable documentation
 └── main.py                            # CLI entrypoint
 ```
 
@@ -204,17 +205,21 @@ qonlab/
 ### CLI
 
 ```bash
-python main.py mc [OPTIONS]
+# Variance experiments
+python main.py variance --quick
+python main.py variance --n-sim 200 --T 400 --horizon 20
+python main.py variance --grid   # optimal window search
 
-Options:
-  --quick           Quick test (10 reps)
-  --grid            Grid search for optimal window
-  --n-sim INT       MC replications (default: 200)
-  --T INT           Sample size (default: 400)
-  --phi FLOAT       AR(1) coefficient (default: 0.6)
-  --window INT      Rolling window size (default: 100)
-  --horizon INT     Forecast horizon (default: 20)
-  --scenarios FILE  JSON scenario file
+# Mean experiments
+python main.py mean --quick
+python main.py mean --n-sim 100 --T 300 --Tb 150
+
+# Parameter experiments
+python main.py parameter --quick
+python main.py parameter --innovation student --df 50
+
+# Full pipeline with scenarios
+python main.py runner --scenarios scenarios/example_scenarios.json --plot
 ```
 
 ### Python API

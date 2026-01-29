@@ -15,6 +15,7 @@ matplotlib = "*"
 seaborn = "*"
 joblib = "*"
 pytest = "*"
+pytask = "*"
 pip = ">=25.3,<26"
 ipykernel = ">=7.1.0,<8"
 

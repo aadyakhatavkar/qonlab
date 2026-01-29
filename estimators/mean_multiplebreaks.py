@@ -1,8 +1,7 @@
 """
-Multiple mean break estimators: forecasting models for AR(1) with multiple mean shifts.
+Multiple mean break estimators: forecasting models for ARMA with multiple mean shifts.
 """
 import numpy as np
-from estimators.mean import forecast_global_ar1, forecast_rolling_ar1
 
 
 def forecast_ar1_with_multiple_break_dummies_oracle(y_train, breaks):

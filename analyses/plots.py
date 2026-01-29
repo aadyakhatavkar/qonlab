@@ -1,16 +1,15 @@
 """
 Variance Break Analysis Visualizations
 ======================================
-Plots for variance break analysis using Pesaran (2013) framework.
+Plots for variance break analysis.
 
-Run: `from analyses.plots import plot_loss_surfaces` or `python -m analyses.plots`
+Run: `from analyses.plots import plot_logscore_comparison` or `python -m analyses.plots`
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from dgps.variance import simulate_variance_break_ar1
-from analyses.simulations import mc_variance_breaks_grid
 from estimators.forecasters import (
     forecast_variance_dist_arima_rolling,
     variance_log_score_normal,
@@ -26,65 +25,15 @@ plt.rcParams['font.size'] = 10
 
 def plot_loss_surfaces():
     """
-    Heatmaps showing optimal window selection for different break magnitudes.
-    Key insight: smaller windows for large breaks, larger windows for small breaks.
+    DEPRECATED: Grid search for optimal window selection has been removed.
+    
+    Per project policy, practitioners prefer fixed window and break detection
+    over optimal window selection. Use plot_logscore_comparison() instead.
     """
-    print("\n[1/2] Generating Loss Surface heatmaps...")
-    
-    # Run grid analysis (this takes ~30 seconds)
-    results = mc_variance_breaks_grid(
-        n_sim=50,
-        T=200,
-        window_sizes=[20, 50, 100, 200],
-        break_magnitudes=[1.5, 2.0, 3.0, 5.0]
-    )
-    
-    # Extract metrics
-    windows = [20, 50, 100, 200]
-    break_mags = [1.5, 2.0, 3.0, 5.0]
-    
-    # Initialize arrays
-    rmse_surface = np.zeros((len(windows), len(break_mags)))
-    coverage_surface = np.zeros((len(windows), len(break_mags)))
-    logscore_surface = np.zeros((len(windows), len(break_mags)))
-    
-    for i, w in enumerate(windows):
-        for j, b in enumerate(break_mags):
-            key = (w, b)
-            if key in results:
-                rmse_surface[i, j] = results[key]['rmse']
-                coverage_surface[i, j] = results[key]['coverage95']
-                logscore_surface[i, j] = results[key]['logscore']
-    
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
-
-    sns.heatmap(rmse_surface, annot=True, fmt='.3f', cmap='RdYlGn_r',
-                xticklabels=break_mags, yticklabels=windows,
-                cbar_kws={'label': 'RMSE'}, ax=axes[0])
-    axes[0].set_title('RMSE Loss Surface\n(Lower is Better)', fontsize=12, fontweight='bold')
-    axes[0].set_xlabel('Break Magnitude (σ₂/σ₁)')
-    axes[0].set_ylabel('Window Size')
-
-    sns.heatmap(coverage_surface, annot=True, fmt='.3f', cmap='RdYlGn',
-                xticklabels=break_mags, yticklabels=windows,
-                cbar_kws={'label': 'Coverage95'}, ax=axes[1], vmin=0.8, vmax=0.95)
-    axes[1].set_title('Coverage95 Loss Surface\n(Target: 0.95)', fontsize=12, fontweight='bold')
-    axes[1].set_xlabel('Break Magnitude (σ₂/σ₁)')
-    axes[1].set_ylabel('Window Size')
-
-    sns.heatmap(logscore_surface, annot=True, fmt='.3f', cmap='RdYlGn',
-                xticklabels=break_mags, yticklabels=windows,
-                cbar_kws={'label': 'LogScore'}, ax=axes[2])
-    axes[2].set_title('LogScore Loss Surface\n(Higher is Better)', fontsize=12, fontweight='bold')
-    axes[2].set_xlabel('Break Magnitude (σ₂/σ₁)')
-    axes[2].set_ylabel('Window Size')
-
-    plt.tight_layout()
-    plt.savefig('variance_loss_surfaces.png', dpi=300, bbox_inches='tight')
-    print("✓ Saved: variance_loss_surfaces.png")
-    plt.show()
-    
-    return results
+    print("\n[DEPRECATED] Grid search for optimal window selection has been removed.")
+    print("Practitioners prefer fixed window and break detection approaches.")
+    print("Use plot_logscore_comparison() or plot_time_series_example() instead.")
+    return None
 
 
 def plot_logscore_comparison():

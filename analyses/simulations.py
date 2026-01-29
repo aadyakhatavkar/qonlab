@@ -22,58 +22,10 @@ from estimators.forecasters import (
 )
 
 
-def mc_variance_breaks_grid(
-    n_sim=100,
-    T=400,
-    phi=0.6,
-    horizon=20,
-    window_sizes=[20, 50, 100, 200],
-    break_magnitudes=[1.5, 2.0, 3.0, 5.0],
-    seed=42
-):
-    rng = np.random.default_rng(seed)
-    results = []
-    variance_Tb = T // 2
-    variance_sigma1 = 1.0
 
-    for break_mag in break_magnitudes:
-        variance_sigma2 = variance_sigma1 * break_mag
-
-        for ws in window_sizes:
-            rmse_list = []
-            cov_list = []
-            ls_list = []
-
-            seeds = [int(rng.integers(0, 1_000_000_000)) for _ in range(n_sim)]
-
-            for s in seeds:
-                y = simulate_variance_break(T=T, variance_Tb=variance_Tb, phi=phi, variance_sigma1=variance_sigma1, variance_sigma2=variance_sigma2, seed=s)
-                y_train = y[:-horizon]
-                y_test = y[-horizon:]
-
-                try:
-                    m_roll, v_roll = forecast_variance_dist_arima_rolling(y_train, window=ws, horizon=horizon)
-                    rmse, _, _ = variance_rmse_mae_bias(y_test, m_roll)
-                    cov95 = variance_interval_coverage(y_test, m_roll, v_roll, level=0.95)
-                    ls = variance_log_score_normal(y_test, m_roll, v_roll)
-
-                    rmse_list.append(rmse)
-                    cov_list.append(cov95)
-                    ls_list.append(ls)
-                except Exception:
-                    pass
-
-            if rmse_list:
-                results.append({
-                    'Window': ws,
-                    'BreakMagnitude': break_mag,
-                    'RMSE': np.mean(rmse_list),
-                    'Coverage95': np.mean(cov_list),
-                    'LogScore': np.mean(ls_list),
-                    'N_Sims': len(rmse_list)
-                })
-
-    return pd.DataFrame(results)
+# NOTE: Grid search for optimal window selection (Pesaran 2013) has been removed.
+# Per project policy, fixed window and break detection are preferred by practitioners.
+# See mc_variance_breaks() for the standard simulation approach.
 
 
 def mc_variance_breaks(
@@ -223,11 +175,11 @@ def main():
 
     parser = argparse.ArgumentParser(description="Run variance-break Monte Carlo experiments")
     parser.add_argument("--quick", action="store_true", help="run a short, fast simulation")
-    parser.add_argument("--grid", action="store_true", help="run grid analysis for optimal window selection (Pesaran 2013)")
+    # Grid search removed - practitioners prefer fixed window and break detection
     parser.add_argument("--n-sim", type=int, default=200, help="number of Monte Carlo simulations")
     parser.add_argument("--T", type=int, default=400, help="sample size T")
     parser.add_argument("--phi", type=float, default=0.6, help="AR(1) coefficient")
-    parser.add_argument("--window", type=int, default=100, help="rolling-window size (legacy mode)")
+    parser.add_argument("--window", type=int, default=100, help="rolling-window size")
     parser.add_argument("--horizon", type=int, default=20, help="forecast horizon")
     args = parser.parse_args()
 
@@ -242,41 +194,19 @@ def main():
         window = args.window
         horizon = args.horizon
 
-    if args.grid:
-        window_sizes = [20, 50, 100, 200] if not args.quick else [20, 50]
-        break_mags = [1.5, 2.0, 3.0, 5.0] if not args.quick else [1.5, 3.0]
+    df_point, df_unc = mc_variance_breaks(
+        n_sim=n_sim,
+        T=T,
+        phi=args.phi,
+        window=window,
+        horizon=horizon,
+    )
 
-        df_grid = mc_variance_breaks_grid(
-            n_sim=n_sim,
-            T=T,
-            phi=args.phi,
-            horizon=horizon,
-            window_sizes=window_sizes,
-            break_magnitudes=break_mags,
-            seed=42
-        )
+    print("\n=== VARIANCE BREAK: POINT METRICS ===")
+    print(df_point.round(4).to_string(index=False))
 
-        print("\nLOSS SURFACE: RMSE (lower is better)")
-        print(df_grid.pivot(index='Window', columns='BreakMagnitude', values='RMSE').round(4).to_string())
-        print("\nLOSS SURFACE: Coverage95 (closer to 0.95 is better)")
-        print(df_grid.pivot(index='Window', columns='BreakMagnitude', values='Coverage95').round(4).to_string())
-        print("\nLOSS SURFACE: LogScore (higher is better)")
-        print(df_grid.pivot(index='Window', columns='BreakMagnitude', values='LogScore').round(4).to_string())
-
-    else:
-        df_point, df_unc = mc_variance_breaks(
-            n_sim=n_sim,
-            T=T,
-            phi=args.phi,
-            window=window,
-            horizon=horizon,
-        )
-
-        print("\n=== VARIANCE BREAK: POINT METRICS ===")
-        print(df_point.round(4).to_string(index=False))
-
-        print("\n=== VARIANCE BREAK: UNCERTAINTY METRICS ===")
-        print(df_unc.round(4).to_string(index=False))
+    print("\n=== VARIANCE BREAK: UNCERTAINTY METRICS ===")
+    print(df_unc.round(4).to_string(index=False))
 
 
 if __name__ == "__main__":
