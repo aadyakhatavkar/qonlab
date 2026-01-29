@@ -92,6 +92,19 @@ The research questions are:
 \end{enumerate}
 
 %==============================================================================
+\section{Literature Review}
+\label{sec:literature}
+%==============================================================================
+
+The challenge of forecasting under structural instability has been a central theme in econometrics for decades. \citet{stock1996} provide extensive empirical evidence that structural instability is pervasive in macroeconomic time series, showing that roughly half of the series they examined exhibited significant breaks. This instability often leads to what \citet{clements1998} term ``forecast breakdown,'' where the out-of-sample performance of a model deteriorates significantly relative to its in-sample fit. As noted in the seminal work of \citet{perron1989}, ignoring these breaks can lead to spurious results and a fundamental misunderstanding of data persistence. Furthermore, \citet{wang2013} demonstrate that structural breaks can often ``mimic'' long memory, leading to a spurious long-memory effect where shifts in the mean are incorrectly interpreted as permanent stochastic memory.
+
+Theoretical foundations for detecting and estimating structural change were notably advanced by \citet{bai1998, bai2003} and \citet{andrews1993}, who developed tests for multiple structural changes with unknown break points using global minimization of the sum of squared residuals. These structural breaks typically manifest in three forms: (i) sudden level shifts in the mean; (ii) dynamic persistence breaks; and (iii) volatility breaks. In the context of forecasting, \citet{pesaran2013} and \citet{rossi2013} have provided comprehensive frameworks for evaluating predictive accuracy when the underlying data-generating process is unstable. \citet{pesaran2013} specifically addresses the trade-off between bias and variance when choosing window sizes for rolling estimators. However, applying these tests in small samples remains a challenge due to size distortions. \citet{antoshin2008} suggest an adaptive approach using Monte Carlo simulations to calculate sample-specific critical values ($N=50$), improving detection accuracy in constrained environments.
+
+Alternative approaches to handling breaks include Markov-switching models, popularized by \citet{hamilton1989}, which model regime changes as transitions between latent states. For variance breaks, the GARCH framework of \citet{engle1982} and \citet{bollerslev1986} remains the standard for modeling time-varying volatility, although its performance relative to simple rolling indicators after discrete structural shifts remains an area of active study.
+
+Our study contributes to this literature by providing a systematic Monte Carlo comparison of these methods across three distinct break types---mean, variance, and parameter shifts---while also accounting for heavy-tailed innovation distributions and seasonal patterns through SARIMA extensions.
+
+%==============================================================================
 \section{Data-Generating Processes}
 \label{sec:dgp}
 %==============================================================================
@@ -454,15 +467,35 @@ This project provides a comprehensive Monte Carlo framework for evaluating forec
 
 \begin{thebibliography}{99}
 
-\bibitem[Box and Jenkins(1970)]{box1970}
-Box, G.~E. and Jenkins, G.~M. (1970).
-\newblock \emph{Time Series Analysis: Forecasting and Control}.
-\newblock Holden-Day.
+\bibitem[Andrews(1993)]{andrews1993}
+Andrews, D. W. K. (1993).
+\newblock Tests for parameter instability and structural change with unknown change point.
+\newblock \emph{Econometrica}, 61(4):821--856.
+
+\bibitem[Bai and Perron(1998)]{bai1998}
+Bai, J. and Perron, P. (1998).
+\newblock Estimating and testing linear models with multiple structural changes.
+\newblock \emph{Econometrica}, 66(1):47--78.
 
 \bibitem[Bollerslev(1986)]{bollerslev1986}
 Bollerslev, T. (1986).
 \newblock Generalized autoregressive conditional heteroskedasticity.
 \newblock \emph{Journal of Econometrics}, 31(3):307--327.
+
+\bibitem[Box and Jenkins(1970)]{box1970}
+Box, G.~E. and Jenkins, G.~M. (1970).
+\newblock \emph{Time Series Analysis: Forecasting and Control}.
+\newblock Holden-Day.
+
+\bibitem[Clark and McCracken(2011)]{clark2011}
+Clark, T. E. and McCracken, M. W. (2011).
+\newblock Averaging forecasts from VARs with uncertain instabilities.
+\newblock \emph{Journal of Applied Econometrics}, 26(3):493--514.
+
+\bibitem[Clements and Hendry(1998)]{clements1998}
+Clements, M. P. and Hendry, D. F. (1998).
+\newblock \emph{Forecasting Economic Time Series}.
+\newblock Cambridge University Press.
 
 \bibitem[Engle(1982)]{engle1982}
 Engle, R.~F. (1982).
@@ -484,10 +517,15 @@ Pesaran, M.~H. (2013).
 \newblock The role of structural breaks in forecasting.
 \newblock In \emph{Handbook of Economic Forecasting}, volume 2B, pages 1159--1191. Elsevier.
 
-\bibitem[Bai and Perron(1998)]{bai1998}
-Bai, J. and Perron, P. (1998).
-\newblock Estimating and testing linear models with multiple structural changes.
-\newblock \emph{Econometrica}, 66(1):47--78.
+\bibitem[Rossi(2013)]{rossi2013}
+Rossi, B. (2013).
+\newblock Advances in forecasting under instability.
+\newblock In \emph{Handbook of Economic Forecasting}, volume 2B, pages 1203--1324. Elsevier.
+
+\bibitem[Stock and Watson(1996)]{stock1996}
+Stock, J. H. and Watson, M. W. (1996).
+\newblock Evidence on structural instability in macroeconomic time series relations.
+\newblock \emph{Journal of Business \& Economic Statistics}, 14(1):11--30.
 
 \end{thebibliography}
 

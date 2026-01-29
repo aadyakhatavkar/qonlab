@@ -13,6 +13,7 @@
 \usepackage{tikz}
 \usepackage{subcaption}
 \usepackage{multirow}
+\usepackage[authoryear]{natbib}
 
 % Custom commands
 \newcommand{\E}{\mathbb{E}}
@@ -137,6 +138,81 @@
   \item Robustness to heavy-tailed innovations (Student-$t$)
   \item Practical guidance on method selection
 \end{itemize}
+\end{frame}
+
+%==============================================================================
+\section{Literature Review}
+%==============================================================================
+
+\begin{frame}{Literature Review: Forecasting under Instability}
+\begin{itemize}
+  \item \textbf{The Challenge of Instability:}
+  \begin{itemize}
+    \item Structural breaks are pervasive in macroeconomic and financial data (\cite{stock1996})
+    \item Standard models suffer from \textit{forecast breakdown} when parameters shift (\cite{clark2011})
+  \end{itemize}
+  \vspace{0.3cm}
+  
+  \item \textbf{Key Methodological Foundations:}
+  \begin{itemize}
+    \item \textbf{Structural Change Detection:} Bai and Perron (1998) on multiple break points
+    \item \textbf{Rolling Windows:} Rossi (2013) and Pesaran (2013) on optimal window selection
+    \item \textbf{Regime Switching:} Hamilton (1989) on Markov-switching models
+    \item \textbf{Volatility Shifts:} Engle (1982) and Bollerslev (1986) on GARCH processes
+  \end{itemize}
+  \vspace{0.3cm}
+  
+  \item \textbf{Our Contribution:}
+  \begin{itemize}
+    \item Systematic Monte Carlo comparison across three break types (Mean, Variance, Parameter)
+    \item Integration of SARIMA for seasonal mean breaks (Bakhodir's contribution)
+    \item Empirical evidence on uncertainty quantification (Coverage and Log-score)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Advanced Challenges: Long Memory and Small Samples}
+\begin{itemize}
+  \item \textbf{Spurious Long Memory (\cite{wang2013}):}
+  \begin{itemize}
+    \item Structural breaks can ``mimic'' the behavior of long-memory processes
+    \item Mean shifts incorrectly interpreted as permanent stochastic memory
+    \item Essential to separate regime shifts from true autocorrelation decay
+  \end{itemize}
+  \vspace{0.3cm}
+  
+  \item \textbf{Small Sample Distortions (\cite{antoshin2008}):}
+  \begin{itemize}
+    \item Standard asymptotic tests fail at small sizes (e.g., $N=50$)
+    \item Risk of ``size distortions'' (finding false breaks)
+    \item \textbf{Solution:} Sample-specific Monte Carlo critical values and bootstrapping
+  \end{itemize}
+  \vspace{0.3cm}
+  
+  \item \textbf{Practical Implication:}
+  \begin{itemize}
+    \item Detection requires tailored critical values rather than generic defaults
+    \item Forecasting models must account for potential ``mimicry'' in volatility/mean
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Literature Review: Key Authors and Concepts}
+\begin{center}
+  \small
+  \begin{tabular}{llp{6cm}}
+    \toprule
+    \textbf{Author(s)} & \textbf{Year} & \textbf{Contribution to Forecasting} \\
+    \midrule
+    Stock \& Watson & 1996 & Evidence of pervasive instability in macro data \\
+    Bai \& Perron   & 1998, 2003 & Multiple break points via SSR minimization and DP algorithm \\
+    Antoshin et al. & 2008 & BP extension for small samples ($N=50$) via MC critical values \\
+    Pesaran         & 2013 & Theoretical framework for window selection under breaks \\
+    Rossi           & 2013 & Comprehensive review of forecasting under instability \\
+    Wang et al.     & 2013 & Separating breaks from spurious long memory in ARFIMA \\
+    \bottomrule
+  \end{tabular}
+\end{center}
 \end{frame}
 
 %==============================================================================
@@ -923,5 +999,10 @@ where $df \in \{50, 100, \infty\}$ (Gaussian).
 \end{frame}
 
 %==============================================================================
+\begin{frame}[allowframebreaks]{References}
+  \bibliographystyle{apalike}
+  \bibliography{bibliography}
+\end{frame}
+
 \end{document}
 %==============================================================================
