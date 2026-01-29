@@ -19,12 +19,18 @@
 \newcommand{\Var}{\text{Var}}
 \newcommand{\I}[1]{\mathbf{1}\{#1\}}
 \newcommand{\iid}{\stackrel{\text{iid}}{\sim}}
+\newcommand{\argmin}{\operatorname{arg\,min}}
+\newcommand{\argmax}{\operatorname{arg\,max}}
 
 % Theme and colors
 \usetheme{Madrid}
 \usecolortheme{default}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
+
+% Fix rotated sidebar on title page
+\setbeamertemplate{sidebar right}{}
+\setbeamertemplate{sidebar left}{}
 
 % Custom footer
 \setbeamertemplate{footline}%
@@ -412,7 +418,7 @@ P(s_t = j | s_{t-1} = i) = p_{ij}, \quad p_{ii} \in \{0.90, 0.95, 0.97, 0.995\}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{SARIMA Methods (Bakhodir's Contribution)}
+\begin{frame}{SARIMA Methods (Bakhodir Izzatulloyev's Contribution)}
 \textbf{Seasonal ARIMA:} Jointly models level shifts AND seasonal patterns
 
 \[
@@ -443,6 +449,9 @@ Implemented as state-space SARIMAX with exogenous break indicators:
 \vspace{0.3cm}
 
 \textbf{Computational note:} MLE in SARIMAX requires careful initialization to ensure convergence
+
+\vspace{0.3cm}
+\textit{\small \textbf{Credit:} All SARIMA methodology and empirical results implemented and developed by Bakhodir Izzatulloyev}
 \end{frame}
 
 %==============================================================================
@@ -536,20 +545,70 @@ Implemented as state-space SARIMAX with exogenous break indicators:
 \textbf{Bottom:} Multiple breaks with seasonality: Mean shifts to 1.5 then 3.0, plus seasonal component ($s=12$, amplitude $A=0.5$)
 \end{frame}
 
-\begin{frame}{Mean Breaks: SARIMA Results Table}
+\begin{frame}{Mean Breaks: RMSE Comparison (Bakhodir's Results)}
 \begin{center}
-  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/mean/mean_results_comparison.png}}
+  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/mean/single_break_RMSE.png}}
 \end{center}
 
 \vspace{0.2cm}
 
-\textbf{Key Finding (Bakhodir's SARIMA Work):}
-\begin{itemize}
-  \item \textbf{Single break:} SARIMA + oracle break dummy best (RMSE=1.455)
-  \item \textbf{Multiple breaks:} Oracle with 2 dummies dramatically better (RMSE=0.985)
-  \item Simple exponential smoothing competitive for single breaks
-  \item Rolling SARIMA good when break date unknown
-\end{itemize}
+\textbf{Single Break RMSE:} SARIMA methods outperform naive approaches
+\end{frame}
+
+\begin{frame}{Mean Breaks: MAE and Bias Analysis}
+\begin{center}
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/single_break_MAE.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/single_break_Bias.png}
+  \end{minipage}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Complementary metrics:} MAE and Bias show SARIMA consistency
+\end{frame}
+
+\begin{frame}{Mean Breaks: Seasonal Series Examples}
+\begin{center}
+  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/mean/single_break_seasonal_series.png}}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Simulated time series:} Single break with strong seasonality
+\end{frame}
+
+\begin{frame}{Mean Breaks: Single vs Multiple Breaks}
+\begin{center}
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/compare_RMSE_single_vs_multiple.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../../figures/mean/compare_MAE_single_vs_multiple.png}
+  \end{minipage}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Multiple breaks increase difficulty:} Adaptive methods needed
+\end{frame}
+
+\begin{frame}{Mean Breaks: Multiple Break Scenario}
+\begin{center}
+  \fbox{\includegraphics[width=0.95\textwidth]{../../figures/mean/multiple_break_seasonal_series.png}}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Complex scenario:} Two breaks with seasonal component
 \end{frame}
 
 \begin{frame}{Mean Breaks: Why SARIMA Matters}
@@ -853,6 +912,11 @@ where $df \in \{50, 100, \infty\}$ (Gaussian).
   \vspace{1cm}
   
   \normalsize
+  \textbf{Aadya Khatavkar} (Lead) | \textbf{Bakhodir Izzatulloyev} | \textbf{Mahir Beylerov}\\
+  University of Bonn
+  
+  \vspace{0.5cm}
+  
   Code and replication materials available at:\\
   \texttt{github.com/qonlab/structural-break-forecasting}
 \end{center}
