@@ -9,6 +9,7 @@ from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 warnings.filterwarnings("ignore")
 
+
 # =====================================================
 # VERSION / EXECUTION CHECK (MUST BE AT TOP)
 # =====================================================
