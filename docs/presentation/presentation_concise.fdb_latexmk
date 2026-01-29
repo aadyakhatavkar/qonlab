@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex presentation_concise"] 1769718760.54592 "presentation_concise.aux" "presentation_concise.bbl" "presentation_concise" 1769719251.96171 0
+["bibtex presentation_concise"] 1769719369.44347 "presentation_concise.aux" "presentation_concise.bbl" "presentation_concise" 1769719438.61904 0
   "./bibliography.bib" 1769718722.72784 7080 510dc57b9e7d5880a55997887276c0d0 ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/base/apalike.bst" 1292289607 24635 604dafcc79f521a11ea73e506e1fbd98 ""
-  "presentation_concise.aux" 1769719251.79391 3732 7b255beb46a9d880ccce69ac1f61fecb "pdflatex"
+  "presentation_concise.aux" 1769719438.43579 3497 849d18f4709bff26e833acb1f7be3763 "pdflatex"
   (generated)
   "presentation_concise.bbl"
   "presentation_concise.blg"
   (rewritten before read)
-["pdflatex"] 1769719248.21705 "presentation_concise.tex" "presentation_concise.pdf" "presentation_concise" 1769719251.96187 0
+["pdflatex"] 1769719434.86184 "presentation_concise.tex" "presentation_concise.pdf" "presentation_concise" 1769719438.61937 0
   "../../figures/mean/compare_MAE_single_vs_multiple.png" 1769697377.42589 71718 2a692c13448e94b873c75a19358d4bb5 ""
   "../../figures/mean/compare_RMSE_single_vs_multiple.png" 1769697377.41407 72745 a6a8ef802faf770e3cc79ec7dae44d07 ""
   "../../figures/mean/multiple_break_seasonal_series.png" 1769697377.40448 73546 cb61ccbd32d3862c8139e9e5d181f649 ""
@@ -299,11 +299,11 @@
   "RMSE over Dof single break.png" 1769712241.94306 24577 d0ff2b37b6c0eeabb9fc3a8c1f2d66bf ""
   "RMSE recurring.png" 1769712241.94353 24267 528aaf035dcd7249f6041f6632f0764b ""
   "Single break DGP.png" 1769712241.94468 67516 1746cc60f3c9b7183f0c70fa1cc9c26b ""
-  "presentation_concise.aux" 1769719251.79391 3732 7b255beb46a9d880ccce69ac1f61fecb "pdflatex"
-  "presentation_concise.bbl" 1769718760.57616 2489 de7ff4dbb38ebd45a52ce614ddb13c4a "bibtex presentation_concise"
-  "presentation_concise.nav" 1769719251.79437 1939 a68e099c0ca7df8abca18f26ea080ec6 "pdflatex"
-  "presentation_concise.out" 1769719251.79437 93 aea4b6a8ae45636c75679c2f0dfa4493 "pdflatex"
-  "presentation_concise.tex" 1769719241.6502 15520 0f6723607c0c39fecf8a2ffa1852a0ab ""
+  "presentation_concise.aux" 1769719438.43579 3497 849d18f4709bff26e833acb1f7be3763 "pdflatex"
+  "presentation_concise.bbl" 1769719369.46549 2489 de7ff4dbb38ebd45a52ce614ddb13c4a "bibtex presentation_concise"
+  "presentation_concise.nav" 1769719438.43779 1760 80a68e95556c790f6368970db289fcf5 "pdflatex"
+  "presentation_concise.out" 1769719435.574 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "presentation_concise.tex" 1769719426.59272 15561 a732e19a7e85a86f162cbe84fa14e39f ""
   (generated)
   "presentation_concise.aux"
   "presentation_concise.log"

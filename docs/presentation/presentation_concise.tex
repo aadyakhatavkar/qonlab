@@ -349,10 +349,13 @@
 
 % 16. References
 \begin{frame}{Selected References}
-  \tiny
+  \renewcommand{\bibsection}{} % Remove redundant 'References' header
+  \vspace{0.1cm}
+  {\tiny
   \nocite{stock1996, koop2005, boot2020, siliverstovs2002, hamilton1989, cai2007, delgado2000, koo2012, perron2006, pesaran2013_jo, kooseo2015}
   \bibliographystyle{apalike}
   \bibliography{bibliography}
+  }
 \end{frame}
 
 % 17. Thank You
@@ -360,9 +363,7 @@
   \begin{center}
     \vspace{2cm}
     \Huge \textcolor{MainBlue}{\textbf{Thank You!}} \\
-    \vspace{1cm}
-    \large \textbf{Questions?} \\
-    \vspace{1.5cm}
+    \vspace{2.5cm}
     \footnotesize \texttt{github.com/qonlab/structural-break-forecasting}
   \end{center}
 \end{frame}

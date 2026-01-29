@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  29 JAN 2026 21:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  29 JAN 2026 21:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1131,25 +1131,25 @@ Overfull \vbox (8.26137pt too high) detected at line 117
 [4
 
 ]
-<../../figures/mean/single_break_RMSE.png, id=81, 849.8952pt x 281.853pt>
+<../../figures/mean/single_break_RMSE.png, id=77, 849.8952pt x 281.853pt>
 File: ../../figures/mean/single_break_RMSE.png Graphic file (type png)
 <use ../../figures/mean/single_break_RMSE.png>
 Package pdftex.def Info: ../../figures/mean/single_break_RMSE.png  used on inpu
 t line 144.
 (pdftex.def)             Requested size: 152.96123pt x 50.72704pt.
-<../../figures/mean/single_break_Bias.png, id=83, 849.8952pt x 281.853pt>
+<../../figures/mean/single_break_Bias.png, id=79, 849.8952pt x 281.853pt>
 File: ../../figures/mean/single_break_Bias.png Graphic file (type png)
 <use ../../figures/mean/single_break_Bias.png>
 Package pdftex.def Info: ../../figures/mean/single_break_Bias.png  used on inpu
 t line 144.
 (pdftex.def)             Requested size: 152.96123pt x 50.72704pt.
-<../../figures/mean/single_break_MAE.png, id=84, 849.8952pt x 281.853pt>
+<../../figures/mean/single_break_MAE.png, id=80, 849.8952pt x 281.853pt>
 File: ../../figures/mean/single_break_MAE.png Graphic file (type png)
 <use ../../figures/mean/single_break_MAE.png>
 Package pdftex.def Info: ../../figures/mean/single_break_MAE.png  used on input
  line 144.
 (pdftex.def)             Requested size: 152.96123pt x 50.72704pt.
-<../../figures/mean/single_break_seasonal_series.png, id=85, 859.2903pt x 281.8
+<../../figures/mean/single_break_seasonal_series.png, id=81, 859.2903pt x 281.8
 53pt>
 File: ../../figures/mean/single_break_seasonal_series.png Graphic file (type pn
 g)
@@ -1162,7 +1162,7 @@ sed on input line 144.
  <../../figures/mean/single_break_RMSE.png> <../../figures/mean/single_break_Bi
 as.png> <../../figures/mean/single_break_MAE.png> <../../figures/mean/single_br
 eak_seasonal_series.png>]
-<../../figures/mean/compare_RMSE_single_vs_multiple.png, id=97, 855.6768pt x 35
+<../../figures/mean/compare_RMSE_single_vs_multiple.png, id=93, 855.6768pt x 35
 4.123pt>
 File: ../../figures/mean/compare_RMSE_single_vs_multiple.png Graphic file (type
  png)
@@ -1170,7 +1170,7 @@ File: ../../figures/mean/compare_RMSE_single_vs_multiple.png Graphic file (type
 Package pdftex.def Info: ../../figures/mean/compare_RMSE_single_vs_multiple.png
   used on input line 168.
 (pdftex.def)             Requested size: 172.07956pt x 71.21239pt.
-<../../figures/mean/compare_MAE_single_vs_multiple.png, id=98, 855.6768pt x 354
+<../../figures/mean/compare_MAE_single_vs_multiple.png, id=94, 855.6768pt x 354
 .123pt>
 File: ../../figures/mean/compare_MAE_single_vs_multiple.png Graphic file (type 
 png)
@@ -1178,7 +1178,7 @@ png)
 Package pdftex.def Info: ../../figures/mean/compare_MAE_single_vs_multiple.png 
  used on input line 168.
 (pdftex.def)             Requested size: 172.07956pt x 71.21239pt.
-<../../figures/mean/multiple_break_seasonal_series.png, id=99, 859.2903pt x 281
+<../../figures/mean/multiple_break_seasonal_series.png, id=95, 859.2903pt x 281
 .853pt>
 File: ../../figures/mean/multiple_break_seasonal_series.png Graphic file (type 
 png)
@@ -1199,18 +1199,18 @@ series.png>] [7
 ] [8
 
 ]
-<Single break DGP.png, id=120, 925.056pt x 500.1084pt>
+<Single break DGP.png, id=116, 925.056pt x 500.1084pt>
 File: Single break DGP.png Graphic file (type png)
 <use Single break DGP.png>
 Package pdftex.def Info: Single break DGP.png  used on input line 243.
 (pdftex.def)             Requested size: 131.45245pt x 71.06015pt.
-<Distribution Single break.png, id=121, 925.056pt x 500.1084pt>
+<Distribution Single break.png, id=117, 925.056pt x 500.1084pt>
 File: Distribution Single break.png Graphic file (type png)
 <use Distribution Single break.png>
 Package pdftex.def Info: Distribution Single break.png  used on input line 243.
 
 (pdftex.def)             Requested size: 131.45245pt x 71.06015pt.
-<RMSE over Dof single break.png, id=122, 925.056pt x 500.1084pt>
+<RMSE over Dof single break.png, id=118, 925.056pt x 500.1084pt>
 File: RMSE over Dof single break.png Graphic file (type png)
 <use RMSE over Dof single break.png>
 Package pdftex.def Info: RMSE over Dof single break.png  used on input line 243
@@ -1220,17 +1220,17 @@ Package pdftex.def Info: RMSE over Dof single break.png  used on input line 243
 
  <./Single break DGP.png> <./Distribution Single break.png> <./RMSE over Dof si
 ngle break.png>]
-<RMSE recurring.png, id=131, 925.056pt x 500.1084pt>
+<RMSE recurring.png, id=127, 925.056pt x 500.1084pt>
 File: RMSE recurring.png Graphic file (type png)
 <use RMSE recurring.png>
 Package pdftex.def Info: RMSE recurring.png  used on input line 262.
 (pdftex.def)             Requested size: 131.45245pt x 71.06015pt.
-<MAE recurring.png, id=132, 650.43pt x 361.35pt>
+<MAE recurring.png, id=128, 650.43pt x 361.35pt>
 File: MAE recurring.png Graphic file (type png)
 <use MAE recurring.png>
 Package pdftex.def Info: MAE recurring.png  used on input line 262.
 (pdftex.def)             Requested size: 131.45245pt x 73.02962pt.
-<Bias recurring.png, id=133, 650.43pt x 361.35pt>
+<Bias recurring.png, id=129, 650.43pt x 361.35pt>
 File: Bias recurring.png Graphic file (type png)
 <use Bias recurring.png>
 Package pdftex.def Info: Bias recurring.png  used on input line 262.
@@ -1238,12 +1238,12 @@ Package pdftex.def Info: Bias recurring.png  used on input line 262.
  [10
 
  <./RMSE recurring.png> <./MAE recurring.png> <./Bias recurring.png>]
-<GDP_recurring break.png, id=142, 925.056pt x 500.1084pt>
+<GDP_recurring break.png, id=138, 925.056pt x 500.1084pt>
 File: GDP_recurring break.png Graphic file (type png)
 <use GDP_recurring break.png>
 Package pdftex.def Info: GDP_recurring break.png  used on input line 282.
 (pdftex.def)             Requested size: 179.25114pt x 96.90645pt.
-<Distribution recurring.png, id=143, 925.056pt x 500.1084pt>
+<Distribution recurring.png, id=139, 925.056pt x 500.1084pt>
 File: Distribution recurring.png Graphic file (type png)
 <use Distribution recurring.png>
 Package pdftex.def Info: Distribution recurring.png  used on input line 282.
@@ -1251,7 +1251,7 @@ Package pdftex.def Info: Distribution recurring.png  used on input line 282.
  [11
 
  <./GDP_recurring break.png> <./Distribution recurring.png>]
-<../../figures/variance/variance_forecasts_comparison.png, id=151, 1074.1731pt 
+<../../figures/variance/variance_forecasts_comparison.png, id=147, 1074.1731pt 
 x 714.2685pt>
 File: ../../figures/variance/variance_forecasts_comparison.png Graphic file (ty
 pe png)
@@ -1262,7 +1262,7 @@ ng  used on input line 298.
  [12
 
  <../../figures/variance/variance_forecasts_comparison.png>]
-<../../figures/variance/variance_loss_surfaces.png, id=158, 1281.588pt x 354.12
+<../../figures/variance/variance_loss_surfaces.png, id=154, 1281.588pt x 354.12
 3pt>
 File: ../../figures/variance/variance_loss_surfaces.png Graphic file (type png)
 
@@ -1281,21 +1281,13 @@ Overfull \vbox (7.029pt too high) detected at line 310
 ] [15
 
 ]
-(./presentation_concise.bbl
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\translate ' on input line 1.
-
-)
-Overfull \vbox (4.01743pt too high) detected at line 356
- []
-
-[16
+(./presentation_concise.bbl) [16
 
 ]
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 3
-68.
- (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
+69.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 ) [17
 
@@ -1316,13 +1308,13 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `presentation_concise.out' has not changed.
-(rerunfilecheck)             Checksum: AEA4B6A8AE45636C75679C2F0DFA4493;93.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 29172 strings out of 476182
- 589470 string characters out of 5795595
+ 29126 strings out of 476182
+ 587904 string characters out of 5795595
  1940975 words of memory out of 5000000
- 50540 multiletter control sequences out of 15000+600000
+ 50495 multiletter control sequences out of 15000+600000
  585819 words of font info for 94 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  101i,13n,107p,1909b,1055s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1354,10 +1346,10 @@ onts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
 m/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
 10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
 
-Output written on presentation_concise.pdf (17 pages, 1805589 bytes).
+Output written on presentation_concise.pdf (17 pages, 1804201 bytes).
 PDF statistics:
- 887 PDF objects out of 1000 (max. 8388607)
- 220 compressed objects within 3 object streams
- 47 named destinations out of 1000 (max. 500000)
- 232 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 878 PDF objects out of 1000 (max. 8388607)
+ 214 compressed objects within 3 object streams
+ 46 named destinations out of 1000 (max. 500000)
+ 224 words of extra memory for PDF output out of 10000 (max. 10000000)
 
