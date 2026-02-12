@@ -1,4 +1,10 @@
+"""
+Single Variance Break DGP
+=========================
+AR(1) with a single shift in variance at time Tb.
+"""
 import numpy as np
+
 
 def _generate_t_innovations(size, nu, scale=1.0, seed=None):
     """
@@ -121,51 +127,3 @@ def estimate_variance_break_point(y, trim=0.15):
             best_sse, best_Tb = sse, Tb_cand
     
     return int(best_Tb if best_Tb is not None else T // 2)
-
-
-def simulate_realized_volatility(
-    T=400, Tb=200, intervals_per_day=1, phi_rv=0.5, sigma1_rv=1.0, sigma2_rv=2.0, seed=None
-):
-    """
-    Simulate realized volatility (RV) from high-frequency intra-day data.
-    """
-    rng = np.random.default_rng(seed)
-    
-    # Generate high-frequency returns
-    n_hf = T * intervals_per_day
-    hf_returns = np.zeros(n_hf)
-    
-    # Simple model: constant volatility with structural break
-    for i in range(n_hf):
-        # Determine which regime we're in
-        day = i // intervals_per_day
-        if day < Tb:
-            vol = sigma1_rv / np.sqrt(intervals_per_day)
-        else:
-            vol = sigma2_rv / np.sqrt(intervals_per_day)
-        hf_returns[i] = rng.normal(0.0, vol)
-    
-    # Compute realized volatility (sum of squared returns) for each day
-    rv = np.zeros(T)
-    for day in range(T):
-        start_idx = day * intervals_per_day
-        end_idx = (day + 1) * intervals_per_day
-        rv[day] = np.sqrt(np.sum(hf_returns[start_idx:end_idx]**2))
-    
-    return rv, hf_returns
-
-
-def calculate_rv_from_returns(returns, intervals_per_day=1):
-    """
-    Calculate realized volatility from high-frequency returns.
-    """
-    returns = np.asarray(returns, dtype=float)
-    n_periods = len(returns) // intervals_per_day
-    
-    rv = np.zeros(n_periods)
-    for period in range(n_periods):
-        start_idx = period * intervals_per_day
-        end_idx = (period + 1) * intervals_per_day
-        rv[period] = np.sqrt(np.sum(returns[start_idx:end_idx]**2))
-    
-    return rv

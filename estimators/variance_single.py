@@ -1,28 +1,23 @@
+"""
+Single Variance Break Estimators
+=================================
+Forecasting methods for AR(1) with a single variance break.
+"""
 import numpy as np
 from scipy.stats import norm
 from statsmodels.tsa.arima.model import ARIMA
+
 try:
     from arch import arch_model
 except Exception:
     arch_model = None
-# SARIMA (SARIMAX) is used for all forecasts per project policy.
 
 
 def _auto_select_arima_order(y_train, max_p=5, max_d=2, max_q=5, method='aic'):
     """
-    Auto-select ARIMA order using information criteria or cross-validation.
+    Auto-select ARIMA order using information criteria.
     
     Uses Box-Jenkins methodology with AIC or BIC to select (p, d, q).
-    
-    Parameters:
-        y_train: Training data
-        max_p: Maximum AR order to consider
-        max_d: Maximum differencing order to consider
-        max_q: Maximum MA order to consider
-        method: 'aic' or 'bic' for model selection criterion
-    
-    Returns:
-        Optimal (p, d, q) tuple
     """
     y = np.asarray(y_train, dtype=float)
     
@@ -56,17 +51,7 @@ def _auto_select_arima_order(y_train, max_p=5, max_d=2, max_q=5, method='aic'):
 
 def forecast_variance_dist_sarima_global(y_train, horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Forecast using global SARIMA model, providing both mean and variance.
-    
-    Parameters:
-        y_train: Training data
-        horizon: Forecast horizon
-        order: ARIMA order tuple (p, d, q). If None and auto_select=True, will be auto-selected.
-        seasonal_order: Seasonal order tuple (P, D, Q, s).
-        auto_select: Whether to auto-select order if not provided
-    
-    Returns:
-        mean, variance forecasts
+    Forecast using global SARIMA model on full sample.
     """
     from statsmodels.tsa.statespace.sarimax import SARIMAX
     
@@ -84,18 +69,7 @@ def forecast_variance_dist_sarima_global(y_train, horizon=1, order=None, seasona
 
 def forecast_variance_dist_sarima_rolling(y_train, window=100, horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Forecast using rolling window SARIMA model, providing both mean and variance.
-    
-    Parameters:
-        y_train: Training data
-        window: Rolling window size
-        horizon: Forecast horizon
-        order: ARIMA order tuple (p, d, q). If None and auto_select=True, will be auto-selected.
-        seasonal_order: Seasonal order tuple (P, D, Q, s).
-        auto_select: Whether to auto-select order if not provided
-    
-    Returns:
-        mean, variance forecasts
+    Forecast using rolling window SARIMA model.
     """
     from statsmodels.tsa.statespace.sarimax import SARIMAX
     
@@ -114,6 +88,9 @@ def forecast_variance_dist_sarima_rolling(y_train, window=100, horizon=1, order=
 
 
 def forecast_garch_variance(y_train, horizon=1, p=1, q=1):
+    """
+    Forecast using GARCH model.
+    """
     if arch_model is None:
         raise ImportError("arch package is required for GARCH forecasts (pip install arch)")
 
@@ -129,9 +106,9 @@ def forecast_garch_variance(y_train, horizon=1, p=1, q=1):
 
 def forecast_variance_sarima_post_break(y_train, horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Detect variance break point and forecast from post-break regime only using SARIMA.
+    Detect variance break point and forecast from post-break regime only.
     """
-    from dgps.variance import estimate_variance_break_point
+    from dgps.variance_single import estimate_variance_break_point
     from statsmodels.tsa.statespace.sarimax import SARIMAX
     
     y = np.asarray(y_train, dtype=float)
@@ -153,20 +130,9 @@ def forecast_variance_sarima_post_break(y_train, horizon=1, order=None, seasonal
     return mean, var
 
 
-def forecast_lstm(y_train, horizon=1, lookback=20, epochs=30):
-    """Deprecated: LSTM support removed.
-
-    The project removed LSTM components per project policy. This
-    placeholder raises an informative error so callers are aware.
-    """
-    raise ImportError(
-        "LSTM support removed from this repository. Use classical estimators in `estimators.ols_like`"
-    )
-
-
 def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Forecast by averaging forecasts across multiple window sizes using SARIMA.
+    Forecast by averaging predictions across multiple rolling windows.
     """
     if isinstance(window_sizes, int):
         window_sizes = [window_sizes]
@@ -192,30 +158,8 @@ def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horiz
     return mean_avg, var_avg
 
 
-def forecast_markov_switching(y_train, horizon=1, k_regimes=2, switching_variance=False):
-    """
-    Forecasting using Markov Switching regression.
-    """
-    try:
-        from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
-    except ImportError:
-        return np.full(horizon, np.nan), np.full(horizon, np.nan)
-
-    y = np.asarray(y_train, dtype=float)
-    try:
-        model = MarkovRegression(y, k_regimes=k_regimes, trend="c", switching_variance=switching_variance).fit(disp=False)
-        # Predict next steps
-        # MarkovRegression in statsmodels doesn't always support direct h-step var_pred_mean easily
-        # but we can get the predicted means.
-        pred_mean = model.predict(start=len(y), end=len(y) + horizon - 1)
-        # For variance, we use the estimated sigma2 of the current regime or average
-        sigma2 = model.sigma2
-        return np.asarray(pred_mean), np.full(horizon, sigma2)
-    except Exception:
-        return np.full(horizon, np.nan), np.full(horizon, np.nan)
-
-
 def variance_rmse_mae_bias(y_true, y_pred):
+    """Calculate RMSE, MAE, and Bias."""
     err = y_true - y_pred
     rmse = float(np.sqrt(np.mean(err ** 2)))
     mae = float(np.mean(np.abs(err)))
@@ -224,6 +168,7 @@ def variance_rmse_mae_bias(y_true, y_pred):
 
 
 def variance_interval_coverage(y_true, mean, var, level=0.95):
+    """Calculate prediction interval coverage probability."""
     z = norm.ppf(0.5 + level / 2.0)
     sd = np.sqrt(np.maximum(var, 1e-12))
     lo = mean - z * sd
@@ -232,6 +177,7 @@ def variance_interval_coverage(y_true, mean, var, level=0.95):
 
 
 def variance_log_score_normal(y_true, mean, var):
+    """Calculate log-predictive score under normal distribution."""
     y_true = np.asarray(y_true)
     mean = np.asarray(mean)
     var = np.asarray(var)

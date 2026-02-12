@@ -19,23 +19,24 @@ University of Bonn | Winter Semester 2025/26
 
 ---
 
-## 📋 Table of Contents
+## � Quick Start
 
-- [Overview](#-overview)
-- [Status](#-status)
-- [Team](#-team)
-- [Quick Start](#-quick-start)
-- [Break Types](#-break-types)
-- [Methods](#-methods)
-- [Metrics](#-metrics)
-- [Project Structure](#-project-structure)
-- [API Reference](#-api-reference)
-- [Scenarios](#-scenarios)
-- [Paper](#-paper)
-- [References](#-references)
-- [Changelog](#-changelog)
+### Run All Experiments (Standardized: T=400, Tb=200, n_sim=300)
+```bash
+python scripts/runner.py              # All 3 break types with variants
+python scripts/runner.py --quick      # Quick test (T=150, n_sim=10)
+python scripts/runner.py --variance   # Variance breaks only
+```
 
----
+### Example: Variance Break Analysis
+```python
+from analyses import mc_variance_single_break
+
+results = mc_variance_single_break(n_sim=300, T=400, Tb=200, seed=42)
+print(results[['Scenario', 'Method', 'RMSE', 'MAE']])
+```
+
+### Project Structure
 
 ## ✅ Status
 

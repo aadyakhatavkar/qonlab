@@ -1,11 +1,9 @@
-# Aligned simulation runners
-from scripts.runner import mc_unified, mc_mean_breaks, mc_variance_breaks
-
-# Keep backward compatibility aliases if needed, mapping to unified runner
-mc_mean_breaks_multi = mc_mean_breaks
-mc_parameter_breaks_post = mc_unified
-monte_carlo_single_break_post = mc_unified
-monte_carlo_recurring = mc_unified
+# New dedicated MC modules for each break type
+from .simu_variance import mc_variance_single_break, mc_variance_recurring
+from .simu_meanmultiple import mc_single_sarima, mc_multiple_sarima
+from .simu_meansingle import run_mc_single_break_sarima
+from .simu_paramsingle import monte_carlo_single_break_post
+from .simu_paramrecurring import monte_carlo_recurring
 
 # Plots
 from .plots_variance import plot_loss_surfaces, plot_logscore_comparison, plot_time_series_example
@@ -17,11 +15,14 @@ from .plots_parametersingle import (
 )
 
 __all__ = [
-    "mc_unified",
-    "mc_mean_breaks",
-    "mc_variance_breaks",
-    "mc_mean_breaks_multi",
-    "mc_parameter_breaks_post",
+    # Variance simulations
+    "mc_variance_single_break",
+    "mc_variance_recurring",
+    # Mean simulations
+    "mc_single_sarima",
+    "mc_multiple_sarima",
+    "run_mc_single_break_sarima",
+    # Parameter simulations
     "monte_carlo_single_break_post",
     "monte_carlo_recurring",
     # Plot exports
@@ -34,3 +35,4 @@ __all__ = [
     "param_plot_rmse_by_innovation",
     "param_plot_single_break_dgp",
 ]
+
