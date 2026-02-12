@@ -1,0 +1,41 @@
+ WARN Encountered 1 warning while parsing the manifest:
+  ⚠ The `project` field is deprecated. Use `workspace` instead.
+   ╭─[/home/aadya/bonn-repo/qonlab/pixi.toml:1:1]
+ 1 │ ╭─▶ [project]
+ 2 │ │   name = "qonlab"
+ 3 │ │   version = "0.0.0"
+ 4 │ │   description = "Variance-break analysis tools and experiments"
+ 5 │ │   channels = ["conda-forge"]
+ 6 │ ├─▶ platforms = ["linux-64"]
+   · ╰──── replace this with 'workspace'
+ 7 │     
+   ╰────
+
+[2026-02-13 00:38:16,256] INFO: ======================================================================
+[2026-02-13 00:38:16,256] INFO: STRUCTURAL BREAK EXPERIMENTS RUNNER STARTED
+[2026-02-13 00:38:16,256] INFO: ======================================================================
+
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║    ALIGNED STRUCTURAL BREAK EXPERIMENTS                            ║
+║                                                                    ║
+║    Parameters: T=400, Tb=200, n_sim=300                      ║
+║    Innovations: 3 types (Gaussian, t(df=5), t(df=3))               ║
+║    Persistence: 3 levels (0.90, 0.95, 0.99) [parameter only]       ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+[2026-02-13 00:38:17,723] INFO: Parameters: T=400, Tb=200, n_sim=300
+[2026-02-13 00:38:17,723] INFO: Quick mode: False
+[2026-02-13 00:38:17,723] INFO: Starting variance break experiments...
+[2026-02-13 00:38:17,723] INFO: ======================================================================
+[2026-02-13 00:38:17,723] INFO: VARIANCE BREAK EXPERIMENTS START
+[2026-02-13 00:38:17,723] INFO: ======================================================================
+
+======================================================================
+ VARIANCE BREAK EXPERIMENTS
+======================================================================
+[2026-02-13 00:38:17,723] INFO: [1/2] Single variance breaks (T=400, Tb=200, n_sim=300)
+
+[1/2] Single variance breaks (T=400, Tb=200, n_sim=300)
+      └─ Gaussian... [2026-02-13 00:38:17,724] INFO: Starting variance_single: Gaussian

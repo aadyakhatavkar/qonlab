@@ -21,13 +21,13 @@ from protocols import calculate_metrics
 
 
 def mc_variance_recurring(
-    n_sim=100,
+    n_sim=300,
     T=400,
     p=0.95,
     phi=0.6,
     sigma1=1.0,
     sigma2=2.0,
-    window=100,
+    window=70,
     horizon=1,
     seed=42,
     verbose=False
@@ -53,9 +53,9 @@ def mc_variance_recurring(
     rng = np.random.default_rng(seed)
     
     methods = {
-        "SARIMA Global": lambda ytr: forecast_variance_dist_sarima_global(ytr, horizon=horizon)[0],
-        "SARIMA Rolling": lambda ytr: forecast_variance_dist_sarima_rolling(ytr, window=window, horizon=horizon)[0],
-        "SARIMA Avg-Window": lambda ytr: forecast_variance_averaged_window(ytr, window_sizes=[50, 100, 200], horizon=horizon)[0],
+        "SARIMA Global": lambda ytr: forecast_variance_dist_sarima_global(ytr, horizon=horizon),
+        "SARIMA Rolling": lambda ytr: forecast_variance_dist_sarima_rolling(ytr, window=window, horizon=horizon),
+        "SARIMA Avg-Window": lambda ytr: forecast_variance_averaged_window(ytr, window_sizes=[window], horizon=horizon),
         "MS AR(1)": lambda ytr: forecast_markov_switching(ytr, horizon=horizon)[0],
     }
     
@@ -67,13 +67,13 @@ def mc_variance_recurring(
             print(f"  MC iteration {sim+1}/{n_sim}")
         
         # Generate Markov-switching data
-        y = simulate_ms_ar1_variance_only(
+        y, _ = simulate_ms_ar1_variance_only(
             T=T, p00=p, p11=p, phi=phi, sigma1=sigma1, sigma2=sigma2, 
             seed=rng.integers(0, 1_000_000)
         )
         
-        # Select forecast origin (need sufficient data)
-        t_orig = min(T - horizon - 10, max(T // 2, 100))
+        # Choose random forecast origin (allow sufficient data for training)
+        t_orig = rng.integers(max(T // 4, 50), T - horizon - 1)
         y_train = y[:t_orig]
         y_true = float(y[t_orig]) if horizon == 1 else y[t_orig:t_orig+horizon]
         

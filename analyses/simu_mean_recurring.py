@@ -19,14 +19,14 @@ from protocols import calculate_metrics
 
 
 def mc_mean_recurring(
-    n_sim=100,
+    n_sim=300,
     T=400,
     p=0.95,
     phi=0.6,
     mu0=0.0,
     mu1=2.0,
     sigma=1.0,
-    window=100,
+    window=70,
     horizon=1,
     seed=42,
     verbose=False
@@ -53,7 +53,7 @@ def mc_mean_recurring(
     rng = np.random.default_rng(seed)
     
     methods = {
-        "ARIMA Global": lambda ytr: forecast_mean_arima_global(ytr, horizon=horizon)[0],
+        "ARIMA Global": lambda ytr: forecast_mean_arima_global(ytr, horizon=horizon),
         "MS AR(1)": lambda ytr: forecast_ms_ar1_mean(ytr, horizon=horizon)[0],
     }
     
@@ -65,13 +65,13 @@ def mc_mean_recurring(
             print(f"  MC iteration {sim+1}/{n_sim}")
         
         # Generate Markov-switching data
-        y = simulate_ms_ar1_mean_only(
+        y, _ = simulate_ms_ar1_mean_only(
             T=T, p00=p, p11=p, phi=phi, mu0=mu0, mu1=mu1, sigma=sigma,
             seed=rng.integers(0, 1_000_000)
         )
         
-        # Select forecast origin (need sufficient data)
-        t_orig = min(T - horizon - 10, max(T // 2, 100))
+        # Choose random forecast origin (allow sufficient data for training)
+        t_orig = rng.integers(max(T // 4, 50), T - horizon - 1)
         y_train = y[:t_orig]
         y_true = float(y[t_orig]) if horizon == 1 else y[t_orig:t_orig+horizon]
         

@@ -8,7 +8,6 @@ from .variance_single import (
     forecast_variance_dist_sarima_global,
     forecast_variance_dist_sarima_rolling,
     forecast_garch_variance,
-    forecast_variance_sarima_post_break,
 )
 from .variance_recurring import (
     forecast_markov_switching,
@@ -37,7 +36,6 @@ __all__ = [
     "forecast_variance_dist_sarima_global",
     "forecast_variance_dist_sarima_rolling",
     "forecast_garch_variance",
-    "forecast_variance_sarima_post_break",
     # Variance - Recurring
     "forecast_markov_switching",
     # Mean - Single

@@ -111,34 +111,27 @@ Rolling ARIMA,1.45,1.12,-0.05,3.21,gaussian
 GARCH(1.1),1.52,1.18,0.08,3.89,gaussian
 ```
 
----
-
-## 🚀 Quick Start
-
-### Setup
-```bash
-# Install pixi (if needed)
-curl -fsSL https://pixi.sh/install.sh | bash
-
-# Install dependencies
-pixi install
-```
-
-### Run Experiments
-
-```bash
-pixi run python runner.py              # All 3 break types (25-30 min)
-pixi run python runner.py --quick      # Fast test run (2-3 min)
-pixi run python runner.py --variance   # Variance only
-pixi run python runner.py --mean       # Mean only
-pixi run python runner.py --parameter  # Parameter only
-```
-
 ### View Results
 ```bash
 ls results/                             # Check output files
 cat results/variance_20260212_*.csv    # View variance results
 ```
+
+### Compile Results to PDF
+After running experiments, compile all generated LaTeX tables into a professional PDF document:
+
+```bash
+# Compile all result tables into a single PDF
+pixi run python scripts/compile_results_pdf.py
+
+# Output: docs/simulation_results_latest.pdf (also timestamped version)
+```
+
+This creates a PDF with:
+- **Table of contents** with all results organized by break type
+- **Professional formatting** with booktabs styling
+- **Appendices** with simulation configuration and method descriptions
+- **Timestamped versioning** for easy tracking of results
 
 ---
 

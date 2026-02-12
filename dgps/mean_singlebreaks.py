@@ -38,8 +38,8 @@ def _generate_t_innovations(size, nu, scale=1.0, seed=None):
 # 1) DGP: AR(1) + SEASONALITY + ONE mean break
 # =========================================================
 def simulate_single_break_with_seasonality(
-    T=300,
-    Tb=150,
+    T=400,
+    Tb=200,
     mu0=0.0,
     mu1=2.0,
     phi=0.6,

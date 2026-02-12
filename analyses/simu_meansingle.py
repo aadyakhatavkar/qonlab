@@ -5,7 +5,6 @@ from estimators.mean_singlebreak import (
     forecast_sarima_global,
     forecast_sarima_rolling,
     forecast_sarima_break_dummy_oracle,
-    forecast_sarima_estimated_break,
     forecast_ses,
 )
 from protocols import calculate_metrics
@@ -14,10 +13,10 @@ from protocols import calculate_metrics
 # 3) Monte Carlo evaluation
 # =========================================================
 def run_mc_single_break_sarima(
-    n_sim=200,
-    T=300,
-    Tb=150,
-    window=60,
+    n_sim=300,
+    T=400,
+    Tb=200,
+    window=70,
     seed=123,
     mu0=0.0,
     mu1=2.0,
@@ -25,15 +24,14 @@ def run_mc_single_break_sarima(
     sigma=1.0,
     s=12,
     A=1.0,
-    gap_after_break=20,
-    order=(1,0,0),
+    order=(1,0,1),
     seasonal_order=(1,0,0,12),
     trim=0.15,
     innovation_type='gaussian',
     dof=None
 ):
     """
-    Monte Carlo evaluation for single mean break.
+    Monte Carlo evaluation for single mean break with random forecast origin after Tb.
     
     Parameters:
         n_sim: Number of Monte Carlo replications
@@ -58,15 +56,15 @@ def run_mc_single_break_sarima(
         DataFrame with RMSE, MAE, Bias, Variance for each method
     """
     rng = np.random.default_rng(seed)
-    t0 = Tb + gap_after_break
-    if t0 >= T:
-        raise ValueError("gap_after_break too large for T.")
+    
+    # Validate that we have room for post-break forecasts
+    if Tb + 2 >= T:
+        raise ValueError("Not enough data after break point for forecasting.")
 
     methods = [
-        ("SARIMA Global", lambda ytr: forecast_sarima_global(ytr, order=order, seasonal_order=seasonal_order)),
-        ("SARIMA Rolling", lambda ytr: forecast_sarima_rolling(ytr, window=window, order=order, seasonal_order=seasonal_order)),
-        ("SARIMA + Break Dummy (oracle Tb)", lambda ytr: forecast_sarima_break_dummy_oracle(ytr, Tb=Tb, order=order, seasonal_order=seasonal_order)),
-        ("SARIMA + Estimated Break (grid)", lambda ytr: forecast_sarima_estimated_break(ytr, order=order, seasonal_order=seasonal_order, trim=trim)),
+        ("SARIMA Global", lambda ytr: forecast_sarima_global(ytr)),
+        ("SARIMA Rolling", lambda ytr: forecast_sarima_rolling(ytr, window=window)),
+        ("SARIMA + Break Dummy (oracle Tb)", lambda ytr: forecast_sarima_break_dummy_oracle(ytr, Tb=Tb)),
         ("Simple Exp. Smoothing (SES)", lambda ytr: forecast_ses(ytr)),
     ]
 
@@ -74,6 +72,9 @@ def run_mc_single_break_sarima(
     fails  = {name: 0 for name, _ in methods}
 
     for _ in range(n_sim):
+        # Choose random forecast origin between Tb and T
+        t0 = rng.integers(Tb + 1, T - 1)
+        
         y = simulate_single_break_with_seasonality(
             T=T, Tb=Tb, mu0=mu0, mu1=mu1, phi=phi, sigma=sigma, s=s, A=A, 
             innovation_type=innovation_type, dof=dof,

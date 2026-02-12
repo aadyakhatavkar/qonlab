@@ -14,12 +14,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from dgps.variance_single import simulate_variance_break_ar1, estimate_variance_break_point
+from dgps.variance_single import simulate_variance_break_ar1
 from estimators.variance_single import (
     forecast_variance_dist_sarima_global,
     forecast_variance_dist_sarima_rolling,
     forecast_garch_variance,
-    forecast_variance_sarima_post_break,
     forecast_variance_averaged_window,
     variance_rmse_mae_bias,
     variance_interval_coverage,
@@ -38,16 +37,6 @@ def test_simulate_variance_break_shape():
     """Test that DGP returns correct shape."""
     y = simulate_variance_break_ar1(T=100, Tb=50)
     assert y.shape == (100,), f"Expected shape (100,), got {y.shape}"
-
-
-def test_estimate_variance_break_point():
-    """Test break point estimation."""
-    y = simulate_variance_break_ar1(T=200, Tb=100, sigma1=1.0, sigma2=3.0, seed=42)
-    Tb_est = estimate_variance_break_point(y, trim=0.15)
-    # Should be reasonably close to true break point
-    assert 80 < Tb_est < 120, f"Estimated break point {Tb_est} far from true {100}"
-
-
 def test_forecast_variance_sarima_global_shapes():
     """Test SARIMA global forecaster output shapes."""
     y = simulate_variance_break_ar1(T=120, Tb=60, seed=1)

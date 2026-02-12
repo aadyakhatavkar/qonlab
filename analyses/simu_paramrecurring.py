@@ -15,12 +15,11 @@ def monte_carlo_recurring(
     p,
     n_sim=300,
     T=400,
-    t0=300,
-    window=60,
+    window=70,
     seed=123
 ):
     """
-    Monte Carlo evaluation for Markov-switching parameter breaks.
+    Monte Carlo evaluation for Markov-switching parameter breaks with random forecast origin.
     
     Parameters:
         p: Persistence level (probability of staying in same regime)
@@ -29,7 +28,6 @@ def monte_carlo_recurring(
            - p=0.99: High persistence (stable regimes)
         n_sim: Number of Monte Carlo replications
         T: Total time series length
-        t0: Forecast origin (1-step ahead forecast target is at t0)
         window: Rolling window size
         seed: Random seed
     
@@ -51,8 +49,10 @@ def monte_carlo_recurring(
             rng=rng
         )
 
-        y_train = y[:t0]
-        y_true = y[t0]
+        # Choose random forecast origin (allow sufficient data for training)
+        t0_random = rng.integers(max(T // 4, 50), T - 1)
+        y_train = y[:t0_random]
+        y_true = y[t0_random]
 
         err["Global SARIMA"].append(
             y_true - forecast_global_sarima(y_train)

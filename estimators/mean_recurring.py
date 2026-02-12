@@ -94,20 +94,20 @@ def forecast_ms_ar1_mean(y_train, horizon=1, p00_init=0.9, p11_init=0.9):
     return np.array(means), np.array(vols)
 
 
-def forecast_mean_arima_global(y_train, horizon=1, order=None, seasonal_order=(1, 0, 0, 12)):
+def forecast_mean_arima_global(y_train, horizon=1, order=(1, 0, 1), seasonal_order=(1, 0, 0, 12)):
     """
-    Forecast using global ARIMA model on full sample.
+    Forecast using global SARIMA model on full sample.
     """
-    from statsmodels.tsa.statespace.sarimax import SARIMAX
-    
-    if order is None:
-        order = (1, 0, 0)
-    
-    res = SARIMAX(y_train, order=order, seasonal_order=seasonal_order).fit(disp=False)
-    fc = res.get_forecast(steps=horizon)
-    mean = np.asarray(fc.predicted_mean)
-    var = np.asarray(fc.var_pred_mean)
-    return mean, var
+    try:
+        res = ARIMA(
+            y_train,
+            order=order,
+            seasonal_order=seasonal_order,
+            trend="n"
+        ).fit()
+        return np.asarray(res.forecast(steps=horizon))
+    except Exception:
+        return np.full(horizon, np.nan)
 
 
 def mean_rmse_mae_bias(y_true, y_pred):

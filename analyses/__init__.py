@@ -7,7 +7,7 @@ from .simu_paramsingle import monte_carlo_single_break_post
 from .simu_paramrecurring import monte_carlo_recurring
 
 # Plots
-from .plots_variance import plot_loss_surfaces, plot_logscore_comparison, plot_time_series_example
+from .plots_variance_single import plot_loss_surfaces, plot_logscore_comparison, plot_time_series_example
 from .plots_meansingle import plot_mean_single_break_results, plot_mean_single_break_example
 from .plots_parametersingle import (
     plot_combined_distributions as param_plot_combined_distributions,

@@ -15,20 +15,19 @@ from estimators.variance_single import (
     forecast_variance_dist_sarima_global,
     forecast_variance_dist_sarima_rolling,
     forecast_garch_variance,
-    forecast_variance_sarima_post_break,
     forecast_variance_averaged_window,
 )
 from protocols import calculate_metrics
 
 
 def mc_variance_single_break(
-    n_sim=100,
+    n_sim=300,
     T=400,
     Tb=200,
     phi=0.6,
     sigma1=1.0,
     sigma2=2.0,
-    window=100,
+    window=70,
     horizon=1,
     innovation_type='gaussian',
     dof=None,
@@ -57,12 +56,15 @@ def mc_variance_single_break(
     """
     rng = np.random.default_rng(seed)
     
+    # Validate that we have room for post-break forecasts
+    if Tb + 2 >= T:
+        raise ValueError("Not enough data after break point for forecasting.")
+    
     methods = {
-        "SARIMA Global": lambda ytr: forecast_variance_dist_sarima_global(ytr, horizon=horizon)[0],
-        "SARIMA Rolling": lambda ytr: forecast_variance_dist_sarima_rolling(ytr, window=window, horizon=horizon)[0],
+        "SARIMA Global": lambda ytr: forecast_variance_dist_sarima_global(ytr, horizon=horizon),
+        "SARIMA Rolling": lambda ytr: forecast_variance_dist_sarima_rolling(ytr, window=window, horizon=horizon),
         "GARCH": lambda ytr: _safe_forecast_garch(ytr, horizon=horizon),
-        "SARIMA Post-Break": lambda ytr: forecast_variance_sarima_post_break(ytr, horizon=horizon)[0],
-        "SARIMA Avg-Window": lambda ytr: forecast_variance_averaged_window(ytr, window_sizes=[50, 100, 200], horizon=horizon)[0],
+        "SARIMA Avg-Window": lambda ytr: forecast_variance_averaged_window(ytr, window_sizes=[window], horizon=horizon),
     }
     
     errors = {m: [] for m in methods}
@@ -79,8 +81,8 @@ def mc_variance_single_break(
             seed=rng.integers(0, 1_000_000)
         )
         
-        # Select forecast origin (after break)
-        t_orig = min(Tb + 20, T - horizon - 2)
+        # Choose random forecast origin between Tb and T
+        t_orig = rng.integers(Tb + 1, T - horizon - 1)
         y_train = y[:t_orig]
         y_true = float(y[t_orig]) if horizon == 1 else y[t_orig:t_orig+horizon]
         

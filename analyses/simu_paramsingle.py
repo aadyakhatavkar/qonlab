@@ -15,20 +15,18 @@ def monte_carlo_single_break_post(
     n_sim=300,
     T=400,
     Tb=200,
-    t_post=250,
-    window=80,
+    window=70,
     innovation_type='gaussian',
     dof=None,
     seed=123
 ):
     """
-    Monte Carlo evaluation for single parameter break at forecast origin t_post (after Tb).
+    Monte Carlo evaluation for single parameter break with random forecast origin after Tb.
     
     Parameters:
         n_sim: Number of Monte Carlo replications
         T: Total time series length
         Tb: Structural break point
-        t_post: Forecast origin (1-step ahead forecast target is at t_post)
         window: Rolling window size
         innovation_type: 'gaussian' or 'student' (Student-t innovations)
         dof: Degrees of freedom for Student-t (required if innovation_type='student')
@@ -54,8 +52,10 @@ def monte_carlo_single_break_post(
             rng=rng
         )
 
-        y_train = y[:t_post]
-        y_true = y[t_post]
+        # Choose random forecast origin between Tb and T
+        t_post_random = rng.integers(Tb + 1, T - 1)
+        y_train = y[:t_post_random]
+        y_true = y[t_post_random]
 
         err["Global SARIMA"].append(
             y_true - forecast_global_sarima(y_train)
