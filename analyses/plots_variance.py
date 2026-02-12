@@ -9,8 +9,8 @@ Run: `from analyses.plots import plot_logscore_comparison` or `python -m analyse
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from dgps.variance import simulate_variance_break_ar1
-from estimators.variance import (
+from dgps.variance_single import simulate_variance_break_ar1
+from estimators.variance_single import (
     forecast_variance_dist_sarima_rolling,
     variance_log_score_normal,
     variance_interval_coverage,

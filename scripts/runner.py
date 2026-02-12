@@ -30,6 +30,9 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+# Add parent directory to path so imports work from scripts/ subdirectory
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from analyses import (
     mc_variance_single_break, mc_variance_recurring,
     mc_single_sarima, mc_multiple_sarima,
