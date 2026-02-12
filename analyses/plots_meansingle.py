@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from dgps.mean_multiplebreaks import simulate_single_break_with_seasonality
+from dgps.mean_singlebreaks import simulate_single_break_with_seasonality
 
 # =========================================================
 # 5) VISUAL GRAPHS

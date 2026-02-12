@@ -2,7 +2,6 @@
 Unified Estimator Aggregator
 ============================
 Aggregates all forecasting methods for structural breaks.
-Maintains legacy aliases for backward compatibility.
 """
 import numpy as np
 from .variance_single import (
@@ -17,14 +16,7 @@ from .variance_recurring import (
 from .mean_singlebreak import (
     forecast_sarima_global,
     forecast_sarima_rolling,
-)
-from .mean_multiplebreaks import (
-    forecast_sarima_break_dummy_oracle_single,
-    forecast_sarima_break_dummy_oracle_multiple,
-    forecast_sarima_estimated_break_single,
-    forecast_sarima_estimated_breaks_multiple,
     forecast_ses,
-    forecast_holt_winters_seasonal
 )
 from .mean_recurring import (
     forecast_ms_ar1_mean,
@@ -51,12 +43,7 @@ __all__ = [
     # Mean - Single
     "forecast_sarima_global",
     "forecast_sarima_rolling",
-    "forecast_sarima_break_dummy_oracle_single",
-    "forecast_sarima_break_dummy_oracle_multiple",
-    "forecast_sarima_estimated_break_single",
-    "forecast_sarima_estimated_breaks_multiple",
     "forecast_ses",
-    "forecast_holt_winters_seasonal",
     # Mean - Recurring
     "forecast_ms_ar1_mean",
     # Parameter - Single

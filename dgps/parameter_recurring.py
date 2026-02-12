@@ -9,16 +9,34 @@ import numpy as np
 
 def simulate_ms_ar1_phi_only(
     T=400,
-    p00=0.97,
-    p11=0.97,
+    persistence=0.95,
     phi0=0.2,
     phi1=0.9,
     sigma=1.0,
     y0=0.0,
     rng=None
 ):
+    """
+    Markov-switching AR(1) with persistence parameter.
+    
+    Parameters:
+        T: Time series length
+        persistence: Persistence level p (both p00 and p11 = p)
+                    - Represents probability of staying in same regime
+                    - Higher p = longer regime durations
+        phi0: AR coefficient in regime 0
+        phi1: AR coefficient in regime 1
+        sigma: Std deviation of innovations
+        y0: Initial value
+        rng: Random number generator
+    """
     if rng is None:
         rng = np.random.default_rng()
+
+    # Convert persistence to transition probabilities
+    # p00 = p11 = persistence ensures symmetric regime durations
+    p00 = persistence
+    p11 = persistence
 
     y = np.zeros(T)
     s = np.zeros(T, dtype=int)

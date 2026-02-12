@@ -1,78 +1,130 @@
 [
   {
-    "name": "Single variance break small",
-    "variance_Tb": 40,
-    "variance_sigma1": 1.0,
-    "variance_sigma2": 2.0,
-    "task": "variance",
-    "owner": "aadya",
-    "tag": "variance_small"
-  },
-  {
-    "name": "Late variance break",
-    "variance_Tb": 80,
-    "variance_sigma1": 1.0,
-    "variance_sigma2": 3.0,
-    "task": "variance",
-    "owner": "aadya",
-    "tag": "variance_late"
-  },
-  {
-    "name": "Parameter single break example",
+    "name": "Variance Single - Gaussian",
+    "task": "variance_single",
+    "T": 400,
     "Tb": 200,
-    "phi1": 0.2,
-    "phi2": 0.9,
-    "sigma": 1.0,
-    "task": "parameter",
+    "innovation_type": "gaussian",
+    "dof": null,
+    "owner": "aadya",
+    "tag": "variance_gaussian"
+  },
+  {
+    "name": "Variance Single - Student-t(df=5)",
+    "task": "variance_single",
+    "T": 400,
+    "Tb": 200,
+    "innovation_type": "student",
+    "dof": 5,
+    "owner": "aadya",
+    "tag": "variance_t5"
+  },
+  {
+    "name": "Variance Single - Student-t(df=3)",
+    "task": "variance_single",
+    "T": 400,
+    "Tb": 200,
+    "innovation_type": "student",
+    "dof": 3,
+    "owner": "aadya",
+    "tag": "variance_t3"
+  },
+  {
+    "name": "Variance Recurring - Markov-switching",
+    "task": "variance_recurring",
+    "T": 400,
+    "owner": "aadya",
+    "tag": "variance_recurring"
+  },
+  {
+    "name": "Mean Single - Gaussian",
+    "task": "mean_single",
+    "T": 400,
+    "Tb": 200,
+    "innovation_type": "gaussian",
+    "dof": null,
+    "owner": "bakhodir",
+    "tag": "mean_gaussian"
+  },
+  {
+    "name": "Mean Single - Student-t(df=5)",
+    "task": "mean_single",
+    "T": 400,
+    "Tb": 200,
+    "innovation_type": "student",
+    "dof": 5,
+    "owner": "bakhodir",
+    "tag": "mean_t5"
+  },
+  {
+    "name": "Mean Single - Student-t(df=3)",
+    "task": "mean_single",
+    "T": 400,
+    "Tb": 200,
+    "innovation_type": "student",
+    "dof": 3,
+    "owner": "bakhodir",
+    "tag": "mean_t3"
+  },
+  {
+    "name": "Mean Recurring - Markov-switching",
+    "task": "mean_recurring",
+    "T": 400,
+    "owner": "bakhodir",
+    "tag": "mean_recurring"
+  },
+  {
+    "name": "Parameter Single - Gaussian",
+    "task": "parameter_single",
+    "T": 400,
+    "Tb": 200,
+    "innovation_type": "gaussian",
+    "dof": null,
     "owner": "mahir",
-    "tag": "param_single"
+    "tag": "parameter_gaussian"
   },
   {
-    "name": "Single mean break - moderate",
-    "task": "mean",
+    "name": "Parameter Single - Student-t(df=5)",
+    "task": "parameter_single",
     "T": 400,
     "Tb": 200,
-    "mu0": 0.0,
-    "mu1": 2.0,
-    "phi": 0.6,
-    "sigma": 1.0,
-    "owner": "bakhodir",
-    "tag": "mean_moderate"
+    "innovation_type": "student",
+    "dof": 5,
+    "owner": "mahir",
+    "tag": "parameter_t5"
   },
   {
-    "name": "Single mean break - large",
-    "task": "mean",
+    "name": "Parameter Single - Student-t(df=3)",
+    "task": "parameter_single",
     "T": 400,
     "Tb": 200,
-    "mu0": 0.0,
-    "mu1": 4.0,
-    "phi": 0.6,
-    "sigma": 1.0,
-    "owner": "bakhodir",
-    "tag": "mean_large"
+    "innovation_type": "student",
+    "dof": 3,
+    "owner": "mahir",
+    "tag": "parameter_t3"
   },
   {
-    "name": "Single mean break - early",
-    "task": "mean",
+    "name": "Parameter Recurring - p=0.90",
+    "task": "parameter_recurring",
     "T": 400,
-    "Tb": 100,
-    "mu0": 0.0,
-    "mu1": 2.0,
-    "phi": 0.6,
-    "sigma": 1.0,
-    "owner": "bakhodir",
-    "tag": "mean_early"
+    "persistence": 0.90,
+    "owner": "mahir",
+    "tag": "parameter_p90"
   },
   {
-    "name": "Single mean break - late",
-    "task": "mean",
+    "name": "Parameter Recurring - p=0.95",
+    "task": "parameter_recurring",
     "T": 400,
-    "Tb": 300,
-    "mu0": 0.0,
-    "mu1": 2.0,
-    "phi": 0.6,
-    "sigma": 1.0,
-    "owner": "bakhodir",
-    "tag": "mean_late"
+    "persistence": 0.95,
+    "owner": "mahir",
+    "tag": "parameter_p95"
+  },
+  {
+    "name": "Parameter Recurring - p=0.99",
+    "task": "parameter_recurring",
+    "T": 400,
+    "persistence": 0.99,
+    "owner": "mahir",
+    "tag": "parameter_p99"
   }
 ]

@@ -30,6 +30,8 @@ def mc_variance_single_break(
     sigma2=2.0,
     window=100,
     horizon=1,
+    innovation_type='gaussian',
+    dof=None,
     seed=42,
     verbose=False
 ):
@@ -45,6 +47,8 @@ def mc_variance_single_break(
         sigma2: Variance after break
         window: Rolling window size
         horizon: Forecast horizon
+        innovation_type: 'gaussian' or 'student' (Student-t innovations)
+        dof: Degrees of freedom for Student-t (required if innovation_type='student')
         seed: Random seed
         verbose: Print progress
         
@@ -70,7 +74,9 @@ def mc_variance_single_break(
         
         # Generate data
         y = simulate_variance_break_ar1(
-            T=T, Tb=Tb, phi=phi, sigma1=sigma1, sigma2=sigma2, seed=rng.integers(0, 1_000_000)
+            T=T, Tb=Tb, phi=phi, sigma1=sigma1, sigma2=sigma2, 
+            innovation_type=innovation_type, dof=dof,
+            seed=rng.integers(0, 1_000_000)
         )
         
         # Select forecast origin (after break)

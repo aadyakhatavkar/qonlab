@@ -36,7 +36,7 @@ def _generate_t_innovations(size, nu, scale=1.0, seed=None):
 
 def simulate_variance_break_ar1(
     T=400, Tb=200, phi=0.6, mu=0.0, sigma1=1.0, sigma2=2.0, 
-    distribution='normal', nu=3, seed=None
+    innovation_type='gaussian', dof=None, seed=None
 ):
     """
     Simulate AR(1) series with variance break.
@@ -48,8 +48,8 @@ def simulate_variance_break_ar1(
         mu: Mean
         sigma1: Variance (or scale) in regime 1
         sigma2: Variance (or scale) in regime 2
-        distribution: 'normal' or 't' (Student-t with nu degrees of freedom)
-        nu: Degrees of freedom for t-distribution (ignored if distribution='normal')
+        innovation_type: 'gaussian' or 'student' (Student-t innovations)
+        dof: Degrees of freedom for Student-t (required if innovation_type='student')
         seed: Random seed
     
     Returns:
@@ -62,17 +62,19 @@ def simulate_variance_break_ar1(
     y = np.zeros(T)
     eps = np.zeros(T)
 
-    if distribution.lower() == 'normal':
+    if innovation_type.lower() == 'gaussian':
         eps[:Tb] = rng.normal(0.0, sigma1, size=Tb)
         eps[Tb:] = rng.normal(0.0, sigma2, size=T - Tb)
-    elif distribution.lower() == 't':
+    elif innovation_type.lower() == 'student':
+        if dof is None:
+            raise ValueError("dof must be specified for Student-t innovations")
         # Generate standardized t-innovations
         seed1 = int(rng.integers(0, 1_000_000_000)) if seed is not None else None
         seed2 = int(rng.integers(0, 1_000_000_000)) if seed is not None else None
-        eps[:Tb] = _generate_t_innovations(Tb, nu, scale=sigma1, seed=seed1)
-        eps[Tb:] = _generate_t_innovations(T - Tb, nu, scale=sigma2, seed=seed2)
+        eps[:Tb] = _generate_t_innovations(Tb, dof, scale=sigma1, seed=seed1)
+        eps[Tb:] = _generate_t_innovations(T - Tb, dof, scale=sigma2, seed=seed2)
     else:
-        raise ValueError(f"Unknown distribution: {distribution}")
+        raise ValueError(f"Unknown innovation_type: {innovation_type}")
     
     for t in range(1, T):
         y[t] = mu + phi * (y[t - 1] - mu) + eps[t]

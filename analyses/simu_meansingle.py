@@ -1,3 +1,15 @@
+import numpy as np
+import pandas as pd
+from dgps.mean_singlebreaks import simulate_single_break_with_seasonality
+from estimators.mean_singlebreak import (
+    forecast_sarima_global,
+    forecast_sarima_rolling,
+    forecast_sarima_break_dummy_oracle,
+    forecast_sarima_estimated_break,
+    forecast_ses,
+)
+from protocols import calculate_metrics
+
 # =========================================================
 # 3) Monte Carlo evaluation
 # =========================================================
@@ -16,8 +28,35 @@ def run_mc_single_break_sarima(
     gap_after_break=20,
     order=(1,0,0),
     seasonal_order=(1,0,0,12),
-    trim=0.15
+    trim=0.15,
+    innovation_type='gaussian',
+    dof=None
 ):
+    """
+    Monte Carlo evaluation for single mean break.
+    
+    Parameters:
+        n_sim: Number of Monte Carlo replications
+        T: Total time series length
+        Tb: Structural break point
+        window: Rolling window size
+        seed: Random seed
+        mu0: Mean before break
+        mu1: Mean after break
+        phi: AR(1) coefficient
+        sigma: Std deviation of innovations
+        s: Seasonal period
+        A: Seasonal amplitude
+        gap_after_break: Gap between break and forecast origin
+        order: SARIMA order (p, d, q)
+        seasonal_order: SARIMA seasonal order (P, D, Q, s)
+        trim: Trimming fraction for break point estimation
+        innovation_type: 'gaussian' or 'student' (Student-t innovations)
+        dof: Degrees of freedom for Student-t (required if innovation_type='student')
+    
+    Returns:
+        DataFrame with RMSE, MAE, Bias, Variance for each method
+    """
     rng = np.random.default_rng(seed)
     t0 = Tb + gap_after_break
     if t0 >= T:
@@ -36,7 +75,9 @@ def run_mc_single_break_sarima(
 
     for _ in range(n_sim):
         y = simulate_single_break_with_seasonality(
-            T=T, Tb=Tb, mu0=mu0, mu1=mu1, phi=phi, sigma=sigma, s=s, A=A, rng=rng
+            T=T, Tb=Tb, mu0=mu0, mu1=mu1, phi=phi, sigma=sigma, s=s, A=A, 
+            innovation_type=innovation_type, dof=dof,
+            rng=rng
         )
         y_train = y[:t0]
         y_true  = float(y[t0])

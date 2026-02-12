@@ -1,3 +1,13 @@
+import numpy as np
+import pandas as pd
+from dgps.parameter_recurring import simulate_ms_ar1_phi_only
+from estimators.parameter_recurring import (
+    forecast_global_sarima,
+    forecast_rolling_sarima,
+    forecast_markov_switching_ar,
+)
+from protocols import calculate_metrics
+
 # =====================================================
 # 4) Monte Carlo experiment (recurring breaks)
 # =====================================================
@@ -9,6 +19,23 @@ def monte_carlo_recurring(
     window=60,
     seed=123
 ):
+    """
+    Monte Carlo evaluation for Markov-switching parameter breaks.
+    
+    Parameters:
+        p: Persistence level (probability of staying in same regime)
+           - p=0.90: Frequent regime switches
+           - p=0.95: Moderate persistence
+           - p=0.99: High persistence (stable regimes)
+        n_sim: Number of Monte Carlo replications
+        T: Total time series length
+        t0: Forecast origin (1-step ahead forecast target is at t0)
+        window: Rolling window size
+        seed: Random seed
+    
+    Returns:
+        DataFrame with RMSE, MAE, Bias, Variance for each method
+    """
     rng = np.random.default_rng(seed)
 
     err = {
@@ -20,8 +47,7 @@ def monte_carlo_recurring(
     for _ in range(n_sim):
         y, _ = simulate_ms_ar1_phi_only(
             T=T,
-            p00=p,
-            p11=p,
+            persistence=p,
             rng=rng
         )
 
@@ -38,4 +64,25 @@ def monte_carlo_recurring(
             y_true - forecast_markov_switching_ar(y_train)
         )
 
-    return err
+    # Convert to results DataFrame
+    rows = []
+    for method_name in err:
+        e = np.asarray(err[method_name], dtype=float)
+        e = e[~np.isnan(e)]
+        
+        if len(e) == 0:
+            metrics = {"RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "Variance": np.nan}
+        else:
+            from protocols import calculate_metrics
+            metrics = calculate_metrics(e)
+        
+        rows.append({
+            "Method": method_name,
+            "RMSE": metrics["RMSE"],
+            "MAE": metrics["MAE"],
+            "Bias": metrics["Bias"],
+            "Variance": metrics["Variance"],
+        })
+    
+    import pandas as pd
+    return pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
