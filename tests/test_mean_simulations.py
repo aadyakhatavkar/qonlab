@@ -15,8 +15,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from dgps.mean import simulate_mean_break_ar1, simulate_mean_break_ar1_seasonal
-from estimators.mean import (
+from dgps.mean_singlebreaks import simulate_mean_break_ar1, simulate_mean_break_ar1_seasonal
+from estimators.mean_multiplebreaks import (
     mean_forecast_global_arma,
     mean_forecast_rolling_arma,
     mean_forecast_ar1_with_break_dummy_oracle,
@@ -26,7 +26,7 @@ from estimators.mean import (
     forecast_sarima_with_break_dummy,
     forecast_sarima_with_estimated_break,
 )
-from analyses.mean_simulations import mc_mean_breaks, mc_mean_breaks_seasonal
+from analyses.meanmultiplebreak_simulations import mc_mean_breaks, mc_mean_breaks_seasonal
 
 
 def test_simulate_mean_break_seed():

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from dgps.variance import simulate_variance_break_ar1
 from estimators.variance import (
-    forecast_variance_dist_arima_rolling,
+    forecast_variance_dist_sarima_rolling,
     variance_log_score_normal,
     variance_interval_coverage,
     variance_rmse_mae_bias,
@@ -44,7 +44,7 @@ def plot_logscore_comparison():
     n_sims = 100
     results = {'window_size': [], 'method': [], 'logscore': []}
     window_sizes = [20, 50, 100, 200]
-    methods = ['ARIMA Global', 'ARIMA Rolling', 'GARCH']
+    methods = ['SARIMA Global', 'SARIMA Rolling', 'GARCH']
 
     for window in window_sizes:
         for method in methods:
@@ -54,10 +54,10 @@ def plot_logscore_comparison():
                 y_train = y[:-20]
                 y_test = y[-20:]
                 try:
-                    if method == 'ARIMA Global':
-                        mean, var = forecast_variance_dist_arima_rolling(y_train, window=200, horizon=20)
-                    elif method == 'ARIMA Rolling':
-                        mean, var = forecast_variance_dist_arima_rolling(y_train, window=window, horizon=20)
+                    if method == 'SARIMA Global':
+                        mean, var = forecast_variance_dist_sarima_rolling(y_train, window=200, horizon=20)
+                    elif method == 'SARIMA Rolling':
+                        mean, var = forecast_variance_dist_sarima_rolling(y_train, window=window, horizon=20)
                     elif method == 'GARCH':
                         try:
                             mean, var = forecast_garch_variance(y_train, horizon=20)
@@ -94,7 +94,7 @@ def plot_time_series_example():
     y = simulate_variance_break_ar1(T=250, Tb=125, sigma1=1.0, sigma2=3.0)
     y_train = y[:200]
     y_test = y[200:]
-    mean_arima, var_arima = forecast_variance_dist_arima_rolling(y_train, window=50, horizon=len(y_test))
+    mean_sarima, var_sarima = forecast_variance_dist_sarima_rolling(y_train, window=50, horizon=len(y_test))
     try:
         mean_garch, var_garch = forecast_garch_variance(y_train, horizon=len(y_test))
     except Exception:
@@ -108,8 +108,8 @@ def plot_time_series_example():
     forecast_idx = np.arange(len(y_test))
     ax.plot(time_idx, y[150:250], 'ko-', linewidth=2, markersize=4, label='Actual Data')
     ax.axvline(x=200, color='red', linestyle='--', linewidth=2, label='Break Point (Tb=200)')
-    ax.plot(test_idx, mean_arima, 'b-', linewidth=2, label='ARIMA Rolling (Window=50)')
-    ax.fill_between(test_idx, mean_arima - 1.96*np.sqrt(var_arima), mean_arima + 1.96*np.sqrt(var_arima), alpha=0.2, color='blue', label='95% CI (ARIMA)')
+    ax.plot(test_idx, mean_sarima, 'b-', linewidth=2, label='SARIMA Rolling (Window=50)')
+    ax.fill_between(test_idx, mean_sarima - 1.96*np.sqrt(var_sarima), mean_sarima + 1.96*np.sqrt(var_sarima), alpha=0.2, color='blue', label='95% CI (SARIMA)')
     ax.plot(test_idx, mean_garch, 'g-', linewidth=2, label='GARCH')
     ax.fill_between(test_idx, mean_garch - 1.96*np.sqrt(var_garch), mean_garch + 1.96*np.sqrt(var_garch), alpha=0.2, color='green', label='95% CI (GARCH)')
     ax.set_ylabel('Value', fontsize=10)
@@ -129,9 +129,9 @@ def plot_time_series_example():
     ax.legend(loc='upper left', fontsize=9)
     ax.grid(True, alpha=0.3)
     ax = axes[2]
-    residuals_arima = y_test - mean_arima
+    residuals_sarima = y_test - mean_sarima
     residuals_garch = y_test - mean_garch
-    ax.scatter(test_idx, residuals_arima, alpha=0.6, s=50, label='ARIMA Rolling Residuals')
+    ax.scatter(test_idx, residuals_sarima, alpha=0.6, s=50, label='SARIMA Rolling Residuals')
     ax.scatter(test_idx, residuals_garch, alpha=0.6, s=50, label='GARCH Residuals')
     ax.axhline(y=0, color='black', linestyle='-', linewidth=1)
     ax.axvline(x=200, color='red', linestyle='--', linewidth=2)

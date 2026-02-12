@@ -5,8 +5,7 @@ try:
     from arch import arch_model
 except Exception:
     arch_model = None
-# LSTM support removed per admin request — keep estimators focused on
-# classical methods (ARIMA, GARCH). Neural-model code has been deleted.
+# SARIMA (SARIMAX) is used for all forecasts per project policy.
 
 
 def _auto_select_arima_order(y_train, max_p=5, max_d=2, max_q=5, method='aic'):
@@ -55,45 +54,51 @@ def _auto_select_arima_order(y_train, max_p=5, max_d=2, max_q=5, method='aic'):
     return best_order
 
 
-def forecast_variance_dist_arima_global(y_train, horizon=1, order=None, auto_select=True):
+def forecast_variance_dist_sarima_global(y_train, horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Forecast using global ARIMA model, providing both mean and variance.
+    Forecast using global SARIMA model, providing both mean and variance.
     
     Parameters:
         y_train: Training data
         horizon: Forecast horizon
         order: ARIMA order tuple (p, d, q). If None and auto_select=True, will be auto-selected.
+        seasonal_order: Seasonal order tuple (P, D, Q, s).
         auto_select: Whether to auto-select order if not provided
     
     Returns:
         mean, variance forecasts
     """
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    
     if order is None and auto_select:
         order = _auto_select_arima_order(y_train)
     elif order is None:
         order = (1, 0, 0)
     
-    res = ARIMA(y_train, order=order).fit()
+    res = SARIMAX(y_train, order=order, seasonal_order=seasonal_order).fit(disp=False)
     fc = res.get_forecast(steps=horizon)
     mean = np.asarray(fc.predicted_mean)
     var = np.asarray(fc.var_pred_mean)
     return mean, var
 
 
-def forecast_variance_dist_arima_rolling(y_train, window=100, horizon=1, order=None, auto_select=True):
+def forecast_variance_dist_sarima_rolling(y_train, window=100, horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Forecast using rolling window ARIMA model, providing both mean and variance.
+    Forecast using rolling window SARIMA model, providing both mean and variance.
     
     Parameters:
         y_train: Training data
         window: Rolling window size
         horizon: Forecast horizon
         order: ARIMA order tuple (p, d, q). If None and auto_select=True, will be auto-selected.
+        seasonal_order: Seasonal order tuple (P, D, Q, s).
         auto_select: Whether to auto-select order if not provided
     
     Returns:
         mean, variance forecasts
     """
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    
     y_win = y_train[-window:] if window < len(y_train) else y_train
     
     if order is None and auto_select:
@@ -101,7 +106,7 @@ def forecast_variance_dist_arima_rolling(y_train, window=100, horizon=1, order=N
     elif order is None:
         order = (1, 0, 0)
     
-    res = ARIMA(y_win, order=order).fit()
+    res = SARIMAX(y_win, order=order, seasonal_order=seasonal_order).fit(disp=False)
     fc = res.get_forecast(steps=horizon)
     mean = np.asarray(fc.predicted_mean)
     var = np.asarray(fc.var_pred_mean)
@@ -122,38 +127,26 @@ def forecast_garch_variance(y_train, horizon=1, p=1, q=1):
     return mean, var
 
 
-def forecast_variance_arima_post_break(y_train, horizon=1, order=None, auto_select=True):
+def forecast_variance_sarima_post_break(y_train, horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Detect variance break point and forecast from post-break regime only.
-    
-    Parameters:
-        y_train: Training data
-        horizon: Forecast horizon
-        order: ARIMA order tuple (p, d, q). If None and auto_select=True, will be auto-selected.
-        auto_select: Whether to auto-select order if not provided
-    
-    Returns:
-        mean, variance forecasts
+    Detect variance break point and forecast from post-break regime only using SARIMA.
     """
     from dgps.variance import estimate_variance_break_point
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
     
     y = np.asarray(y_train, dtype=float)
-    
-    # Estimate break point
     v_Tb_hat = estimate_variance_break_point(y, trim=0.15)
     
-    # Fit ARIMA to post-break data only
     y_post = y[v_Tb_hat+1:]
     if len(y_post) < 10:
-        # Fall back to global if not enough post-break data
-        return forecast_variance_dist_arima_global(y_train, horizon=horizon, order=order, auto_select=auto_select)
+        return forecast_variance_dist_sarima_global(y_train, horizon=horizon, order=order, seasonal_order=seasonal_order, auto_select=auto_select)
     
     if order is None and auto_select:
         order = _auto_select_arima_order(y_post)
     elif order is None:
         order = (1, 0, 0)
     
-    res = ARIMA(y_post, order=order).fit()
+    res = SARIMAX(y_post, order=order, seasonal_order=seasonal_order).fit(disp=False)
     fc = res.get_forecast(steps=horizon)
     mean = np.asarray(fc.predicted_mean)
     var = np.asarray(fc.var_pred_mean)
@@ -171,19 +164,9 @@ def forecast_lstm(y_train, horizon=1, lookback=20, epochs=30):
     )
 
 
-def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horizon=1, order=None, auto_select=True):
+def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horizon=1, order=None, seasonal_order=(1, 0, 0, 12), auto_select=True):
     """
-    Forecast by averaging forecasts across multiple window sizes.
-    
-    Parameters:
-        y_train: Training data
-        window_sizes: List of window sizes to average over
-        horizon: Forecast horizon
-        order: ARIMA order tuple (p, d, q). If None and auto_select=True, will be auto-selected.
-        auto_select: Whether to auto-select order if not provided
-    
-    Returns:
-        Averaged mean and variance forecasts
+    Forecast by averaging forecasts across multiple window sizes using SARIMA.
     """
     if isinstance(window_sizes, int):
         window_sizes = [window_sizes]
@@ -193,8 +176,8 @@ def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horiz
 
     for ws in window_sizes:
         try:
-            mean, var = forecast_variance_dist_arima_rolling(
-                y_train, window=ws, horizon=horizon, order=order, auto_select=auto_select
+            mean, var = forecast_variance_dist_sarima_rolling(
+                y_train, window=ws, horizon=horizon, order=order, seasonal_order=seasonal_order, auto_select=auto_select
             )
             variance_means.append(mean)
             variance_vars.append(var)
@@ -202,7 +185,7 @@ def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horiz
             continue
 
     if not variance_means:
-        return forecast_variance_dist_arima_global(y_train, horizon=horizon, order=order, auto_select=auto_select)
+        return forecast_variance_dist_sarima_global(y_train, horizon=horizon, order=order, seasonal_order=seasonal_order, auto_select=auto_select)
 
     mean_avg = np.mean(np.array(variance_means), axis=0)
     var_avg = np.mean(np.array(variance_vars), axis=0)

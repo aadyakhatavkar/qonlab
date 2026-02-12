@@ -22,7 +22,7 @@ from estimators.parameter import (
     param_forecast_markov_switching_ar,
     param_metrics,
 )
-from analyses.param_simulations import mc_parameter_breaks_post, mc_parameter_breaks_full
+from analyses.paramsingle_simulations import mc_parameter_breaks_post, mc_parameter_breaks_full
 
 
 def test_simulate_parameter_break_seed():

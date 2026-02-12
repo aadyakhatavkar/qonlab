@@ -3,37 +3,27 @@ Recurring/Markov-switching breaks: DGPs with probabilistic regime switches.
 """
 import numpy as np
 
+# =====================================================
+# 1) DGP: Markov-switching AR(1), Gaussian
+# =====================================================
 
-def simulate_markov_switching_ar1(
+def simulate_ms_ar1_phi_only(
     T=400,
     p00=0.97,
     p11=0.97,
     phi0=0.2,
     phi1=0.9,
     sigma=1.0,
-    seed=None
+    y0=0.0,
+    rng=None
 ):
-    """
-    Simulate AR(1) with Markov-switching regimes.
-    
-    Parameters:
-        T: Series length
-        p00: Probability of staying in regime 0
-        p11: Probability of staying in regime 1
-        phi0: AR coefficient in regime 0
-        phi1: AR coefficient in regime 1
-        sigma: Innovation standard deviation
-        seed: Random seed
-    
-    Returns:
-        y: Time series
-        s: Regime indicator (0 or 1)
-    """
-    rng = np.random.default_rng(seed)
+    if rng is None:
+        rng = np.random.default_rng()
+
     y = np.zeros(T)
     s = np.zeros(T, dtype=int)
 
-    y[0] = 0.0
+    y[0] = y0
     s[0] = rng.integers(0, 2)
 
     for t in range(1, T):
@@ -47,3 +37,4 @@ def simulate_markov_switching_ar1(
         y[t] = phi * y[t - 1] + eps
 
     return y, s
+

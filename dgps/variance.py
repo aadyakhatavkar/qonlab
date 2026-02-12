@@ -67,7 +67,7 @@ def simulate_variance_break_ar1(
         eps[Tb:] = _generate_t_innovations(T - Tb, nu, scale=sigma2, seed=seed2)
     else:
         raise ValueError(f"Unknown distribution: {distribution}")
-
+    
     for t in range(1, T):
         y[t] = mu + phi * (y[t - 1] - mu) + eps[t]
     return y

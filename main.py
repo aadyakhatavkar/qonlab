@@ -32,12 +32,11 @@ Examples:
         """
     )
     sub = parser.add_subparsers(dest='cmd', help='Available commands')
-
+    
     # Variance subcommand
     var_parser = sub.add_parser('variance', help='Run variance break MC experiments')
     var_parser.add_argument('--quick', action='store_true', help='Quick test (10 reps)')
-    # Grid search removed - practitioners prefer fixed window and break detection
-    var_parser.add_argument('--n-sim', type=int, default=200, help='MC replications')
+    var_parser.add_argument('--n-sim', type=int, default=300, help='MC replications')
     var_parser.add_argument('--T', type=int, default=400, help='Sample size')
     var_parser.add_argument('--phi', type=float, default=0.6, help='AR coefficient')
     var_parser.add_argument('--window', type=int, default=100, help='Rolling window size')
@@ -46,9 +45,9 @@ Examples:
     # Mean subcommand
     mean_parser = sub.add_parser('mean', help='Run mean break MC experiments')
     mean_parser.add_argument('--quick', action='store_true', help='Quick test (10 reps)')
-    mean_parser.add_argument('--n-sim', type=int, default=200, help='MC replications')
-    mean_parser.add_argument('--T', type=int, default=300, help='Sample size')
-    mean_parser.add_argument('--Tb', type=int, default=150, help='Break point')
+    mean_parser.add_argument('--n-sim', type=int, default=300, help='MC replications')
+    mean_parser.add_argument('--T', type=int, default=400, help='Sample size')
+    mean_parser.add_argument('--Tb', type=int, default=200, help='Break point')
     mean_parser.add_argument('--window', type=int, default=60, help='Rolling window size')
 
     # Parameter subcommand
@@ -59,7 +58,8 @@ Examples:
     param_parser.add_argument('--Tb', type=int, default=200, help='Break point')
     param_parser.add_argument('--window', type=int, default=80, help='Rolling window size')
     param_parser.add_argument('--innovation', type=str, default='normal', help='Innovation type: normal or student')
-    param_parser.add_argument('--df', type=int, default=None, help='Degrees of freedom for Student-t')
+    param_parser.add_argument('--df', type=int, default=5, help='Degrees of freedom for Student-t')
+    param_parser.add_argument('--experiment', action='store_true', help='Run full parameter experiments (single + recurring)')
 
     # Runner subcommand (full pipeline)
     run_parser = sub.add_parser('runner', help='Run full experiment pipeline')
@@ -70,7 +70,7 @@ Examples:
     args = parser.parse_args()
 
     if args.cmd == 'variance':
-        from analyses.simulations import mc_variance_breaks
+        from scripts.runner import mc_variance_breaks
         
         n_sim = 10 if args.quick else args.n_sim
         T = 100 if args.quick else args.T
@@ -80,14 +80,12 @@ Examples:
             n_sim=n_sim, T=T, phi=args.phi,
             window=args.window, horizon=args.horizon
         )
-        print("\nPoint Metrics:")
+        print("\nResults:")
         print(df_point.round(4).to_string(index=False))
-        print("\nUncertainty Metrics:")
-        print(df_unc.round(4).to_string(index=False))
         return 0
 
     elif args.cmd == 'mean':
-        from analyses.mean_simulations import mc_mean_breaks
+        from scripts.runner import mc_mean_breaks
         
         n_sim = 10 if args.quick else args.n_sim
         T = 100 if args.quick else args.T
@@ -102,24 +100,29 @@ Examples:
         return 0
 
     elif args.cmd == 'parameter':
-        from analyses.param_simulations import mc_parameter_breaks_post
-        from estimators.parameter import param_metrics
+        from scripts.runner import mc_unified
         
         n_sim = 10 if args.quick else args.n_sim
         T = 100 if args.quick else args.T
         Tb = min(args.Tb, T - 50)
         
+        scenarios = [{
+            "name": f"Parameter Break ({args.innovation})",
+            "task": "parameter",
+            "Tb": Tb,
+            "phi1": 0.2,
+            "phi2": 0.9,
+            "distribution": args.innovation,
+            "nu": args.df
+        }]
+        
         print(f"Running parameter break MC (n_sim={n_sim}, innovation={args.innovation})...")
-        err = mc_parameter_breaks_post(
-            n_sim=n_sim, T=T, Tb=Tb, window=args.window,
-            innovation=args.innovation, df=args.df
+        df = mc_unified(
+            n_sim=n_sim, T=T, window=args.window, task="parameter", scenarios=scenarios
         )
         
-        print("\nResults (RMSE):")
-        for model, e in err.items():
-            if len(e) > 0:
-                m = param_metrics(e)
-                print(f"  {model}: RMSE={m['RMSE']:.4f}, MAE={m['MAE']:.4f}, Bias={m['Bias']:.4f}")
+        print("\nResults:")
+        print(df.round(4).to_string(index=False))
         return 0
 
     elif args.cmd == 'runner':

@@ -6,8 +6,52 @@ Visualization for mean break analysis.
 import numpy as np
 import matplotlib.pyplot as plt
 
-from dgps.mean import simulate_mean_break_ar1
+from dgps.mean_singlebreaks import simulate_mean_break_ar1
 
+# =========================================================
+# 5) GRAPHS: RMSE/MAE comparison across scenarios
+# =========================================================
+def bar_compare(metric="RMSE"):
+    pivot = all_results.pivot_table(index="Method", columns="Scenario", values=metric, aggfunc="first")
+    ax = pivot.plot(kind="bar", figsize=(12,5))
+    ax.set_title(f"{metric} Comparison: Single vs Multiple Breaks (SARIMA setting)")
+    ax.set_ylabel(metric)
+    ax.grid(True, axis="y", alpha=0.3)
+    plt.xticks(rotation=25, ha="right")
+    plt.tight_layout()
+    plt.show()
+
+bar_compare("RMSE")
+bar_compare("MAE")
+
+
+# =========================================================
+# 6) Example series plots (single vs multiple) with breaks
+# =========================================================
+rng_demo = np.random.default_rng(999)
+y1 = simulate_single_break_with_seasonality(rng=rng_demo)
+y2 = simulate_multiple_breaks_with_seasonality(rng=rng_demo)
+
+plt.figure(figsize=(12,4))
+plt.plot(y1, label="Single break series")
+plt.axvline(150, linestyle="--", linewidth=2, label="Tb=150")
+plt.title("Example: Single break + seasonality")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(12,4))
+plt.plot(y2, label="Multiple breaks series")
+plt.axvline(100, linestyle="--", linewidth=2, label="b1=100")
+plt.axvline(200, linestyle="--", linewidth=2, label="b2=200")
+plt.title("Example: Multiple breaks + seasonality")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+"""
 
 def mean_plot_dgp_example(T=300, Tb=150, mu0=0.0, mu1=2.0, phi=0.6, seed=42, save_path=None):
     """Plot example realization of mean break DGP."""
@@ -58,3 +102,4 @@ def mean_plot_results_bar(df_results, save_path=None):
         print(f"Saved: {save_path}")
     
     return fig
+"""
