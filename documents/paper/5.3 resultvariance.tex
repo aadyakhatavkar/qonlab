@@ -16,7 +16,29 @@ Taken together, the single variance break results indicate that modeling conditi
 
 The recurring variance design introduces stochastic switching between low- and high-volatility regimes. In this environment, differences across models become more pronounced.
 
-Global SARIMA achieves the lowest RMSE (1.6018), closely followed by the Markov-switching AR(1) model (1.6031). Rolling and averaged-window SARIMA perform slightly worse. Bias values are small and negative across all specifications, indicating mild underprediction but no substantial systematic distortion. The key distinction lies in forecast error variance. Global SARIMA produces the lowest dispersion (2.5532), whereas rolling and averaged-window approaches exhibit higher variance.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{../../outputs/figures/dgp/recurring_variance_dgp_toponly.png}
+\caption{Recurring variance-break DGP with regime-dependent volatility ($\sigma_t^2 \in \{1,4\}$, $p=0.95$).}
+\label{fig:dgp_recurring_variance}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{Recurring Variance Break: Monte Carlo summary ($N=300$, $p=0.95$)}
+\label{tab:recurring_variance_summary}
+\begin{tabular}{lcccccc}
+\hline
+Method & RMSE & MAE & Bias & Var(error) & Coverage95 & LogScore \\
+\hline
+MS AR(1) & 1.6031 & 1.2303 & -0.1114 & 2.5575 & 0.0000 & -- \\
+SARIMA Global & 1.6202 & 1.2502 & -0.0986 & 2.6152 & 0.9467 & -1.8984 \\
+SARIMA Rolling & 1.6405 & 1.2669 & -0.0934 & 2.6826 & 0.9367 & -1.8853 \\
+\hline
+\end{tabular}
+\end{table}
+
+MS-AR(1) achieves the lowest RMSE (1.6031), followed by Global SARIMA (1.6202), while Rolling SARIMA performs slightly worse (1.6405). Bias values are small and negative across all specifications, indicating mild underprediction but no substantial systematic distortion. The key distinction lies in forecast error variance. MS-AR(1) produces the lowest dispersion (2.5575), with higher variance under global and rolling SARIMA.
 
 The log predictive score reveals an important pattern. Although Global SARIMA performs well in RMSE terms, its log score is less favorable than that of the Markov-switching model. The MS-AR(1) specification delivers the most favorable log score (-2.1097), indicating better calibration of predictive density under recurring volatility shifts. This suggests that explicitly modeling regime-dependent variance improves density forecasting even when point forecast gains are small.
 
