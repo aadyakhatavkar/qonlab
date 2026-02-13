@@ -1,6 +1,7 @@
 [
   {
     "name": "Variance Single - Gaussian",
+    "break_type": "single",
     "task": "variance_single",
     "T": 400,
     "Tb": 200,
@@ -11,6 +12,7 @@
   },
   {
     "name": "Variance Single - Student-t(df=5)",
+    "break_type": "single",
     "task": "variance_single",
     "T": 400,
     "Tb": 200,
@@ -21,6 +23,7 @@
   },
   {
     "name": "Variance Single - Student-t(df=3)",
+    "break_type": "single",
     "task": "variance_single",
     "T": 400,
     "Tb": 200,
@@ -31,6 +34,7 @@
   },
   {
     "name": "Variance Recurring - Markov-switching",
+    "break_type": "recurring",
     "task": "variance_recurring",
     "T": 400,
     "owner": "aadya",
@@ -38,6 +42,7 @@
   },
   {
     "name": "Mean Single - Gaussian",
+    "break_type": "single",
     "task": "mean_single",
     "T": 400,
     "Tb": 200,
@@ -48,6 +53,7 @@
   },
   {
     "name": "Mean Single - Student-t(df=5)",
+    "break_type": "single",
     "task": "mean_single",
     "T": 400,
     "Tb": 200,
@@ -58,6 +64,7 @@
   },
   {
     "name": "Mean Single - Student-t(df=3)",
+    "break_type": "single",
     "task": "mean_single",
     "T": 400,
     "Tb": 200,
@@ -68,6 +75,7 @@
   },
   {
     "name": "Mean Recurring - Markov-switching",
+    "break_type": "recurring",
     "task": "mean_recurring",
     "T": 400,
     "owner": "bakhodir",
@@ -75,6 +83,7 @@
   },
   {
     "name": "Parameter Single - Gaussian",
+    "break_type": "single",
     "task": "parameter_single",
     "T": 400,
     "Tb": 200,
@@ -85,6 +94,7 @@
   },
   {
     "name": "Parameter Single - Student-t(df=5)",
+    "break_type": "single",
     "task": "parameter_single",
     "T": 400,
     "Tb": 200,
@@ -95,6 +105,7 @@
   },
   {
     "name": "Parameter Single - Student-t(df=3)",
+    "break_type": "single",
     "task": "parameter_single",
     "T": 400,
     "Tb": 200,
@@ -105,6 +116,7 @@
   },
   {
     "name": "Parameter Recurring - p=0.90",
+    "break_type": "recurring",
     "task": "parameter_recurring",
     "T": 400,
     "persistence": 0.90,
@@ -113,6 +125,7 @@
   },
   {
     "name": "Parameter Recurring - p=0.95",
+    "break_type": "recurring",
     "task": "parameter_recurring",
     "T": 400,
     "persistence": 0.95,
@@ -121,6 +134,7 @@
   },
   {
     "name": "Parameter Recurring - p=0.99",
+    "break_type": "recurring",
     "task": "parameter_recurring",
     "T": 400,
     "persistence": 0.99,

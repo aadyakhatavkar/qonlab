@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from dgps.mean_singlebreaks import simulate_single_break_with_seasonality
+from dgps.mean_singlebreaks import simulate_single_break_ar1
 
 # =========================================================
 # 5) VISUAL GRAPHS
@@ -38,14 +38,14 @@ def plot_mean_single_break_results(results):
 
 def plot_mean_single_break_example(T=300, Tb=150):
     # Example series with break
-    y_demo = simulate_single_break_with_seasonality(
-        T=T, Tb=Tb, mu0=0.0, mu1=2.0, phi=0.6, sigma=1.0, s=12, A=1.0, rng=np.random.default_rng(999)
+    y_demo = simulate_single_break_ar1(
+        T=T, Tb=Tb, mu0=0.0, mu1=2.0, phi=0.6, sigma=1.0, rng=np.random.default_rng(999)
     )
 
     plt.figure(figsize=(12,4))
-    plt.plot(y_demo, label="Simulated series (with seasonality)")
+    plt.plot(y_demo, label="Simulated series (AR(1))")
     plt.axvline(Tb, linestyle="--", linewidth=2, label=f"Break Tb={Tb}")
-    plt.title("Example series: single mean break + seasonality (SARIMA relevant)")
+    plt.title("Example series: single mean break (AR(1))")
     plt.xlabel("Time")
     plt.ylabel("y")
     plt.grid(True, alpha=0.3)

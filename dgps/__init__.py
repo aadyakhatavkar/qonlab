@@ -5,7 +5,7 @@ from .variance_recurring import (
     simulate_ms_ar1_variance_only
 )
 from .mean_singlebreaks import (
-    simulate_single_break_with_seasonality
+    simulate_single_break_ar1 as simulate_mean_break_ar1
 )
 from .mean_recurring import (
     simulate_ms_ar1_mean_only
@@ -21,7 +21,7 @@ from protocols import validate_scenarios
 __all__ = [
     "simulate_variance_break_ar1",
     "simulate_ms_ar1_variance_only",
-    "simulate_single_break_with_seasonality",
+    "simulate_mean_break_ar1",
     "simulate_ms_ar1_mean_only",
     "simulate_parameter_break_ar1",
     "simulate_ms_ar1_phi_only",

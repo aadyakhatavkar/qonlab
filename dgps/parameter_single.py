@@ -68,9 +68,9 @@ def simulate_single_break_ar1(
     for t in range(1, T):
         phi = phi1 if t <= Tb else phi2
 
-        if innovation_type.lower() == "gaussian":
+        if innovation_type.lower() == 'gaussian':
             eps = rng.normal(0.0, sigma)
-        elif innovation_type.lower() == "student":
+        elif innovation_type.lower() == 'student':
             if dof is None or dof <= 2:
                 raise ValueError("dof must be > 2 for finite variance")
             eps = rng.standard_t(dof) * sigma / np.sqrt(dof / (dof - 2))
