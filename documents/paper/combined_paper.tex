@@ -389,19 +389,19 @@ All performance measures are averaged across Monte Carlo replications to obtain 
 \subsubsection{Single Mean Break}
 
 Under Gaussian innovations, the oracle specification that includes the true break dummy achieves the lowest RMSE (0.9789), as expected. Because the break location is assumed known, this model represents a benchmark rather than a feasible competitor. Its advantage relative to other models stems primarily from reduced error variance (0.9336), rather than a dramatic improvement in bias. Although its bias (0.1568) is not the smallest among the models, its dispersion is clearly lower.
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{1.jpeg}
 \end{figure}
 
 When innovations follow a Student-$t$ distribution with three degrees of freedom, overall forecast errors increase, and differences between models widen. The oracle dummy again achieves the lowest RMSE (1.1056). SES remains the best feasible model, with lower RMSE and MAE than both rolling and global SARIMA. The performance deterioration of SARIMA-based models is accompanied by increased error variance, suggesting sensitivity to heavy-tailed disturbances. Bias remains positive across models, but dispersion differences dominate performance comparisons.
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{2.jpeg}
 \end{figure}
 
 For Student-$t$ innovations with five degrees of freedom, results are intermediate between the Gaussian and $t(3)$ cases. The oracle dummy retains the lowest RMSE (1.0610). SES again provides the strongest feasible performance, while Global SARIMA remains the weakest. Bias values vary modestly across models, but the principal differences arise from forecast error variance. In all innovation settings, the global model consistently exhibits the largest bias and one of the highest error variances, indicating that failure to adapt to the structural shift leads to persistent overprediction after the break.
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{3.jpeg}
 \end{figure}
@@ -412,14 +412,14 @@ Across distributions, adaptive level-based methods (SES and Holt--Winters) syste
 We next consider stochastic switching in the mean. In this design, regimes alternate according to a Markov process, so that intercept changes occur repeatedly rather than once.
 
 The oracle dummy remains the best-performing specification in terms of RMSE (1.0957). However, its advantage over the other models is smaller than in the single-break case. Because the dummy captures only a deterministic shift at a fixed time, it cannot fully track repeated regime changes. This is reflected in a forecast error variance (1.1997) that is closer to those of the competing models.
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{4.jpeg}
     \caption{Enter Caption}
 \end{figure}
 
 Among feasible approaches, Global SARIMA achieves the lowest RMSE (1.1253), followed closely by Rolling SARIMA (1.1504). In contrast to the single-break case, smoothing methods no longer dominate. SES and Holt--Winters exhibit higher RMSE and noticeably larger error variances. Under recurring switching, purely level-based smoothing appears less effective because the mean alternates between regimes rather than shifting once.
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{5.jpeg}
 \end{figure}
