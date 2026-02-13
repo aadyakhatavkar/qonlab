@@ -1,0 +1,13 @@
+\section{Conclusion}
+
+This study examines the performance of alternative forecasting methods under structural instability affecting the mean, autoregressive parameter, and variance of an AR(1) process. Using controlled Monte Carlo designs, the analysis isolates the effects of single and recurring breaks and evaluates forecasting accuracy using both point and distributional metrics.
+
+Across break types, several consistent patterns emerge. First, structural instability generally reduces the effectiveness of global full-sample estimators. When parameters shift, pooling all historical observations introduces bias or excess dispersion, particularly after breaks. This effect is most visible in the mean-break and parameter-break designs, where global SARIMA frequently exhibits higher RMSE or error variance relative to adaptive or regime-based alternatives.
+
+Second, adaptive methods such as rolling estimation and window averaging improve performance when breaks alter the conditional mean or autoregressive dynamics. In single mean and parameter break environments, rolling and break-adjusted approaches reduce forecast dispersion and, in several cases, lower RMSE relative to global models. These gains reflect a reduction in post-break bias, although they may come at the cost of increased estimation variance in stable segments.
+
+Third, explicitly modeling regime changes becomes more relevant in recurring environments. For parameter breaks with high persistence, Markov-switching models provide more stable performance and often achieve lower error variance. In the variance-break setting, regime-switching specifications improve density calibration, as reflected in superior log predictive scores, even when point forecast differences remain modest. This indicates that modeling regime-dependent volatility is particularly important for predictive distribution accuracy rather than for mean forecasts alone.
+
+The results also highlight the role of innovation distributions. Under heavy-tailed Student-$t$ innovations, differences across models become more pronounced, especially in variance-break designs. Methods that account for conditional heteroskedasticity or adapt to changing dispersion exhibit more robust density performance relative to constant-variance specifications.
+
+No single forecasting approach dominates across all structural environments. Fixed-parameter models perform adequately under stability but deteriorate in the presence of breaks. Adaptive estimators mitigate bias after structural shifts, while regime-switching models are better suited to persistent and recurring changes. The relative effectiveness of each method depends on the nature, magnitude, and persistence of instability.

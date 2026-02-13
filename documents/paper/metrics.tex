@@ -1,0 +1,39 @@
+\section{Evaluation Metrics}
+
+Forecast performance is evaluated using point forecast accuracy measures. Let
+\begin{equation}
+e_{t+1} = y_{t+1} - \hat{y}_{t+1|t}
+\end{equation}
+denote the one-step-ahead forecast error, where $y_{t+1}$ is the realized value and $\hat{y}_{t+1|t}$ is the forecast formed at time $t$. All metrics are computed over the out-of-sample evaluation period of length $H$ and subsequently averaged across Monte Carlo replications.
+
+\subsection{Point Forecast Metrics}
+
+The primary measure of forecast accuracy is the Root Mean Squared Error (RMSE), defined as
+\begin{equation}
+\text{RMSE} = \sqrt{ \frac{1}{H} \sum_{t=1}^{H} e_t^2 }.
+\end{equation}
+RMSE penalizes large forecast errors disproportionately and is therefore sensitive to episodes of heightened volatility or abrupt persistence shifts. It provides an overall measure of predictive precision.
+
+Complementing RMSE, the Mean Absolute Error (MAE) is computed as
+\begin{equation}
+\text{MAE} = \frac{1}{H} \sum_{t=1}^{H} |e_t|.
+\end{equation}
+MAE is less sensitive to extreme realizations and is particularly informative under heavy-tailed innovation distributions.
+
+To assess systematic forecast distortion, Bias is defined as
+\begin{equation}
+\text{Bias} = \frac{1}{H} \sum_{t=1}^{H} e_t.
+\end{equation}
+Bias measures whether forecasts tend to systematically overpredict or underpredict the realized series. This metric is especially relevant in environments with mean shifts.
+
+In addition, the variance of forecast errors is reported to evaluate dispersion independently of systematic bias. It is calculated as
+\begin{equation}
+\text{Var}(e) = \frac{1}{H} \sum_{t=1}^{H} (e_t - \bar{e})^2,
+\end{equation}
+where
+\begin{equation}
+\bar{e} = \frac{1}{H} \sum_{t=1}^{H} e_t
+\end{equation}
+denotes the average forecast error. Forecast error variance captures the stability of predictions and helps distinguish improvements arising from reduced volatility of errors versus reductions in bias.
+
+All performance measures are averaged across Monte Carlo replications to obtain stable comparisons across forecasting models and structural break designs.
