@@ -1,241 +1,219 @@
 #!/usr/bin/env python3
 """
-Generate Publication-Quality Plots from Results
-================================================
-Reads CSV results from results/ folder and generates coherent matplotlib visualizations.
-Uses unified styling across all break types for professional appearance.
-Saves to figures/ folder organized by break type.
+Generate Publication-Quality Plots (Tier 1 & 2 per PLOT_RECOMMENDATIONS.md)
+===========================================================================
+
+This script orchestrates plot generation from the analyses/ modules, which contain
+the actual plotting functions.
+
+Tier 1 Plots: Core metric comparisons (method comparison, coverage, logscore)
+Tier 2 Plots: DGP visualizations (time series examples, regime switches)
 
 Usage:
-    python scripts/generate_plots.py [--break-type {variance,mean,parameter,all}]
-    python scripts/generate_plots.py --latest  # Use most recent results
+    # List all available plots
+    python scripts/generate_plots.py --list
+    
+    # Generate all plots
+    python scripts/generate_plots.py --all
+    
+    # Generate plots for specific break types
+    python scripts/generate_plots.py --variance --single
+    python scripts/generate_plots.py --mean --recurring
+    python scripts/generate_plots.py --parameter --all
 """
 import argparse
 import os
 import sys
-from pathlib import Path
-from datetime import datetime
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
+import subprocess
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # =========================================================
-# UNIFIED STYLING
+# PLOT REGISTRY - Maps to functions in analyses/ modules
 # =========================================================
 
-# Professional color scheme (consistent across all plots)
-COLORS = {
-    'primary': '#2E86AB',      # Professional blue
-    'accent': '#A23B72',       # Accent purple
-    'success': '#06A77D',      # Green
-    'warning': '#F18F01',      # Orange
-    'danger': '#C73E1D',       # Red
-    'neutral': '#6C757D',      # Gray
+PLOT_REGISTRY = {
+    'variance': {
+        'single': {
+            'tier1': [
+                ('plots_variance_single', 'plot_logscore_comparison', 'LogScore heatmap (window × method)'),
+            ],
+            'tier2': [
+                ('plots_variance_single', 'plot_time_series_example', 'Example time series with variance break'),
+            ]
+        },
+        'recurring': {
+            'tier1': [
+                ('plots_variance_recurring', 'plot_logscore_comparison', 'LogScore heatmap (window × method)'),
+            ],
+            'tier2': [
+                ('plots_variance_recurring', 'plot_time_series_example', 'Example time series with recurring variance changes'),
+            ]
+        }
+    },
+    'mean': {
+        'single': {
+            'tier1': [
+                ('plots_meansingle', 'plot_mean_single_break_results', 'Method comparison (RMSE, MAE, Bias, Variance)'),
+            ],
+            'tier2': [
+                ('plots_meansingle', 'plot_mean_single_break_example', 'Example time series with mean break'),
+            ]
+        },
+        'recurring': {
+            'tier1': [
+                ('plots_mean_recurring', 'plot_mean_recurring_results', 'Method comparison (RMSE, MAE, Bias, Variance)'),
+            ],
+            'tier2': [
+                ('plots_mean_recurring', 'plot_mean_recurring_example', 'Example time series with Markov-switching'),
+            ]
+        }
+    },
+    'parameter_extra': {
+        'single': {
+            'tier1': [
+                ('plots_parametersingle', 'plot_combined_distributions', 'Error distributions (Gaussian, t-df3, t-df5)'),
+                ('plots_parametersingle', 'plot_rmse_by_innovation', 'RMSE by innovation type'),
+            ],
+            'tier2': [
+                ('plots_parametersingle', 'plot_single_break_dgp', 'Example time series with parameter break'),
+            ]
+        },
+        'recurring': {
+            'tier1': [
+                ('plots_parameterrecurring', 'plot_metric_bars', 'Method comparison (RMSE, MAE, Bias) by persistence'),
+                ('plots_parameterrecurring', 'plot_error_distributions_all', 'Error distributions across persistence levels'),
+            ],
+            'tier2': [
+                ('plots_parameterrecurring', 'plot_dgp_by_persistence', 'DGP visualization (p=0.90, 0.95, 0.99)'),
+            ]
+        }
+    },
+    'parameter': {
+        'single': {
+            'tier1': [
+                ('plots_parametersingle', 'plot_rmse_by_innovation', 'RMSE by innovation type'),
+            ],
+            'tier2': [
+                ('plots_parametersingle', 'plot_single_break_dgp', 'Example time series with parameter break'),
+            ]
+        },
+        'recurring': {
+            'tier1': [
+                ('plots_parameterrecurring', 'plot_metric_bars', 'Method comparison (RMSE, MAE, Bias) by persistence'),
+            ],
+            'tier2': [
+                ('plots_parameterrecurring', 'plot_dgp_by_persistence', 'DGP visualization (p=0.90, 0.95, 0.99)'),
+            ]
+        }
+    }
 }
 
-# Coverage target colors
-COVERAGE_COLORS = {
-    'Coverage80': '#FF6B6B',   # Red
-    'Coverage95': '#4ECDC4',   # Teal
-}
-
-def apply_unified_style():
-    """Apply consistent styling to all matplotlib figures."""
-    plt.style.use('seaborn-v0_8-darkgrid')
-    plt.rcParams.update({
-        'figure.dpi': 100,
-        'savefig.dpi': 300,
-        'font.size': 11,
-        'font.family': 'sans-serif',
-        'axes.labelsize': 12,
-        'axes.titlesize': 13,
-        'axes.titleweight': 'bold',
-        'xtick.labelsize': 10,
-        'ytick.labelsize': 10,
-        'legend.fontsize': 10,
-        'lines.linewidth': 1.5,
-        'patch.edgecolor': 'black',
-        'patch.linewidth': 0.5,
-        'axes.spines.top': False,
-        'axes.spines.right': False,
-    })
-
-
 # =========================================================
-# COHERENT PLOTTING FUNCTIONS
+# UTILITY FUNCTIONS
 # =========================================================
 
-def plot_method_comparison_metrics(df, break_type, save_path=None):
-    """
-    Unified metric comparison across methods.
-    Shows RMSE, MAE, Bias, Variance in one coherent figure.
-    """
-    apply_unified_style()
+def list_plots():
+    """Print all available plots."""
+    print("\n" + "="*70)
+    print("TIER 1 & TIER 2 PLOTS - PLOT_RECOMMENDATIONS.md")
+    print("="*70 + "\n")
     
-    # Select available metrics
-    metrics = ['RMSE', 'MAE', 'Bias', 'Variance']
-    available_metrics = [m for m in metrics if m in df.columns]
-    
-    # Create subplots
-    n_metrics = len(available_metrics)
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10)) if n_metrics == 4 else plt.subplots(1, n_metrics, figsize=(5*n_metrics, 5))
-    if n_metrics < 4:
-        axes = axes.flatten() if isinstance(axes, np.ndarray) else [axes]
-    
-    # Plot each metric consistently
-    for idx, metric in enumerate(available_metrics):
-        ax = axes.flatten()[idx]
-        data = df.sort_values(metric)
+    for break_type in sorted(PLOT_REGISTRY.keys()):
+        print(f"\n{break_type.upper()} BREAKS:")
+        print("-" * 70)
         
-        bars = ax.bar(range(len(data)), data[metric], color=COLORS['primary'], alpha=0.85, edgecolor='black', linewidth=0.5)
+        for subtype in sorted(PLOT_REGISTRY[break_type].keys()):
+            print(f"\n  {subtype.upper()}:")
+            
+            print(f"\n    TIER 1 (Core Metrics):")
+            for module, func, desc in PLOT_REGISTRY[break_type][subtype]['tier1']:
+                print(f"      • {func}()")
+                print(f"        {desc}")
+                print(f"        Location: analyses/{module}.py")
+            
+            print(f"\n    TIER 2 (DGP Visualization):")
+            for module, func, desc in PLOT_REGISTRY[break_type][subtype]['tier2']:
+                print(f"      • {func}()")
+                print(f"        {desc}")
+                print(f"        Location: analyses/{module}.py")
+
+
+def generate_single_plot(module_name, func_name, output_subdir):
+    """Generate a single plot by calling the function from the module."""
+    try:
+        # Import the module dynamically
+        module = __import__(f'analyses.{module_name}', fromlist=[func_name])
+        plot_func = getattr(module, func_name)
         
-        # Add value labels on bars
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
-                   f'{height:.3f}',
-                   ha='center', va='bottom', fontsize=9)
+        # Create output directory
+        os.makedirs(output_subdir, exist_ok=True)
         
-        ax.set_xlabel('Forecasting Method', fontsize=11)
-        ax.set_ylabel(metric, fontsize=11)
-        ax.set_title(f'{metric}', fontsize=12, fontweight='bold')
-        ax.set_xticks(range(len(data)))
-        ax.set_xticklabels(data['Method'], rotation=45, ha='right', fontsize=10)
-        ax.grid(True, axis='y', alpha=0.3, linestyle='--')
-        ax.set_axisbelow(True)
-    
-    # Remove empty subplots
-    for idx in range(n_metrics, len(axes.flatten())):
-        fig.delaxes(axes.flatten()[idx])
-    
-    fig.suptitle(f'{break_type.title()} Break - Method Comparison', 
-                 fontsize=14, fontweight='bold', y=0.995)
-    plt.tight_layout()
-    
-    if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, bbox_inches='tight', facecolor='white')
-        print(f"  ✓ Saved: {save_path}")
-    
-    plt.close()
-
-
-def plot_uncertainty_metrics(df, break_type, save_path=None):
-    """
-    Unified uncertainty quantification plot (Coverage80, Coverage95, LogScore).
-    Only for variance scenarios.
-    """
-    if 'Coverage80' not in df.columns or 'Coverage95' not in df.columns:
-        return
-    
-    apply_unified_style()
-    
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    data = df.sort_values('Coverage95')
-    x = range(len(data))
-    
-    # Coverage 80%
-    bars1 = axes[0].bar(x, data['Coverage80'], color=COVERAGE_COLORS['Coverage80'], alpha=0.85, edgecolor='black', linewidth=0.5)
-    axes[0].axhline(0.80, color='darkred', linestyle='--', linewidth=2.5, label='Target (80%)', alpha=0.7)
-    axes[0].set_ylabel('Coverage Probability', fontsize=11)
-    axes[0].set_title('80% Prediction Interval Coverage', fontsize=12, fontweight='bold')
-    axes[0].set_xticks(x)
-    axes[0].set_xticklabels(data['Method'], rotation=45, ha='right')
-    axes[0].set_ylim([0, 1.05])
-    axes[0].grid(True, axis='y', alpha=0.3, linestyle='--')
-    axes[0].legend(loc='lower right')
-    axes[0].set_axisbelow(True)
-    
-    # Coverage 95%
-    bars2 = axes[1].bar(x, data['Coverage95'], color=COVERAGE_COLORS['Coverage95'], alpha=0.85, edgecolor='black', linewidth=0.5)
-    axes[1].axhline(0.95, color='darkred', linestyle='--', linewidth=2.5, label='Target (95%)', alpha=0.7)
-    axes[1].set_ylabel('Coverage Probability', fontsize=11)
-    axes[1].set_title('95% Prediction Interval Coverage', fontsize=12, fontweight='bold')
-    axes[1].set_xticks(x)
-    axes[1].set_xticklabels(data['Method'], rotation=45, ha='right')
-    axes[1].set_ylim([0, 1.05])
-    axes[1].grid(True, axis='y', alpha=0.3, linestyle='--')
-    axes[1].legend(loc='lower right')
-    axes[1].set_axisbelow(True)
-    
-    # Log Score
-    if 'LogScore' in df.columns:
-        # Higher is better for log score, so sort descending
-        data_ls = data.sort_values('LogScore', ascending=False)
-        bars3 = axes[2].bar(range(len(data_ls)), data_ls['LogScore'], color=COLORS['success'], alpha=0.85, edgecolor='black', linewidth=0.5)
-        axes[2].set_ylabel('Log-Predictive Score', fontsize=11)
-        axes[2].set_title('Log-Predictive Score (Higher is Better)', fontsize=12, fontweight='bold')
-        axes[2].set_xticks(range(len(data_ls)))
-        axes[2].set_xticklabels(data_ls['Method'], rotation=45, ha='right')
-        axes[2].grid(True, axis='y', alpha=0.3, linestyle='--')
-        axes[2].set_axisbelow(True)
-    
-    fig.suptitle(f'{break_type.title()} Break - Uncertainty Quantification', 
-                 fontsize=14, fontweight='bold', y=0.995)
-    plt.tight_layout()
-    
-    if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, bbox_inches='tight', facecolor='white')
-        print(f"  ✓ Saved: {save_path}")
-    
-    plt.close()
-
-
-def plot_rmse_comparison_all_innovations(df_all_innovations, break_type, save_path=None):
-    """
-    Compare RMSE across all innovation types for a given break type.
-    Shows methods on x-axis, different colors for each innovation type.
-    """
-    if 'Innovation' not in df_all_innovations.columns:
-        return
-    
-    apply_unified_style()
-    
-    fig, ax = plt.subplots(figsize=(12, 6))
-    
-    innovations = sorted(df_all_innovations['Innovation'].unique())
-    methods = sorted(df_all_innovations['Method'].unique())
-    
-    x = np.arange(len(methods))
-    width = 0.25
-    
-    color_palette = [COLORS['primary'], COLORS['accent'], COLORS['warning']]
-    
-    for idx, inn in enumerate(innovations):
-        df_inn = df_all_innovations[df_all_innovations['Innovation'] == inn].set_index('Method')
-        rmse_values = [df_inn.loc[m, 'RMSE'] if m in df_inn.index else np.nan for m in methods]
+        # Generate the plot
+        import matplotlib.pyplot as plt
+        plot_func()
         
-        ax.bar(x + idx*width, rmse_values, width, label=inn, 
-               color=color_palette[idx % len(color_palette)], alpha=0.85, edgecolor='black', linewidth=0.5)
-    
-    ax.set_xlabel('Forecasting Method', fontsize=12)
-    ax.set_ylabel('RMSE', fontsize=12)
-    ax.set_title(f'{break_type.title()} Break - RMSE Across Innovation Types', fontsize=13, fontweight='bold')
-    ax.set_xticks(x + width)
-    ax.set_xticklabels(methods, rotation=45, ha='right')
-    ax.legend(title='Innovation Type', fontsize=10, title_fontsize=11)
-    ax.grid(True, axis='y', alpha=0.3, linestyle='--')
-    ax.set_axisbelow(True)
-    
-    plt.tight_layout()
-    
-    if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, bbox_inches='tight', facecolor='white')
-        print(f"  ✓ Saved: {save_path}")
-    
-    plt.close()
+        # The plot functions themselves handle saving, so we just check if it worked
+        return True, "Generated"
+    except Exception as e:
+        return False, str(e)
 
 
-def find_latest_results(results_dir='results'):
-    """Find most recent results file."""
-    pattern = 'aligned_breaks_*.csv'
-    files = sorted(Path(results_dir).glob(pattern))
-    return files[-1] if files else None
+def generate_plots(break_types, subtypes, tiers, output_dir='figures'):
+    """Generate plots for specified break types, subtypes, and tiers."""
+    
+    print("\n" + "="*70)
+    print("TIER 1 & TIER 2 PLOT GENERATION")
+    print("="*70 + "\n")
+    
+    print(f"Break types: {', '.join(break_types)}")
+    print(f"Subtypes: {', '.join(subtypes)}")
+    print(f"Tiers: {', '.join(tiers)}")
+    print(f"Output: {output_dir}/\n")
+    
+    plot_count = 0
+    success_count = 0
+    
+    for break_type in break_types:
+        if break_type not in PLOT_REGISTRY:
+            print(f"✗ Unknown break type: {break_type}")
+            continue
+        
+        for subtype in subtypes:
+            if subtype not in PLOT_REGISTRY[break_type]:
+                print(f"✗ Unknown subtype for {break_type}: {subtype}")
+                continue
+            
+            print(f"\n{break_type.upper()} - {subtype.upper()}:")
+            print("-" * 70)
+            
+            for tier in tiers:
+                if tier not in PLOT_REGISTRY[break_type][subtype]:
+                    continue
+                
+                print(f"\n  {tier.upper()}:")
+                
+                for module, func, desc in PLOT_REGISTRY[break_type][subtype][tier]:
+                    output_subdir = os.path.join(output_dir, break_type, subtype)
+                    
+                    print(f"    • {func}()")
+                    print(f"      Description: {desc}")
+                    
+                    # Generate the plot
+                    success, msg = generate_single_plot(module, func, output_subdir)
+                    
+                    if success:
+                        print(f"      Status: ✓ {msg}")
+                        success_count += 1
+                    else:
+                        print(f"      Status: ✗ Error: {msg}")
+                    
+                    plot_count += 1
+    
+    print(f"\n" + "="*70)
+    print(f"Results: {success_count}/{plot_count} plots generated successfully")
+    print("="*70)
 
 
 # =========================================================
@@ -244,87 +222,86 @@ def find_latest_results(results_dir='results'):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Generate coherent, publication-quality plots from Monte Carlo results'
+        description='Tier 1 & 2 Plot Generation (Per PLOT_RECOMMENDATIONS.md)',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+EXAMPLES:
+  # List all available plots
+  %(prog)s --list
+  
+  # Generate all plots
+  %(prog)s --all
+  
+  # Generate variance plots only
+  %(prog)s --variance
+  
+  # Generate mean single break plots only
+  %(prog)s --mean --single
+  
+  # Generate only Tier 1 plots
+  %(prog)s --tier1
+"""
     )
-    parser.add_argument(
-        '--results',
-        default=None,
-        help='Path to results CSV file (default: most recent)'
-    )
-    parser.add_argument(
-        '--break-type',
-        choices=['variance', 'mean', 'parameter', 'all'],
-        default='all',
-        help='Break type to plot'
-    )
-    parser.add_argument(
-        '--output-dir',
-        default='figures',
-        help='Output directory for plots'
-    )
-    parser.add_argument(
-        '--latest',
-        action='store_true',
-        help='Use most recent results file'
-    )
+    
+    parser.add_argument('--list', action='store_true', 
+                       help='List all available plots')
+    parser.add_argument('--all', action='store_true',
+                       help='Generate all plots')
+    parser.add_argument('--variance', action='store_true',
+                       help='Generate variance break plots')
+    parser.add_argument('--mean', action='store_true',
+                       help='Generate mean break plots')
+    parser.add_argument('--parameter', action='store_true',
+                       help='Generate parameter break plots')
+    parser.add_argument('--single', action='store_true',
+                       help='Generate single break plots only')
+    parser.add_argument('--recurring', action='store_true',
+                       help='Generate recurring break plots only')
+    parser.add_argument('--tier1', action='store_true',
+                       help='Generate Tier 1 plots only (core metrics)')
+    parser.add_argument('--tier2', action='store_true',
+                       help='Generate Tier 2 plots only (DGP visualization)')
+    parser.add_argument('--output-dir', default='outputs/figures',
+                       help='Output directory for plots (default: outputs/figures/)')
     
     args = parser.parse_args()
     
-    # Find results file
-    if args.latest:
-        results_file = find_latest_results()
-        if not results_file:
-            print("✗ No results files found in results/")
-            return
-    elif args.results:
-        results_file = args.results
-    else:
-        results_file = find_latest_results()
-    
-    if not results_file or not os.path.exists(results_file):
-        print(f"✗ Results file not found: {results_file}")
+    # Handle --list
+    if args.list:
+        list_plots()
         return
     
-    # Load results
-    print(f"Loading results from: {results_file}")
-    df = pd.read_csv(results_file)
-    
-    # Determine which break types to plot
-    if args.break_type == 'all':
-        break_types = sorted(df['Task'].unique()) if 'Task' in df.columns else ['variance', 'mean', 'parameter']
+    # Determine what to generate
+    if args.all or not any([args.variance, args.mean, args.parameter]):
+        break_types = ['variance', 'mean', 'parameter']
     else:
-        break_types = [args.break_type]
+        break_types = []
+        if args.variance:
+            break_types.append('variance')
+        if args.mean:
+            break_types.append('mean')
+        if args.parameter:
+            break_types.append('parameter')
     
-    # Generate coherent plots
-    print(f"\nGenerating coherent plots for: {', '.join(break_types)}\n")
+    if args.single and args.recurring:
+        subtypes = ['single', 'recurring']
+    elif args.single:
+        subtypes = ['single']
+    elif args.recurring:
+        subtypes = ['recurring']
+    else:
+        subtypes = ['single', 'recurring']
     
-    for break_type in break_types:
-        print(f"{break_type.upper()}:")
-        
-        if 'Task' in df.columns:
-            df_break = df[df['Task'] == break_type].copy()
-        else:
-            df_break = df[df.get('Scenario', '').str.contains(break_type, case=False, na=False)].copy()
-        
-        if len(df_break) == 0:
-            print(f"  ✗ No data for {break_type}")
-            continue
-        
-        # 1. Method Comparison (Core metrics)
-        save_path = os.path.join(args.output_dir, break_type, f'{break_type}_method_comparison.png')
-        plot_method_comparison_metrics(df_break, break_type, save_path)
-        
-        # 2. Uncertainty Quantification (for variance only)
-        if break_type == 'variance':
-            save_path = os.path.join(args.output_dir, break_type, f'{break_type}_uncertainty.png')
-            plot_uncertainty_metrics(df_break, break_type, save_path)
-        
-        # 3. Innovation Type Comparison (if available)
-        if 'Innovation' in df_break.columns and len(df_break['Innovation'].unique()) > 1:
-            save_path = os.path.join(args.output_dir, break_type, f'{break_type}_innovation_comparison.png')
-            plot_rmse_comparison_all_innovations(df_break, break_type, save_path)
+    if args.tier1 and args.tier2:
+        tiers = ['tier1', 'tier2']
+    elif args.tier1:
+        tiers = ['tier1']
+    elif args.tier2:
+        tiers = ['tier2']
+    else:
+        tiers = ['tier1', 'tier2']
     
-    print(f"\n✓ All plots saved to {args.output_dir}/")
+    generate_plots(break_types, subtypes, tiers, args.output_dir)
 
 
 if __name__ == '__main__':

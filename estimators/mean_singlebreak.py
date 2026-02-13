@@ -1,6 +1,6 @@
 import numpy as np
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing, ExponentialSmoothing
 
 # =========================================================
 # 2) SARIMA forecasting methods (1-step ahead)
@@ -62,6 +62,43 @@ def forecast_sarima_break_dummy_oracle(y_train, Tb, order=(1,0,1), seasonal_orde
     return float(m.forecast(1, exog=d_next)[0])
 
 def forecast_ses(y_train):
-    m = SimpleExpSmoothing(y_train, initialization_method="estimated").fit(optimized=True)
-    return float(m.forecast(1)[0])
+    """Simple Exponential Smoothing (SES)."""
+    try:
+        m = SimpleExpSmoothing(y_train, initialization_method="estimated").fit(optimized=True)
+        return float(m.forecast(1)[0])
+    except Exception:
+        return np.nan
+
+def forecast_holt_winters(y_train):
+    """
+    Holt-Winters Exponential Smoothing (additive).
+    Useful for data with trend and seasonality.
+    """
+    try:
+        y = np.asarray(y_train, dtype=float)
+        if len(y) < 13:
+            # If too short, use SES instead
+            return forecast_ses(y_train)
+        
+        # Try additive Holt-Winters with seasonal_periods=12
+        try:
+            m = ExponentialSmoothing(
+                y,
+                seasonal_periods=12,
+                trend='add',
+                seasonal='add',
+                initialization_method="estimated"
+            ).fit(optimized=True)
+            return float(m.forecast(1)[0])
+        except:
+            # Fall back to additive without seasonal component
+            m = ExponentialSmoothing(
+                y,
+                trend='add',
+                seasonal=None,
+                initialization_method="estimated"
+            ).fit(optimized=True)
+            return float(m.forecast(1)[0])
+    except Exception:
+        return np.nan
 

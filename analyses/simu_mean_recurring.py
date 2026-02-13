@@ -10,6 +10,7 @@ Uses same forecasting methods as single breaks for consistency.
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from dgps.mean_recurring import simulate_ms_ar1_mean_only
 from estimators.mean_singlebreak import (
     forecast_sarima_global,
@@ -18,7 +19,7 @@ from estimators.mean_singlebreak import (
     forecast_ses,
     forecast_holt_winters,
 )
-from protocols import calculate_metrics
+from analyses.metrics import rmse, mae, bias, var_error
 
 
 def mc_mean_recurring(
@@ -101,30 +102,28 @@ def mc_mean_recurring(
     rows = []
     for method_name in [name for name, _ in methods]:
         e = np.asarray(errors[method_name], dtype=float)
+        n_success = len(e)
+        n_fail = failures[method_name]
         
-        if len(e) == 0:
-            rows.append({
-                "Method": method_name,
-                "RMSE": np.nan,
-                "MAE": np.nan,
-                "Bias": np.nan,
-                "Variance": np.nan,
-                "N": 0,
-                "Fails": failures[method_name]
-            })
-        else:
-            rows.append({
-                "Method": method_name,
-                "RMSE": float(np.sqrt(np.mean(e**2))),
-                "MAE": float(np.mean(np.abs(e))),
-                "Bias": float(np.mean(e)),
-                "Variance": float(np.var(e)),
-                "N": len(e),
-                "Fails": failures[method_name]
-            })
+        rows.append({
+            "Method": method_name,
+            "RMSE": rmse(e),
+            "MAE": mae(e),
+            "Bias": bias(e),
+            "Var(error)": var_error(e),
+            "Successes": n_success,
+            "Failures": n_fail,
+            "N": n_success
+        })
     
     df = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
     df["Break Type"] = f"Recurring (p={p})"
+    
+    # Save to outputs/
+    outputs_dir = Path(__file__).parent.parent / "outputs" / "tables"
+    outputs_dir.mkdir(parents=True, exist_ok=True)
+    df.to_csv(outputs_dir / f"mean_recurring_p{p}_results.csv", index=False)
+    
     return df
 
 

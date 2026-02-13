@@ -12,6 +12,9 @@ STANDARDIZED PARAMETERS:
   Tb = 200      (single break point)
   n_sim = 300   (Monte Carlo simulations)
 
+QUICK MODE:
+  --quick       Same as above but n_sim = 30
+
 BREAK TYPES:
   1. Variance break   → single (3 innovations) + recurring (no persistence)
   2. Mean break       → single (3 innovations) + recurring (no persistence)
@@ -21,7 +24,7 @@ Features:
   - Innovation types for single breaks: Gaussian, Student-t(df=3), Student-t(df=5)
   - Persistence levels for parameter recurring: 0.90, 0.95, 0.99
   - Summary statistics and best method reporting
-  - Results saved to results/ directory with separate tables by innovation type
+  - Results saved to bld/ directory with separate tables by innovation type
   - Results aggregation and comparison
 """
 import argparse
@@ -69,7 +72,7 @@ from analyses import (
 # =========================================================
 T = 400                 # Time series length
 Tb = 200                # Break point (single breaks)
-N_SIM = 5           # Monte Carlo simulations
+N_SIM = 300           # Monte Carlo simulations
 WINDOW = 100            # SARIMA rolling window
 SEED = 42               # Random seed
 
@@ -641,7 +644,7 @@ Innovations: Gaussian, Student-t(df=3), Student-t(df=5)
 Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
         """
     )
-    parser.add_argument('--quick', action='store_true', help='Quick run (n_sim=10, T=150)')
+    parser.add_argument('--quick', action='store_true', help='Quick run (n_sim=30, same T and Tb)')
     parser.add_argument('--variance', action='store_true', help='Run variance breaks only')
     parser.add_argument('--mean', action='store_true', help='Run mean breaks only')
     parser.add_argument('--parameter', action='store_true', help='Run parameter breaks only')
@@ -652,9 +655,7 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
     # Override params for quick mode
     global T, Tb, N_SIM
     if args.quick:
-        T = 150
-        Tb = T // 2
-        N_SIM = 10
+        N_SIM = 30
     
     # Handle plots-only mode
     if args.plots_only:
@@ -734,14 +735,14 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
         total_elapsed = time.time() - total_start
         
         # Save results
-        os.makedirs("results/combined", exist_ok=True)
+        os.makedirs("bld/combined", exist_ok=True)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"results/combined/aligned_breaks_{timestamp}.csv"
+        filename = f"bld/combined/aligned_breaks_{timestamp}.csv"
         df_all.to_csv(filename, index=False)
         logger.info(f"✓ Combined results saved: {filename}")
         
         # Save combined results as LaTeX
-        filename_latex = f"results/combined/aligned_breaks_{timestamp}.tex"
+        filename_latex = f"bld/combined/aligned_breaks_{timestamp}.tex"
         latex_str = df_all.to_latex(
             index=False,
             caption="Complete Structural Break Forecasting Results",

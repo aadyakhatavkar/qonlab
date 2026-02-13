@@ -10,6 +10,7 @@ Uses:
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from dgps.variance_single import simulate_variance_break_ar1
 from estimators.variance_single import (
     forecast_variance_dist_sarima_global,
@@ -19,7 +20,7 @@ from estimators.variance_single import (
     variance_interval_coverage,
     variance_log_score_normal,
 )
-from protocols import calculate_metrics
+from analyses.metrics import rmse, mae, bias, var_error
 
 
 def mc_variance_single_break(
@@ -122,12 +123,18 @@ def mc_variance_single_break(
         e = e[~np.isnan(e)]
         
         if len(e) == 0:
-            metrics = {"RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "Variance": np.nan}
+            rmse_val = np.nan
+            mae_val = np.nan
+            bias_val = np.nan
+            var_error_val = np.nan
             cov80 = np.nan
             cov95 = np.nan
             logscore = np.nan
         else:
-            metrics = calculate_metrics(e)
+            rmse_val = rmse(e)
+            mae_val = mae(e)
+            bias_val = bias(e)
+            var_error_val = var_error(e)
             
             # Compute coverage and log-score from variance predictions if available
             var_preds = variance_preds[method_name]
@@ -149,19 +156,26 @@ def mc_variance_single_break(
         
         rows.append({
             "Method": method_name,
-            "RMSE": metrics["RMSE"],
-            "MAE": metrics["MAE"],
-            "Bias": metrics["Bias"],
-            "Variance": metrics["Variance"],
+            "RMSE": rmse_val,
+            "MAE": mae_val,
+            "Bias": bias_val,
+            "Var(error)": var_error_val,
             "Coverage80": cov80,
             "Coverage95": cov95,
             "LogScore": logscore,
             "Successes": len(e),
             "Failures": failures[method_name],
+            "N": n_sim,
         })
     
     df = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
     df["Break Type"] = "Single"
+    
+    # Save to outputs/
+    outputs_dir = Path(__file__).parent.parent / "outputs" / "tables"
+    outputs_dir.mkdir(parents=True, exist_ok=True)
+    df.to_csv(outputs_dir / "variance_single_results.csv", index=False)
+    
     return df
 
 

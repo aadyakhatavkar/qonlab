@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from dgps.mean_singlebreaks import simulate_single_break_ar1
 from estimators.mean_singlebreak import (
     forecast_sarima_global,
@@ -8,7 +9,7 @@ from estimators.mean_singlebreak import (
     forecast_ses,
     forecast_holt_winters,
 )
-from protocols import calculate_metrics
+from analyses.metrics import rmse, mae, bias, var_error
 
 # =========================================================
 # 3) Monte Carlo evaluation
@@ -93,18 +94,26 @@ def run_mc_single_break_sarima(
     rows = []
     for name in errors:
         e = np.asarray(errors[name], dtype=float)
-        if len(e) == 0:
-            rows.append({"Method": name, "RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "Variance": np.nan, "N": 0, "Fails": fails[name]})
-        else:
-            rows.append({
-                "Method": name,
-                "RMSE": float(np.sqrt(np.mean(e**2))),
-                "MAE":  float(np.mean(np.abs(e))),
-                "Bias": float(np.mean(e)),
-                "Variance": float(np.var(e)),
-                "N": int(len(e)),
-                "Fails": fails[name]
-            })
+        n_success = len(e)
+        n_fail = fails[name]
+        
+        rows.append({
+            "Method": name,
+            "RMSE": rmse(e),
+            "MAE": mae(e),
+            "Bias": bias(e),
+            "Var(error)": var_error(e),
+            "Successes": n_success,
+            "Failures": n_fail,
+            "N": n_success  # Total attempts
+        })
 
-    return pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
+    df = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
+    
+    # Save to outputs/
+    outputs_dir = Path(__file__).parent.parent / "outputs" / "tables"
+    outputs_dir.mkdir(parents=True, exist_ok=True)
+    df.to_csv(outputs_dir / "mean_single_results.csv", index=False)
+    
+    return df
 

@@ -19,6 +19,8 @@ pytask = "*"
 pip = ">=25.3,<26"
 ipykernel = ">=7.1.0,<8"
 jinja2 = "*"
+reportlab = ">=4.4.10,<5"
+pillow = ">=12.1.1,<13"
 
 [pypi-dependencies]
 yfinance = "*"
@@ -30,4 +32,8 @@ pixi = "python main.py pixi"
 pixi-quick = "python main.py pixi --quick"
 test = "pytest -q"
 plot-variance = "python -m plots.variance"
-compile-pdf = "python scripts/compile_results_pdf.py"
+compile-pdf = "python scripts/build_pdfs.py --combined"
+compile-tables = "python scripts/build_pdfs.py --tables"
+compile-figures = "python scripts/build_pdfs.py --figures"
+compile-all = "python scripts/build_pdfs.py --all"
+

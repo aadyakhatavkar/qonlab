@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from dgps.parameter_single import simulate_single_break_ar1
 from estimators.parameter_single import (
     forecast_global_sarima,
     forecast_rolling_sarima,
     forecast_markov_switching_ar,
 )
-from protocols import calculate_metrics
+from analyses.metrics import rmse, mae, bias, var_error
 
 # =====================================================
 # 4) Monte Carlo — POST-BREAK ONLY
@@ -72,20 +73,24 @@ def monte_carlo_single_break_post(
     for method_name in err:
         e = np.asarray(err[method_name], dtype=float)
         e = e[~np.isnan(e)]
-        
-        if len(e) == 0:
-            metrics = {"RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "Variance": np.nan}
-        else:
-            from protocols import calculate_metrics
-            metrics = calculate_metrics(e)
+        n_success = len(e)
         
         rows.append({
             "Method": method_name,
-            "RMSE": metrics["RMSE"],
-            "MAE": metrics["MAE"],
-            "Bias": metrics["Bias"],
-            "Variance": metrics["Variance"],
+            "RMSE": rmse(e),
+            "MAE": mae(e),
+            "Bias": bias(e),
+            "Var(error)": var_error(e),
+            "Successes": n_success,
+            "Failures": n_sim - n_success,
+            "N": n_sim
         })
     
-    import pandas as pd
-    return pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
+    df = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
+    
+    # Save to outputs/
+    outputs_dir = Path(__file__).parent.parent / "outputs" / "tables"
+    outputs_dir.mkdir(parents=True, exist_ok=True)
+    df.to_csv(outputs_dir / "parameter_single_results.csv", index=False)
+    
+    return df

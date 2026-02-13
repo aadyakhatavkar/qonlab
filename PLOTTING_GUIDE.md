@@ -1,5 +1,29 @@
 # Unified Plotting System Guide
 
+## 📋 Standard Workflow
+
+**Generate results → plots → PDFs:**
+
+```bash
+# Step 1: Run all experiments (generates CSV and LaTeX table files)
+pixi run python runner.py
+# Output: bld/csv/*.csv and bld/tex/*.tex
+
+# Step 2: Generate publication-quality plots
+python scripts/generate_plots.py --all
+# Output: figures/{variance,mean,parameter}/*.png (Tier 1 & 2 plots)
+
+# Step 3: Compile tables into PDF
+python scripts/build_pdfs.py --tables
+# Output: bld/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf
+
+# Step 4: Create combined professional report (optional)
+python scripts/build_pdfs.py --combined
+# Output: bld/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf
+```
+
+---
+
 ## Overview
 
 The unified plotting system generates **coherent, publication-quality visualizations** from Monte Carlo simulation results. All plots share a consistent visual style for professional appearance.
@@ -77,40 +101,65 @@ python scripts/generate_plots.py --break-type parameter
 
 ## Usage
 
-### Generate Latest Results Plots
+### Generate All Plots (After Running Experiments)
 
 ```bash
-pixi run python scripts/generate_plots.py --latest
+# Generate all 13 plots (Tier 1 + Tier 2 for each break type)
+python scripts/generate_plots.py --all
 ```
 
-Automatically finds most recent `results/aligned_breaks_*.csv` and generates all plots.
-
-### Generate Plots for Specific Break Type
+### Generate Plots by Break Type
 
 ```bash
-# Single break type
-pixi run python scripts/generate_plots.py --break-type variance
+# Variance breaks only
+python scripts/generate_plots.py --variance
 
-# Mean break
-pixi run python scripts/generate_plots.py --break-type mean
+# Mean breaks only
+python scripts/generate_plots.py --mean
 
-# Parameter break
-pixi run python scripts/generate_plots.py --break-type parameter
-
-# All break types (default)
-pixi run python scripts/generate_plots.py --break-type all
+# Parameter breaks only
+python scripts/generate_plots.py --parameter
 ```
 
-### Custom Results File
+### Generate Plots by Subtype & Tier
 
 ```bash
-pixi run python scripts/generate_plots.py --results results/custom_results.csv --output-dir figures
+# Single breaks only
+python scripts/generate_plots.py --single
+
+# Recurring breaks only
+python scripts/generate_plots.py --recurring
+
+# Tier 1 plots only (core metrics: RMSE, MAE, Bias, Variance)
+python scripts/generate_plots.py --tier1
+
+# Tier 2 plots only (DGP visualization)
+python scripts/generate_plots.py --tier2
 ```
 
-### List All Options
+### Combinations
 
 ```bash
-pixi run python scripts/generate_plots.py --help
+# Variance Tier 1 plots only
+python scripts/generate_plots.py --variance --tier1
+
+# Mean single breaks Tier 2
+python scripts/generate_plots.py --mean --single --tier2
+
+# Parameter recurring
+python scripts/generate_plots.py --parameter --recurring
+```
+
+### List Available Plots
+
+```bash
+python scripts/generate_plots.py --list
+```
+
+### View All Options
+
+```bash
+python scripts/generate_plots.py --help
 ```
 
 ## Output Structure

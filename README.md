@@ -1,19 +1,7 @@
-<p align="center">
-  <h1 align="center">📈 Structural Break Forecasting</h1>
-  <p align="center">
-    <strong>A Monte Carlo Study of Time Series Forecasting Under Parameter Instability</strong>
-  </p>
-  <p align="center">
-    <a href="https://www.python.org/downloads/release/python-3123/"><img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-blue"></a>
-    <a href="https://github.com/aadyakhatavkar/qonlab/actions"><img alt="Tests" src="https://img.shields.io/badge/tests-pytest-brightgreen"></a>
-    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-green"></a>
-    <a href="#-status"><img alt="Status" src="https://img.shields.io/badge/status-active-success"></a>
-  </p>
-</p>
+# Structural Break Forecasting
 
----
+**A Monte Carlo Study of Time Series Forecasting Under Parameter Instability**
 
-**Research Module in Econometrics and Statistics**  
 University of Bonn | Winter Semester 2025/26  
 [Course Website](https://vladislav-morozov.github.io/simulations-course/)
 
@@ -21,7 +9,7 @@ University of Bonn | Winter Semester 2025/26
 
 ---
 
-## � Quick Start
+## Quick Start
 
 ### Setup
 ```bash
@@ -32,145 +20,101 @@ curl -fsSL https://pixi.sh/install.sh | bash
 pixi install
 ```
 
-### Run All Experiments (Standardized: T=400, Tb=200, n_sim=300)
+### Run Experiments
 ```bash
-pixi run python runner.py              # All 3 break types with variants
-pixi run python runner.py --quick      # Quick test (T=150, n_sim=10)
+pixi run python runner.py              # All 3 break types (T=400, Tb=200, n_sim=300)
+pixi run python runner.py --quick      # Quick test (T=400, Tb=200, n_sim=30)
 pixi run python runner.py --variance   # Variance breaks only
 pixi run python runner.py --mean       # Mean breaks only
 pixi run python runner.py --parameter  # Parameter breaks only
 ```
 
-### Example: Variance Break Analysis
-```python
-from analyses import mc_variance_single_break
+---
 
-results = mc_variance_single_break(n_sim=300, T=400, Tb=200, seed=42)
-print(results[['Scenario', 'Method', 'RMSE', 'MAE']])
-```
+## Overview
 
-## 🎯 Overview
+Evaluates forecasting methods under three types of structural breaks:
 
-**Why this matters:** Structural breaks are common in real-world time series (stock prices, inflation, GDP). When breaks occur, standard forecasting methods can fail dramatically. This study systematically evaluates which methods handle different break types best.
+- **Variance breaks** — Sudden volatility spikes (e.g., 2008 financial crisis)
+- **Mean breaks** — Regime shifts in level (e.g., inflation changes)
+- **Parameter breaks** — Changing dynamics via AR coefficients
 
-**Research Questions**
+**Study Design**:
+- Time series length: T = 400 (single break at midpoint, Tb = 200)
+- Innovation types: Gaussian, Student-t(df=3), Student-t(df=5)
+- For recurring breaks: Markov-switching regimes with persistence levels 0.90, 0.95, 0.99
+- Monte Carlo: 300 replications per scenario
 
-1. How do forecasting methods perform under different break types (variance, mean, parameter)?
-2. Do fixed windows outperform adaptive methods after a break?
-3. Can simple methods compete with complex ones under model instability?
-4. How do heavy-tailed distributions affect forecast robustness?
-
-**Contribution:** Unlike most break-detection literature (which assumes you know a break happened), this study evaluates real-world practitioners' approach: **use fixed windows + model selection**, without prior knowledge of breaks.
+**Key Research Question**: Do simple adaptive methods (rolling windows) perform as well as complex ones (Markov switching) when practitioners don't know a break occurred?
 
 ---
 
-## 📊 Break Types
+## Workflow
 
-| Break Type | Real-World Example | Our Simulation |
-|------------|-------------------|----------------|
-| **Variance** | Market volatility spikes (2008 crisis) | Sudden jump in $\sigma_t$ at time $T_b$ |
-| **Mean** | Inflation regime shift | Sudden jump in $\mu_t$ at time $T_b$ |
-| **Parameter** | Changing consumer behavior | Sudden jump in AR coefficient $\phi_t$ at time $T_b$ |
+**4-step process** from experiments to professional PDF report:
 
-**Study Design:**
-- Single break at midpoint ($T_b = T/2$)
-- Recurring breaks via Markov-switching regime
-- 3 innovation types: Gaussian, Student-t(df=3), Student-t(df=5)
-- Persistence levels for parameter breaks: 0.90, 0.95, 0.99
-
----
-
-## 🔬 Methods Compared
-
-| Method | Logic | Adapts? |
-|--------|-------|---------|
-| **Global ARIMA** | Fit entire sample | ❌ No |
-| **Rolling ARIMA** | Fit last 50 observations | ✅ Adaptive |
-| **GARCH(1,1)** | Volatility targeting | ✅ Adaptive |
-| **Post-Break ARIMA** | Fit only after estimated break | 🔄 Partial |
-| **Markov Switching** | Hidden regime model | ✅ Adaptive |
-| **Oracle Break Dummy** | Known break point | ✅ Perfect |
-
----
-
-## 📈 Output & Results
-
-Each experiment generates a CSV with:
-- **Method** — Forecasting method used
-- **RMSE, MAE, Bias, Variance** — Error metrics
-- **Innovation** — Type of shocks (Gaussian/Student-t)
-- **Persistence** — For recurring breaks only
-
-**Output Location:** `results/` folder organized by break type
-
-**Example Output:**
-```
-Method,RMSE,MAE,Bias,Variance,Innovation
-Global ARIMA,2.34,1.89,0.12,5.67,gaussian
-Rolling ARIMA,1.45,1.12,-0.05,3.21,gaussian
-GARCH(1.1),1.52,1.18,0.08,3.89,gaussian
-```
-
-### View Results
+### Step 1: Run Simulations
 ```bash
-ls results/                             # Check output files
-cat results/variance_20260212_*.csv    # View variance results
+pixi run python runner.py
+# Output: bld/csv/*.csv and bld/tex/*.tex
 ```
 
-### Compile Results to PDF
-After running experiments, compile all generated LaTeX tables into a professional PDF document:
-
+### Step 2: Generate Plots
 ```bash
-# Compile all result tables into a single PDF
-pixi run python scripts/compile_results_pdf.py
-
-# Output: docs/simulation_results_latest.pdf (also timestamped version)
+python scripts/generate_plots.py --all
+# Output: figures/{variance,mean,parameter}/*.png (19 plots)
 ```
 
-This creates a PDF with:
-- **Table of contents** with all results organized by break type
-- **Professional formatting** with booktabs styling
-- **Appendices** with simulation configuration and method descriptions
-- **Timestamped versioning** for easy tracking of results
+### Step 3: Compile Tables to PDF
+```bash
+python scripts/build_pdfs.py --tables
+# Output: bld/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf (50 KB)
+```
+
+### Step 4: Create Combined Report
+```bash
+python scripts/build_pdfs.py --combined
+# Output: bld/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf (3.6 MB)
+# Contains: Executive Summary → TOC → Results Tables → Analysis Plots
+```
 
 ---
 
-## 🎛️ Reproducibility
+## Methods Compared
 
-All experiments use **seed=42** for reproducibility:
-- **T=400** (time series length) or **150** (quick test)
-- **Tb=200** (break point) or **75** (quick test)
-- **n_sim=300** (replications) or **10** (quick test)
+| Method | Description | Adapts? |
+|--------|-------------|----------|
+| Global ARIMA | Baseline: fit entire sample | No |
+| Rolling ARIMA | Adaptive: last 50 observations | Yes |
+| GARCH(1,1) | Volatility targeting | Yes |
+| Markov Switching | Hidden regime detection | Yes |
+| Oracle Dummy | Known break point (benchmark) | Yes |
 
-To modify, edit `runner.py` lines 80-85 or pass `--quick` flag for built-in presets.
-
----
-
-## 📚 Understanding the Mathematics
-
-**Variance Break DGP:**
-$$y_t = \phi y_{t-1} + \sigma_t \varepsilon_t, \quad \sigma_t = \begin{cases} \sigma_1 & t < T_b \\ \sigma_2 & t \geq T_b \end{cases}$$
-
-**Mean Break DGP:**
-$$y_t = \mu_t + \phi y_{t-1} + \varepsilon_t, \quad \mu_t = \begin{cases} \mu_1 & t < T_b \\ \mu_2 & t \geq T_b \end{cases}$$
-
-**Parameter Break DGP:**
-$$y_t = \phi_t y_{t-1} + \varepsilon_t, \quad \phi_t = \begin{cases} \phi_1 & t < T_b \\ \phi_2 & t \geq T_b \end{cases}$$
+**Oracle Dummy** represents the upper bound (perfect break knowledge), while **Global ARIMA** represents the lower bound (complete break ignorance).
 
 ---
 
-## 🤝 Contact
+## Output
 
-| Name | eCampus | Email |
-|------|--------|-------|
-| **Aadya Khatavkar** | s38akhat | s38akhat@uni-bonn.de |
-| **Mahir Baylarov** | s24mbayl | s24mbayl@uni-bonn.de |
-| **Bakhodir Izzatulloev** | s36bizza | s36bizza@uni-bonn.de |
+All results timestamped and organized in:
+
+- **`bld/csv/`** — Raw metrics (RMSE, MAE, Bias, Variance) per method × scenario
+- **`bld/tex/`** — LaTeX tables organized by break type and innovation type
+- **`figures/`** — 19 publication-quality plots:
+  - Tier 1: Method comparisons (metrics across innovations)
+  - Tier 2: DGP visualizations (example time series with breaks)
+- **`bld/pdf/`** — Professional PDF reports:
+  - Tables PDF: Results organized by break type (50 KB)
+  - Combined PDF: Tables + figures in single report (3.6 MB)
 
 ---
 
-<p align="center">
-  <sub>Built for the <a href="https://vladislav-morozov.github.io/simulations-course/">Research Module</a> at University of Bonn</sub>
-</p>
+## Contact
 
+| Name | Email |
+|------|-------|
+| Aadya Khatavkar | s38akhat@uni-bonn.de |
+| Mahir Baylarov | s24mbayl@uni-bonn.de |
+| Bakhodir Izzatulloev | s36bizza@uni-bonn.de |
 
+Built for the [Research Module](https://vladislav-morozov.github.io/simulations-course/) at University of Bonn

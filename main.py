@@ -17,7 +17,7 @@ Standardized parameters:
 
 Examples:
   python main.py                    # Run all experiments
-  python main.py --quick            # Quick run (n_sim=10, T=150)
+  python main.py --quick            # Quick run (n_sim=30, same T and Tb)
   python main.py --variance         # Run variance breaks only
   python main.py --mean             # Run mean breaks only
   python main.py --parameter        # Run parameter breaks only
@@ -32,7 +32,7 @@ def main():
         description='Aligned Structural Break Experiments (All 3 Break Types)',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Quick Mode: python main.py --quick (T=150, Tb=75, n_sim=10)
+Quick Mode: python main.py --quick (T=400, Tb=200, n_sim=30)
 Single Break Type: python main.py --variance
 Multiple Break Types: python main.py --variance --mean
 All Experiments: python main.py
@@ -41,8 +41,8 @@ See runner.py for full documentation.
         """
     )
     
-    parser.add_argument('--quick', action='store_true', 
-                       help='Quick run (n_sim=10, T=150)')
+    parser.add_argument('--quick', action='store_true',
+                       help='Quick run (n_sim=30, same T and Tb)')
     parser.add_argument('--variance', action='store_true', 
                        help='Run variance breaks only')
     parser.add_argument('--mean', action='store_true', 
