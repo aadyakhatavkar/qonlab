@@ -54,15 +54,15 @@ python scripts/generate_plots.py --parameter --recurring
 ```bash
 # Tables PDF only (50 KB)
 python scripts/build_pdfs.py --tables
-# Output: bld/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf
+# Output: outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf
 
 # Figures PDF only (5.3 MB)
 python scripts/build_pdfs.py --figures
-# Output: bld/pdf/Figures_Tier1-2_YYYYMMDD_HHMMSS.pdf
+# Output: outputs/pdf/Figures_Tier1-2_YYYYMMDD_HHMMSS.pdf
 
 # Combined report (tables + figures, 3.6 MB) - RECOMMENDED
 python scripts/build_pdfs.py --combined
-# Output: bld/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf
+# Output: outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf
 
 # Generate all three at once
 python scripts/build_pdfs.py --all
@@ -75,10 +75,10 @@ python scripts/build_pdfs.py  # (default, same as --all)
 python scripts/build_pdfs.py --list
 
 # Show file sizes
-ls -lh bld/pdf/
+ls -lh outputs/pdf/
 
 # Open latest combined PDF
-open bld/pdf/Complete_Analysis_*.pdf
+open outputs/pdf/Complete_Analysis_*.pdf
 ```
 
 ---
@@ -87,19 +87,19 @@ open bld/pdf/Complete_Analysis_*.pdf
 
 ```bash
 # Show all compiled PDFs
-ls -lh bld/pdf/
+ls -lh outputs/pdf/
 
 # Show figure count
-find figures -name "*.png" | wc -l
+find outputs/figures -name "*.png" | wc -l
 
 # Show table count
-find bld -name "*.tex" | wc -l
+find outputs/tex -name "*.tex" | wc -l
 
 # Open latest figures PDF
-open bld/pdf/Figures_Tier1-2_*.pdf
+open outputs/pdf/Figures_Tier1-2_*.pdf
 
 # Download latest PDF
-scp user@host:bld/pdf/Figures_Tier1-2_*.pdf .
+scp user@host:outputs/pdf/Figures_Tier1-2_*.pdf .
 ```
 
 ## Color Scheme Reference
@@ -129,7 +129,7 @@ Colors:
 ✅ **Tier 2 plots**: Time series with breaks, DGP visualization  
 ✅ **DOF labels**: Automatically shown for innovation types (Gaussian, t-df3, t-df5)  
 ✅ **One-command PDFs**: Timestamped, organized by break type  
-✅ **New PDF each time**: Not overwritten, stacked in bld/pdf/  
+✅ **New PDF each time**: Not overwritten, stacked in outputs/pdf/  
 ✅ **Consistent colors**: Single palette used everywhere  
 ✅ **No duplication**: All plot functions in scripts/unified_plots.py  
 
@@ -139,9 +139,9 @@ Colors:
 |------|---------|
 | `scripts/unified_plots.py` | All plot functions (centralized) |
 | `scripts/build_pdfs.py` | PDF compilation (tables & figures) |
-| `bld/pdf/` | Output directory for timestamped PDFs |
-| `figures/` | Source figures (organized by type) |
-| `results/` | Source tables (TEX files) |
+| `outputs/pdf/` | Output directory for timestamped PDFs |
+| `outputs/csv/` | Source CSV tables |
+| `outputs/tex/` | Source LaTeX files |
 
 ## Workflow
 

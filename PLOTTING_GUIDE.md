@@ -7,7 +7,7 @@
 ```bash
 # Step 1: Run all experiments (generates CSV and LaTeX table files)
 pixi run python runner.py
-# Output: bld/csv/*.csv and bld/tex/*.tex
+# Output: outputs/csv/*.csv and outputs/tex/*.tex
 
 # Step 2: Generate publication-quality plots
 python scripts/generate_plots.py --all
@@ -15,11 +15,11 @@ python scripts/generate_plots.py --all
 
 # Step 3: Compile tables into PDF
 python scripts/build_pdfs.py --tables
-# Output: bld/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf
+# Output: outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf
 
 # Step 4: Create combined professional report (optional)
 python scripts/build_pdfs.py --combined
-# Output: bld/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf
+# Output: outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf
 ```
 
 ---

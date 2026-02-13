@@ -4,13 +4,13 @@ Compile Latest Figures and Tables into PDFs
 ==============================================
 Creates timestamped PDFs of latest figures and tables.
 Organized by break type and tier.
-Placed in bld/pdf/
+Placed in outputs/pdf/
 
 Usage:
-    python scripts/compile_figures.py --figures      # Latest figures only
-    python scripts/compile_figures.py --tables       # Latest tables only
-    python scripts/compile_figures.py --all          # Both figures and tables
-    python scripts/compile_figures.py --list         # List recent files
+    python scripts/build_pdfs.py --figures      # Latest figures only
+    python scripts/build_pdfs.py --tables       # Latest tables only
+    python scripts/build_pdfs.py --all          # Both figures and tables
+    python scripts/build_pdfs.py --list         # List recent files
 """
 
 import argparse
@@ -49,9 +49,9 @@ except ImportError:
 # =========================================================
 
 REPO_ROOT = Path(__file__).parent.parent
-FIGURES_DIR = REPO_ROOT / 'figures'
-RESULTS_DIR = REPO_ROOT / 'bld'
-COMPILATIONS_DIR = REPO_ROOT / 'bld' / 'pdf'
+FIGURES_DIR = REPO_ROOT / 'outputs' / 'figures'
+RESULTS_DIR = REPO_ROOT / 'outputs'  # CSV and TEX files now directly in outputs/
+COMPILATIONS_DIR = REPO_ROOT / 'outputs' / 'pdf'
 
 # Create compilations directory if it doesn't exist
 COMPILATIONS_DIR.mkdir(parents=True, exist_ok=True)
@@ -94,6 +94,145 @@ def find_latest_files(directory, pattern='*', max_age_hours=None, limit=None):
     return [f[0] for f in files]
 
 
+def get_latest_tables():
+    """Get only the latest CSV files per scenario (avoid duplicates)."""
+    import os
+    from collections import defaultdict
+    
+    csv_files = []
+    for root, dirs, files in os.walk(str(RESULTS_DIR)):
+        for file in files:
+            if file.endswith('.csv'):
+                csv_files.append(Path(root) / file)
+    
+    # Also get from outputs/tables/ directly
+    tables_dir = Path(__file__).parent.parent / 'outputs' / 'tables'
+    if tables_dir.exists():
+        for csv_file in tables_dir.glob('*.csv'):
+            if csv_file not in csv_files:
+                csv_files.append(csv_file)
+    
+    if not csv_files:
+        return []
+    
+    # Group files by scenario (ignore timestamp)
+    # Format: mean_single_20260213_165005_Gaussian.csv or mean_single_results.csv
+    scenarios = defaultdict(list)
+    
+    for csv_path in csv_files:
+        filename = csv_path.stem
+        # Extract scenario name (everything before timestamp or _results)
+        if '_results' in filename:
+            # Aggregated: mean_single_results, parameter_recurring_p0.95_results, etc.
+            scenario_key = filename.replace('_results', '')
+        else:
+            # Detailed: mean_single_20260213_165005_Gaussian.csv
+            # Extract parts: mean_single and the variant (Gaussian, tdf3, tdf5, p09, etc.)
+            parts = filename.split('_')
+            if len(parts) >= 3:
+                # mean_single_<timestamp>_<variant>
+                break_type = parts[0]  # mean, parameter, variance
+                break_mode = parts[1]  # single, recurring
+                variant = parts[-1]    # Gaussian, tdf3, tdf5, p09, p095, p099, MarkovSwitching
+                scenario_key = f"{break_type}_{break_mode}_{variant}"
+            else:
+                scenario_key = filename
+        
+        scenarios[scenario_key].append(csv_path)
+    
+    # Keep only latest per scenario
+    latest_files = []
+    for scenario_key, files in scenarios.items():
+        # Sort by modification time, get the newest
+        latest = max(files, key=lambda f: f.stat().st_mtime)
+        latest_files.append(latest)
+    
+    return sorted(latest_files)
+
+
+def convert_csv_to_latex():
+    """Convert CSV metrics files to LaTeX tables with actual data-driven captions."""
+    import pandas as pd
+    
+    # Get only latest tables (avoid duplicates)
+    csv_files = get_latest_tables()
+    
+    tex_files = []
+    for csv_path in csv_files:
+        try:
+            df = pd.read_csv(csv_path)
+            
+            # Extract metadata from CSV
+            filename = csv_path.stem
+            n_sim = int(df['N'].iloc[0]) if 'N' in df.columns else '?'
+            n_methods = len(df)
+            
+            # Create meaningful caption based on filename and data
+            if 'variance' in filename:
+                if 'recurring' in filename:
+                    p_val = filename.split('p')[-1] if 'p' in filename else '?'
+                    caption = f"Variance Recurring (p={p_val}): {n_methods} methods, {n_sim} simulations"
+                else:
+                    # Check for innovation type
+                    if 'Student-tdf5' in filename or 'tdf5' in filename:
+                        caption = f"Variance Single Break (Student-t df=5): {n_methods} methods, {n_sim} simulations"
+                    elif 'Student-tdf3' in filename or 'tdf3' in filename:
+                        caption = f"Variance Single Break (Student-t df=3): {n_methods} methods, {n_sim} simulations"
+                    elif 'Gaussian' in filename:
+                        caption = f"Variance Single Break (Gaussian): {n_methods} methods, {n_sim} simulations"
+                    else:
+                        caption = f"Variance Single Break: {n_methods} methods, {n_sim} simulations"
+            elif 'mean' in filename:
+                if 'recurring' in filename:
+                    p_val = filename.split('p')[-1] if 'p' in filename else '?'
+                    caption = f"Mean Recurring (p={p_val}): {n_methods} methods, {n_sim} simulations"
+                else:
+                    # Check for innovation type
+                    if 'Student-tdf5' in filename or 'tdf5' in filename:
+                        caption = f"Mean Single Break (Student-t df=5): {n_methods} methods, {n_sim} simulations"
+                    elif 'Student-tdf3' in filename or 'tdf3' in filename:
+                        caption = f"Mean Single Break (Student-t df=3): {n_methods} methods, {n_sim} simulations"
+                    elif 'Gaussian' in filename:
+                        caption = f"Mean Single Break (Gaussian): {n_methods} methods, {n_sim} simulations"
+                    else:
+                        caption = f"Mean Single Break: {n_methods} methods, {n_sim} simulations"
+            elif 'parameter' in filename:
+                if 'recurring' in filename:
+                    p_val = filename.split('p')[-1] if 'p' in filename else '?'
+                    caption = f"Parameter Recurring (p={p_val}): {n_methods} methods, {n_sim} simulations"
+                else:
+                    # Check for innovation type
+                    if 'Student-tdf5' in filename or 'tdf5' in filename:
+                        caption = f"Parameter Single Break (Student-t df=5): {n_methods} methods, {n_sim} simulations"
+                    elif 'Student-tdf3' in filename or 'tdf3' in filename:
+                        caption = f"Parameter Single Break (Student-t df=3): {n_methods} methods, {n_sim} simulations"
+                    elif 'Gaussian' in filename:
+                        caption = f"Parameter Single Break (Gaussian): {n_methods} methods, {n_sim} simulations"
+                    else:
+                        caption = f"Parameter Single Break: {n_methods} methods, {n_sim} simulations"
+            else:
+                caption = f"{filename}: {n_methods} methods, {n_sim} simulations"
+            
+            # Convert to LaTeX with dynamic caption
+            latex_content = df.to_latex(
+                index=False,
+                float_format='%.4f',
+                caption=caption,
+                label=f"tab:{filename}"
+            )
+            
+            # Create corresponding .tex file in same directory
+            tex_path = csv_path.with_suffix('.tex')
+            with open(tex_path, 'w') as f:
+                f.write(latex_content)
+            
+            tex_files.append(tex_path)
+        except Exception as e:
+            print(f"Warning: Could not convert {csv_path.name}: {e}")
+    
+    return tex_files
+
+
 def organize_figures_by_type():
     """Organize recent PNG files by break type and tier."""
     files = find_latest_files(FIGURES_DIR, '*.png', limit=50)
@@ -132,10 +271,9 @@ def organize_figures_by_type():
 
 
 def organize_tables_by_type():
-    """Organize recent TEX files by break type, keeping LATEST run (no old duplicates from different days/runs)."""
+    """Organize recent TEX files by break type."""
     files = find_latest_files(RESULTS_DIR, '*.tex', limit=100)
     import re
-    from datetime import datetime, timedelta
     
     organized = {
         'variance': [],
@@ -144,48 +282,18 @@ def organize_tables_by_type():
         'other': [],
     }
     
-    # Find the MOST RECENT file overall to determine the latest run window
-    latest_global_time = None
-    
     for fpath in files:
-        fname = fpath.name
-        match = re.search(r'_(\d{8})_(\d{6})', fname)
-        if not match:
-            continue
+        fname = fpath.name.lower()
         
-        try:
-            dt = datetime.strptime(f"{match.group(1)}_{match.group(2)}", "%Y%m%d_%H%M%S")
-            if latest_global_time is None or dt > latest_global_time:
-                latest_global_time = dt
-        except:
-            continue
-    
-    if latest_global_time is None:
-        return organized
-    
-    # Include files from the latest run (within 1 hour window of latest file)
-    cutoff_time = latest_global_time - timedelta(hours=1)
-    
-    for fpath in files:
-        fname = fpath.name
-        match = re.search(r'_(\d{8})_(\d{6})', fname)
-        if not match:
-            continue
-        
-        try:
-            dt = datetime.strptime(f"{match.group(1)}_{match.group(2)}", "%Y%m%d_%H%M%S")
-            if dt >= cutoff_time:
-                # This file is from the latest run window
-                if 'variance' in fname:
-                    organized['variance'].append(fpath)
-                elif 'mean' in fname:
-                    organized['mean'].append(fpath)
-                elif 'parameter' in fname or 'param' in fname:
-                    organized['parameter'].append(fpath)
-                else:
-                    organized['other'].append(fpath)
-        except:
-            continue
+        # Classify by break type
+        if 'variance' in fname:
+            organized['variance'].append(fpath)
+        elif 'mean' in fname:
+            organized['mean'].append(fpath)
+        elif 'parameter' in fname:
+            organized['parameter'].append(fpath)
+        else:
+            organized['other'].append(fpath)
     
     return organized
 
@@ -277,6 +385,74 @@ def create_figure_pdf_native(figures_dict, output_path):
         return False
 
 
+def sort_tables_hierarchical(tables_dict):
+    """
+    Reorganize tables in hierarchical order:
+    1. Mean
+       1.1 Single (by DOF: Gaussian, tdf3, tdf5)
+       1.2 Recurring
+    2. Parameter
+       2.1 Single (by DOF: Gaussian, tdf3, tdf5)
+       2.2 Recurring (by persistence: p09, p095, p099)
+    3. Variance
+       3.1 Single (by DOF: Gaussian, tdf3, tdf5)
+       3.2 Recurring
+    4. Combined
+    """
+    ordered = {
+        'mean': [],
+        'parameter': [],
+        'variance': [],
+        'other': []
+    }
+    
+    # Sort within each break type by name
+    for break_type in ['mean', 'parameter', 'variance', 'other']:
+        if break_type in tables_dict:
+            ordered[break_type] = sorted(tables_dict[break_type], key=lambda x: x.name)
+    
+    # Custom sorting for single tables (by innovation type: Gaussian, tdf3, tdf5)
+    def innovation_sort_key(path):
+        name = path.name.lower()
+        if 'gaussian' in name:
+            return 0
+        elif 'tdf3' in name:
+            return 1
+        elif 'tdf5' in name:
+            return 2
+        else:
+            return 3
+    
+    # Custom sorting for recurring/persistence (p09, p095, p099)
+    def persistence_sort_key(path):
+        name = path.name.lower()
+        if 'p09' in name or 'p=0.9' in name:
+            return 0
+        elif 'p095' in name or 'p=0.95' in name:
+            return 1
+        elif 'p099' in name or 'p=0.99' in name:
+            return 2
+        else:
+            return 3
+    
+    # Re-sort mean tables
+    mean_single = [t for t in ordered['mean'] if 'single' in t.name]
+    mean_recurring = [t for t in ordered['mean'] if 'recurring' in t.name or 'markov' in t.name]
+    ordered['mean'] = sorted(mean_single, key=innovation_sort_key) + sorted(mean_recurring)
+    
+    # Re-sort parameter tables
+    param_single = [t for t in ordered['parameter'] if 'single' in t.name]
+    param_recurring = [t for t in ordered['parameter'] if 'recurring' in t.name or 'p0' in t.name]
+    ordered['parameter'] = sorted(param_single, key=innovation_sort_key) + sorted(param_recurring, key=persistence_sort_key)
+    
+    # Re-sort variance tables
+    var_single = [t for t in ordered['variance'] if 'single' in t.name]
+    var_recurring = [t for t in ordered['variance'] if 'recurring' in t.name or 'markov' in t.name]
+    ordered['variance'] = sorted(var_single, key=innovation_sort_key) + sorted(var_recurring)
+    
+    return ordered
+
+
 def create_table_pdf_from_tex(tables_dict, output_path):
     """
     Create PDF from LaTeX table files.
@@ -284,8 +460,87 @@ def create_table_pdf_from_tex(tables_dict, output_path):
     """
     import subprocess
     import tempfile
+    import pandas as pd
     
-    # Create a master LaTeX file
+    # Reorganize tables in hierarchical order
+    tables_dict = sort_tables_hierarchical(tables_dict)
+    
+    # Extract actual data from CSVs for dynamic summary
+    csv_files = find_latest_files(RESULTS_DIR, '*.csv', limit=50)
+    n_sim = 5  # default fallback
+    total_results = 0
+    best_overall_rmse = float('inf')
+    best_overall_method = "Unknown"
+    persistence_levels = set()
+    dof_values = set()
+    avg_coverage_95 = None
+    avg_logscore = None
+    
+    if csv_files:
+        try:
+            coverage_95_list = []
+            logscore_list = []
+            
+            # Get n_sim from first CSV
+            first_df = pd.read_csv(csv_files[0])
+            if 'N' in first_df.columns:
+                n_sim = int(first_df['N'].iloc[0])
+            
+            # Count total results and extract metadata
+            for csv_path in csv_files:
+                fname = csv_path.stem
+                df = pd.read_csv(csv_path)
+                total_results += len(df)
+                
+                # Extract persistence levels
+                if 'recurring' in fname:
+                    if 'p0.9_' in fname or '_p09' in fname:
+                        persistence_levels.add('0.90')
+                    if 'p0.95' in fname or '_p095' in fname:
+                        persistence_levels.add('0.95')
+                    if 'p0.99' in fname or '_p099' in fname:
+                        persistence_levels.add('0.99')
+                
+                # Extract DOF from filename
+                if 'Student-tdf5' in fname or 'Student-t(df=5)' in fname:
+                    dof_values.add('5')
+                if 'Student-tdf3' in fname or 'Student-t(df=3)' in fname:
+                    dof_values.add('3')
+                
+                # Find best RMSE
+                if 'RMSE' in df.columns:
+                    min_rmse_idx = df['RMSE'].idxmin()
+                    if df['RMSE'].iloc[min_rmse_idx] < best_overall_rmse:
+                        best_overall_rmse = df['RMSE'].iloc[min_rmse_idx]
+                        best_overall_method = df['Method'].iloc[min_rmse_idx]
+                
+                # Collect coverage and logscore
+                if 'Coverage95' in df.columns and 'LogScore' in df.columns:
+                    coverage_95_list.extend(df['Coverage95'].dropna().tolist())
+                    logscore_list.extend(df['LogScore'].dropna().tolist())
+            
+            # Calculate averages
+            if coverage_95_list:
+                avg_coverage_95 = sum(coverage_95_list) / len(coverage_95_list)
+            if logscore_list:
+                avg_logscore = sum(logscore_list) / len(logscore_list)
+        except Exception as e:
+            pass
+    
+    # Format best RMSE
+    best_rmse_str = f"{best_overall_rmse:.4f}" if best_overall_rmse != float('inf') else "N/A"
+    
+    # Format persistence levels
+    persistence_str = ", ".join(sorted(persistence_levels)) if persistence_levels else "N/A"
+    
+    # Format DOF
+    dof_str = ", ".join(sorted(dof_values)) if dof_values else "N/A"
+    
+    # Format coverage and logscore
+    coverage_str = f"{avg_coverage_95:.4f}" if avg_coverage_95 is not None else "N/A"
+    logscore_str = f"{avg_logscore:.4f}" if avg_logscore is not None else "N/A"
+    
+    # Create a master LaTeX file with DYNAMIC content
     latex_content = r"""
 \documentclass[12pt]{article}
 \usepackage{geometry}
@@ -318,20 +573,19 @@ def create_table_pdf_from_tex(tables_dict, output_path):
 
 \textbf{Study Overview:}
 \begin{itemize}
-\item \textbf{Simulation Design:} Monte Carlo experiments with 5 replications per scenario
+\item \textbf{Simulation Design:} Monte Carlo experiments with """ + str(n_sim) + r""" replications per scenario
 \item \textbf{Time Series Length:} T = 400 observations, break point Tb = 200
 \item \textbf{Break Types Analyzed:} Variance, Mean, and Parameter breaks
-\item \textbf{Innovation Types:} Gaussian, Student-t(df=5), Student-t(df=3)
-\item \textbf{Total Scenarios:} 54 forecast results across 3 break types
+\item \textbf{Innovation Types:} Gaussian, Student-t(df=""" + dof_str + r""")
+\item \textbf{Persistence Levels:} """ + persistence_str + r"""
+\item \textbf{Total Scenarios:} """ + str(total_results) + r""" forecast results across 3 break types
 \end{itemize}
 
 \textbf{Key Findings:}
 \begin{itemize}
-\item \textbf{Best Overall Method:} SARIMA + Break Dummy (oracle Tb) achieves lowest RMSE of 0.322
-\item \textbf{Mean Break Performance:} Best RMSE = 0.322 (Student-t df=3)
-\item \textbf{Variance Break Performance:} Best RMSE = 0.872 (Student-t df=5)
-\item \textbf{Parameter Break Performance:} Best RMSE = 0.965 (Gaussian)
-\item \textbf{Persistence Results:} Rolling SARIMA performs best at p=0.99 (RMSE = 1.020)
+\item \textbf{Best Overall Method:} """ + best_overall_method + r""" achieves lowest RMSE of """ + best_rmse_str + r"""
+\item \textbf{Predictive Performance (Variance):} Average Coverage@95\%: """ + coverage_str + r""", Average LogScore: """ + logscore_str + r"""
+\item \textbf{Analysis Status:} Results compiled from all available simulations
 \end{itemize}
 
 \vspace{0.5cm}
@@ -748,6 +1002,14 @@ def compile_tables():
     print("COMPILING TABLES INTO PDF")
     print("="*70 + "\n")
     
+    # First: Get only latest CSV files (avoid duplicates)
+    print("Converting CSV → LaTeX (using latest files only)...")
+    latest_csv = get_latest_tables()
+    print(f"Found {len(latest_csv)} latest CSV tables")
+    
+    # Convert to LaTeX
+    convert_csv_to_latex()
+    
     tables = organize_tables_by_type()
     
     # Count tables
@@ -760,7 +1022,7 @@ def compile_tables():
             print(f"  {break_type}: {count} tables")
     
     if total == 0:
-        print("✗ No tables found in bld/ directory")
+        print("✗ No tables found in outputs/tables/ directory")
         return
     
     output_name = f"Tables_Results_{TIMESTAMP}.pdf"
@@ -804,7 +1066,7 @@ EXAMPLES:
   %(prog)s --list
   
 OUTPUT LOCATION:
-  PDFs are saved to: bld/pdf/
+  PDFs are saved to: outputs/pdf/
   Format: Figures_Tier1-2_YYYYMMDD_HHMMSS.pdf
   Format: Tables_Results_YYYYMMDD_HHMMSS.pdf
   Format: Complete_Analysis_YYYYMMDD_HHMMSS.pdf (combined tables + figures)
@@ -838,6 +1100,26 @@ OUTPUT LOCATION:
         do_figures = args.figures
         do_tables = args.tables
         do_combined = args.combined
+    
+    # Validate required files exist
+    tables_exist = any(RESULTS_DIR.glob('**/*.csv'))
+    figures_exist = any(FIGURES_DIR.glob('**/*.png'))
+    
+    if (do_tables or do_combined) and not tables_exist:
+        print("⚠ ERROR: No tables found. Cannot generate PDF.")
+        print("   CSV files needed in: outputs/csv/")
+        print("   Generate tables with:")
+        print("   → pixi run python scripts/build_pdfs.py --tables")
+        print("   OR run full simulations with:")
+        print("   → python runner.py")
+        return
+    
+    if (do_figures or do_combined) and not figures_exist:
+        print("⚠ ERROR: No figures found. Cannot generate PDF.")
+        print("   PNG files needed in: outputs/figures/")
+        print("   Generate figures with:")
+        print("   → pixi run python scripts/generate_plots.py --all")
+        return
     
     print(f"\nCompilation started at: {DATE_READABLE}")
     print(f"Output directory: {COMPILATIONS_DIR}\n")

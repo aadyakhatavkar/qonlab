@@ -56,7 +56,7 @@ Evaluates forecasting methods under three types of structural breaks:
 ### Step 1: Run Simulations
 ```bash
 pixi run python runner.py
-# Output: bld/csv/*.csv and bld/tex/*.tex
+# Output: outputs/csv/*.csv and outputs/tex/*.tex
 ```
 
 ### Step 2: Generate Plots
@@ -68,13 +68,13 @@ python scripts/generate_plots.py --all
 ### Step 3: Compile Tables to PDF
 ```bash
 python scripts/build_pdfs.py --tables
-# Output: bld/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf (50 KB)
+# Output: outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf (50 KB)
 ```
 
 ### Step 4: Create Combined Report
 ```bash
 python scripts/build_pdfs.py --combined
-# Output: bld/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf (3.6 MB)
+# Output: outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf (3.6 MB)
 # Contains: Executive Summary → TOC → Results Tables → Analysis Plots
 ```
 
@@ -98,12 +98,12 @@ python scripts/build_pdfs.py --combined
 
 All results timestamped and organized in:
 
-- **`bld/csv/`** — Raw metrics (RMSE, MAE, Bias, Variance) per method × scenario
-- **`bld/tex/`** — LaTeX tables organized by break type and innovation type
+- **`outputs/csv/`** — Raw metrics (RMSE, MAE, Bias, Variance) per method × scenario
+- **`outputs/tex/`** — LaTeX tables organized by break type and innovation type
 - **`figures/`** — 19 publication-quality plots:
   - Tier 1: Method comparisons (metrics across innovations)
   - Tier 2: DGP visualizations (example time series with breaks)
-- **`bld/pdf/`** — Professional PDF reports:
+- **`outputs/pdf/`** — Professional PDF reports:
   - Tables PDF: Results organized by break type (50 KB)
   - Combined PDF: Tables + figures in single report (3.6 MB)
 

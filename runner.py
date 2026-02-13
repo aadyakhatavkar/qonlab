@@ -24,7 +24,7 @@ Features:
   - Innovation types for single breaks: Gaussian, Student-t(df=3), Student-t(df=5)
   - Persistence levels for parameter recurring: 0.90, 0.95, 0.99
   - Summary statistics and best method reporting
-  - Results saved to bld/ directory with separate tables by innovation type
+  - Results saved to outputs/ directory with separate tables by innovation type
   - Results aggregation and comparison
 """
 import argparse
@@ -44,7 +44,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # =========================================================
 # LOGGING SETUP
 # =========================================================
-LOG_DIR = "logs"
+LOG_DIR = "outputs/logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 log_file = f"{LOG_DIR}/run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
@@ -85,7 +85,7 @@ INNOVATION_TYPES = [
 PERSISTENCE_LEVELS = [0.90, 0.95, 0.99]
 
 # Ensure results directory exists
-RESULTS_DIR = "results"
+RESULTS_DIR = "outputs"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 
@@ -735,14 +735,15 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
         total_elapsed = time.time() - total_start
         
         # Save results
-        os.makedirs("bld/combined", exist_ok=True)
+        os.makedirs("outputs/csv", exist_ok=True)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"bld/combined/aligned_breaks_{timestamp}.csv"
+        filename = f"outputs/csv/aligned_breaks_{timestamp}.csv"
         df_all.to_csv(filename, index=False)
         logger.info(f"✓ Combined results saved: {filename}")
         
         # Save combined results as LaTeX
-        filename_latex = f"bld/combined/aligned_breaks_{timestamp}.tex"
+        os.makedirs("outputs/tex", exist_ok=True)
+        filename_latex = f"outputs/tex/aligned_breaks_{timestamp}.tex"
         latex_str = df_all.to_latex(
             index=False,
             caption="Complete Structural Break Forecasting Results",
