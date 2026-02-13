@@ -69,7 +69,7 @@ from analyses import (
 # =========================================================
 T = 400                 # Time series length
 Tb = 200                # Break point (single breaks)
-N_SIM = 300             # Monte Carlo simulations
+N_SIM = 5           # Monte Carlo simulations
 WINDOW = 100            # SARIMA rolling window
 SEED = 42               # Random seed
 
@@ -131,11 +131,11 @@ def save_latex_table(df, break_type, variant_name=None, timestamp=None):
             caption = f"{break_type.replace('_', ' ').title()} Results"
         
         # Select columns for LaTeX table
-        columns_to_show = [col for col in df.columns if col in ['Method', 'RMSE', 'MAE', 'Bias', 'Variance', 'Successes']]
+        columns_to_show = [col for col in df.columns if col in ['Method', 'RMSE', 'MAE', 'Bias', 'Variance', 'Coverage80', 'Coverage95', 'LogScore', 'Successes']]
         df_latex = df[columns_to_show].copy()
         
         # Format numeric columns to 4 decimal places
-        for col in ['RMSE', 'MAE', 'Bias', 'Variance']:
+        for col in ['RMSE', 'MAE', 'Bias', 'Variance', 'Coverage80', 'Coverage95', 'LogScore']:
             if col in df_latex.columns:
                 df_latex[col] = df_latex[col].apply(lambda x: f"{x:.4f}" if pd.notna(x) else "—")
         
@@ -645,6 +645,8 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
     parser.add_argument('--variance', action='store_true', help='Run variance breaks only')
     parser.add_argument('--mean', action='store_true', help='Run mean breaks only')
     parser.add_argument('--parameter', action='store_true', help='Run parameter breaks only')
+    parser.add_argument('--generate-plots', action='store_true', help='Generate plots from results after run')
+    parser.add_argument('--plots-only', action='store_true', help='Only generate plots (skip experiments)')
     args = parser.parse_args()
     
     # Override params for quick mode
@@ -653,6 +655,16 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
         T = 150
         Tb = T // 2
         N_SIM = 10
+    
+    # Handle plots-only mode
+    if args.plots_only:
+        print("Generating plots from latest results...")
+        import subprocess
+        result = subprocess.run(
+            ['python', 'scripts/generate_plots.py', '--latest'],
+            capture_output=False
+        )
+        return
     
     print(f"""
 ╔════════════════════════════════════════════════════════════════════╗
@@ -769,6 +781,19 @@ Metrics available: RMSE, MAE, Bias, Variance
         logger.info("RUNNER COMPLETED SUCCESSFULLY")
         logger.info("="*70)
         print(f"\n{'='*70}\n")
+        
+        # Generate plots if requested
+        if args.generate_plots:
+            print("\nGenerating plots from results...")
+            import subprocess
+            result = subprocess.run(
+                ['python', 'scripts/generate_plots.py', '--results', filename, '--output-dir', 'figures'],
+                capture_output=False
+            )
+            if result.returncode == 0:
+                logger.info("✓ Plots generated successfully")
+            else:
+                logger.warning("✗ Plot generation encountered issues")
     
     except Exception as e:
         logger.error(f"✗ Failed to save/summarize results: {type(e).__name__}: {str(e)}")

@@ -11,9 +11,9 @@
  7 │     
    ╰────
 
-[2026-02-13 00:38:16,256] INFO: ======================================================================
-[2026-02-13 00:38:16,256] INFO: STRUCTURAL BREAK EXPERIMENTS RUNNER STARTED
-[2026-02-13 00:38:16,256] INFO: ======================================================================
+[2026-02-13 00:58:41,687] INFO: ======================================================================
+[2026-02-13 00:58:41,687] INFO: STRUCTURAL BREAK EXPERIMENTS RUNNER STARTED
+[2026-02-13 00:58:41,687] INFO: ======================================================================
 
 ╔════════════════════════════════════════════════════════════════════╗
 ║                                                                    ║
@@ -25,17 +25,321 @@
 ║                                                                    ║
 ╚════════════════════════════════════════════════════════════════════╝
 
-[2026-02-13 00:38:17,723] INFO: Parameters: T=400, Tb=200, n_sim=300
-[2026-02-13 00:38:17,723] INFO: Quick mode: False
-[2026-02-13 00:38:17,723] INFO: Starting variance break experiments...
-[2026-02-13 00:38:17,723] INFO: ======================================================================
-[2026-02-13 00:38:17,723] INFO: VARIANCE BREAK EXPERIMENTS START
-[2026-02-13 00:38:17,723] INFO: ======================================================================
+[2026-02-13 00:58:43,715] INFO: Parameters: T=400, Tb=200, n_sim=300
+[2026-02-13 00:58:43,716] INFO: Quick mode: False
+[2026-02-13 00:58:43,716] INFO: Starting variance break experiments...
+[2026-02-13 00:58:43,716] INFO: ======================================================================
+[2026-02-13 00:58:43,716] INFO: VARIANCE BREAK EXPERIMENTS START
+[2026-02-13 00:58:43,716] INFO: ======================================================================
 
 ======================================================================
  VARIANCE BREAK EXPERIMENTS
 ======================================================================
-[2026-02-13 00:38:17,723] INFO: [1/2] Single variance breaks (T=400, Tb=200, n_sim=300)
+[2026-02-13 00:58:43,716] INFO: [1/2] Single variance breaks (T=400, Tb=200, n_sim=300)
 
 [1/2] Single variance breaks (T=400, Tb=200, n_sim=300)
-      └─ Gaussian... [2026-02-13 00:38:17,724] INFO: Starting variance_single: Gaussian
+      └─ Gaussian... [2026-02-13 00:58:43,716] INFO: Starting variance_single: Gaussian
+✓ (1225.4s, 4 rows)
+[2026-02-13 01:19:09,158] INFO: ✓ variance_single Gaussian completed in 1225.4s
+      └─ Student-t(df=5)... [2026-02-13 01:19:09,162] INFO: Starting variance_single: Student-t(df=5)
+/home/aadya/bonn-repo/qonlab/estimators/variance_single.py:59: ConvergenceWarning: The optimizer returned code 8. The message is:
+Positive directional derivative for linesearch
+See scipy.optimize.fmin_slsqp for code meaning.
+
+  res = model.fit(disp='off')
+/home/aadya/bonn-repo/qonlab/estimators/variance_single.py:59: ConvergenceWarning: The optimizer returned code 8. The message is:
+Positive directional derivative for linesearch
+See scipy.optimize.fmin_slsqp for code meaning.
+
+  res = model.fit(disp='off')
+/home/aadya/bonn-repo/qonlab/estimators/variance_single.py:59: ConvergenceWarning: The optimizer returned code 8. The message is:
+Positive directional derivative for linesearch
+See scipy.optimize.fmin_slsqp for code meaning.
+
+  res = model.fit(disp='off')
+✓ (1206.6s, 4 rows)
+[2026-02-13 01:39:15,785] INFO: ✓ variance_single Student-t(df=5) completed in 1206.6s
+      └─ Student-t(df=3)... [2026-02-13 01:39:15,788] INFO: Starting variance_single: Student-t(df=3)
+✓ (1264.3s, 4 rows)
+[2026-02-13 02:00:20,138] INFO: ✓ variance_single Student-t(df=3) completed in 1264.3s
+
+  --- Single Break Results by Innovation Type ---
+[2026-02-13 02:00:20,138] INFO: Saving variance_single results by innovation type...
+
+  Gaussian:
+    Best method: SARIMA Global (RMSE=2.0476)
+[2026-02-13 02:00:20,139] INFO:   Gaussian: best method = SARIMA Global (RMSE=2.0476)
+[2026-02-13 02:00:20,141] INFO: ✓ CSV saved: results/csv/variance_single_20260213_020020_Gaussian.csv
+[2026-02-13 02:00:20,282] INFO: ✓ LaTeX table saved: results/tex/variance_single_20260213_020020_Gaussian.tex
+
+  Student-t(df=3):
+    Best method: GARCH (RMSE=2.0311)
+[2026-02-13 02:00:20,284] INFO:   Student-t(df=3): best method = GARCH (RMSE=2.0311)
+[2026-02-13 02:00:20,285] INFO: ✓ CSV saved: results/csv/variance_single_20260213_020020_Student-tdf3.csv
+[2026-02-13 02:00:20,291] INFO: ✓ LaTeX table saved: results/tex/variance_single_20260213_020020_Student-tdf3.tex
+
+  Student-t(df=5):
+    Best method: SARIMA Global (RMSE=2.2351)
+[2026-02-13 02:00:20,292] INFO:   Student-t(df=5): best method = SARIMA Global (RMSE=2.2351)
+[2026-02-13 02:00:20,299] INFO: ✓ CSV saved: results/csv/variance_single_20260213_020020_Student-tdf5.csv
+[2026-02-13 02:00:20,308] INFO: ✓ LaTeX table saved: results/tex/variance_single_20260213_020020_Student-tdf5.tex
+[2026-02-13 02:00:20,309] INFO: [2/2] Recurring variance breaks (T=400, n_sim=300)
+
+[2/2] Recurring variance breaks (T=400, n_sim=300)
+      └─ Markov-switching... [2026-02-13 02:00:20,309] INFO: Starting variance_recurring (Markov-switching)
+✓ (1270.8s, 4 rows)
+[2026-02-13 02:21:31,079] INFO: ✓ variance_recurring completed in 1270.8s
+
+  --- Recurring Break Results ---
+[2026-02-13 02:21:31,079] INFO: Saving variance_recurring results...
+[2026-02-13 02:21:31,080] INFO: ✓ CSV saved: results/csv/variance_recurring_20260213_022131_MarkovSwitching.csv
+[2026-02-13 02:21:31,089] INFO: ✓ LaTeX table saved: results/tex/variance_recurring_20260213_022131_MarkovSwitching.tex
+  ✓ Saved variance_recurring
+[2026-02-13 02:21:31,090] INFO:   ✓ Saved variance_recurring
+
+--- Best Methods (by RMSE) ---
+  Gaussian            : SARIMA Global        (RMSE=2.0476)
+  Student-t(df=5)     : SARIMA Global        (RMSE=2.2351)
+  Student-t(df=3)     : GARCH                (RMSE=2.0311)
+
+--- Summary Statistics ---
+  RMSE      : mean=2.0012, std=0.2388, min=1.6031, max=2.2703
+  MAE       : mean=1.4637, std=0.1627, min=1.2303, max=1.6504
+  Bias      : mean=0.1375, std=0.1471, min=-0.1114, max=0.2924
+  Variance  : mean=4.0190, std=0.9053, min=2.5575, max=5.1258
+[2026-02-13 02:21:31,102] INFO: ======================================================================
+[2026-02-13 02:21:31,102] INFO: VARIANCE BREAK EXPERIMENTS COMPLETED
+[2026-02-13 02:21:31,102] INFO: ======================================================================
+[2026-02-13 02:21:31,103] INFO: Starting mean break experiments...
+[2026-02-13 02:21:31,103] INFO: ======================================================================
+[2026-02-13 02:21:31,103] INFO: MEAN BREAK EXPERIMENTS START
+[2026-02-13 02:21:31,103] INFO: ======================================================================
+
+======================================================================
+ MEAN BREAK EXPERIMENTS
+======================================================================
+[2026-02-13 02:21:31,103] INFO: [1/2] Single mean breaks (T=400, Tb=200, n_sim=300)
+
+[1/2] Single mean breaks (T=400, Tb=200, n_sim=300)
+      └─ Gaussian... [2026-02-13 02:21:31,103] INFO: Starting mean_single: Gaussian
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+✓ (1606.7s, 4 rows)
+[2026-02-13 02:48:17,766] INFO: ✓ mean_single Gaussian completed in 1606.7s
+      └─ Student-t(df=5)... [2026-02-13 02:48:17,768] INFO: Starting mean_single: Student-t(df=5)
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+✓ (1680.8s, 4 rows)
+[2026-02-13 03:16:18,583] INFO: ✓ mean_single Student-t(df=5) completed in 1680.8s
+      └─ Student-t(df=3)... [2026-02-13 03:16:18,583] INFO: Starting mean_single: Student-t(df=3)
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+/home/aadya/bonn-repo/qonlab/.pixi/envs/default/lib/python3.14/site-packages/statsmodels/tsa/statespace/sarimax.py:997: UserWarning: Non-stationary starting seasonal autoregressive Using zeros as starting parameters.
+  warn('Non-stationary starting seasonal autoregressive'
+✓ (2031.3s, 4 rows)
+[2026-02-13 03:50:09,861] INFO: ✓ mean_single Student-t(df=3) completed in 2031.3s
+
+  --- Single Break Results by Innovation Type ---
+[2026-02-13 03:50:09,865] INFO: Saving mean_single results by innovation type...
+
+  Gaussian:
+    Best method: SARIMA + Break Dummy (oracle Tb) (RMSE=1.1276)
+[2026-02-13 03:50:09,866] INFO:   Gaussian: best method = SARIMA + Break Dummy (oracle Tb) (RMSE=1.1276)
+[2026-02-13 03:50:09,867] INFO: ✓ CSV saved: results/csv/mean_single_20260213_035009_Gaussian.csv
+[2026-02-13 03:50:09,877] INFO: ✓ LaTeX table saved: results/tex/mean_single_20260213_035009_Gaussian.tex
+
+  Student-t(df=3):
+    Best method: SARIMA + Break Dummy (oracle Tb) (RMSE=1.0313)
+[2026-02-13 03:50:09,878] INFO:   Student-t(df=3): best method = SARIMA + Break Dummy (oracle Tb) (RMSE=1.0313)
+[2026-02-13 03:50:09,879] INFO: ✓ CSV saved: results/csv/mean_single_20260213_035009_Student-tdf3.csv
+[2026-02-13 03:50:09,885] INFO: ✓ LaTeX table saved: results/tex/mean_single_20260213_035009_Student-tdf3.tex
+
+  Student-t(df=5):
+    Best method: SARIMA + Break Dummy (oracle Tb) (RMSE=1.2795)
+[2026-02-13 03:50:09,886] INFO:   Student-t(df=5): best method = SARIMA + Break Dummy (oracle Tb) (RMSE=1.2795)
+[2026-02-13 03:50:09,887] INFO: ✓ CSV saved: results/csv/mean_single_20260213_035009_Student-tdf5.csv
+[2026-02-13 03:50:09,893] INFO: ✓ LaTeX table saved: results/tex/mean_single_20260213_035009_Student-tdf5.tex
+[2026-02-13 03:50:09,893] INFO: [2/2] Recurring mean breaks (T=400, n_sim=300)
+
+[2/2] Recurring mean breaks (T=400, n_sim=300)
+      └─ Markov-switching... [2026-02-13 03:50:09,897] INFO: Starting mean_recurring (Markov-switching)

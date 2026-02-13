@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
-from dgps.mean_singlebreaks import simulate_single_break_with_seasonality
+from dgps.mean_singlebreaks import simulate_single_break_ar1
 from estimators.mean_singlebreak import (
     forecast_sarima_global,
     forecast_sarima_rolling,
     forecast_sarima_break_dummy_oracle,
     forecast_ses,
+    forecast_holt_winters,
 )
 from protocols import calculate_metrics
 
@@ -22,8 +23,6 @@ def run_mc_single_break_sarima(
     mu1=2.0,
     phi=0.6,
     sigma=1.0,
-    s=12,
-    A=1.0,
     order=(1,0,1),
     seasonal_order=(1,0,0,12),
     trim=0.15,
@@ -66,6 +65,7 @@ def run_mc_single_break_sarima(
         ("SARIMA Rolling", lambda ytr: forecast_sarima_rolling(ytr, window=window)),
         ("SARIMA + Break Dummy (oracle Tb)", lambda ytr: forecast_sarima_break_dummy_oracle(ytr, Tb=Tb)),
         ("Simple Exp. Smoothing (SES)", lambda ytr: forecast_ses(ytr)),
+        ("Holt-Winters (additive)", lambda ytr: forecast_holt_winters(ytr)),
     ]
 
     errors = {name: [] for name, _ in methods}
@@ -75,8 +75,8 @@ def run_mc_single_break_sarima(
         # Choose random forecast origin between Tb and T
         t0 = rng.integers(Tb + 1, T - 1)
         
-        y = simulate_single_break_with_seasonality(
-            T=T, Tb=Tb, mu0=mu0, mu1=mu1, phi=phi, sigma=sigma, s=s, A=A, 
+        y = simulate_single_break_ar1(
+            T=T, Tb=Tb, mu0=mu0, mu1=mu1, phi=phi, sigma=sigma,
             innovation_type=innovation_type, dof=dof,
             rng=rng
         )
@@ -94,13 +94,14 @@ def run_mc_single_break_sarima(
     for name in errors:
         e = np.asarray(errors[name], dtype=float)
         if len(e) == 0:
-            rows.append({"Method": name, "RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "N": 0, "Fails": fails[name]})
+            rows.append({"Method": name, "RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "Variance": np.nan, "N": 0, "Fails": fails[name]})
         else:
             rows.append({
                 "Method": name,
                 "RMSE": float(np.sqrt(np.mean(e**2))),
                 "MAE":  float(np.mean(np.abs(e))),
                 "Bias": float(np.mean(e)),
+                "Variance": float(np.var(e)),
                 "N": int(len(e)),
                 "Fails": fails[name]
             })

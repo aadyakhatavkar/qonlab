@@ -16,6 +16,8 @@ from estimators.variance_single import (
     forecast_variance_dist_sarima_rolling,
     forecast_garch_variance,
     forecast_variance_averaged_window,
+    variance_interval_coverage,
+    variance_log_score_normal,
 )
 from protocols import calculate_metrics
 
@@ -69,6 +71,7 @@ def mc_variance_single_break(
     
     errors = {m: [] for m in methods}
     failures = {m: 0 for m in methods}
+    variance_preds = {m: [] for m in methods}  # (pred_mean, pred_var) tuples
     
     for sim in range(n_sim):
         if verbose and (sim + 1) % max(1, n_sim // 10) == 0:
@@ -89,11 +92,21 @@ def mc_variance_single_break(
         # Generate forecasts
         for method_name, method_func in methods.items():
             try:
-                pred = method_func(y_train)
-                if isinstance(pred, np.ndarray):
-                    pred = float(pred[0]) if len(pred) > 0 else np.nan
+                result = method_func(y_train)
+                
+                # Handle tuple (mean, var) or scalar predictions
+                if isinstance(result, tuple) and len(result) == 2:
+                    pred_mean, pred_var = result
+                    pred_mean = float(np.asarray(pred_mean).flat[0])
+                    pred_var = float(np.asarray(pred_var).flat[0])
+                    variance_preds[method_name].append((pred_mean, pred_var))
+                    pred = pred_mean
+                elif isinstance(result, np.ndarray):
+                    pred = float(result[0]) if len(result) > 0 else np.nan
+                    variance_preds[method_name].append((pred, np.nan))
                 else:
-                    pred = float(pred)
+                    pred = float(result)
+                    variance_preds[method_name].append((pred, np.nan))
                     
                 if not np.isnan(pred):
                     errors[method_name].append(y_true - pred)
@@ -110,8 +123,29 @@ def mc_variance_single_break(
         
         if len(e) == 0:
             metrics = {"RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "Variance": np.nan}
+            cov80 = np.nan
+            cov95 = np.nan
+            logscore = np.nan
         else:
             metrics = calculate_metrics(e)
+            
+            # Compute coverage and log-score from variance predictions if available
+            var_preds = variance_preds[method_name]
+            if len(var_preds) > 0:
+                means = np.array([m for m, v in var_preds])
+                vars_ = np.array([v for m, v in var_preds])
+                
+                # Reconstruct y_true values for coverage calculation
+                y_true_vals = means + e
+                
+                # Calculate coverage probabilities
+                cov80 = variance_interval_coverage(y_true_vals, means, vars_, level=0.80)
+                cov95 = variance_interval_coverage(y_true_vals, means, vars_, level=0.95)
+                logscore = variance_log_score_normal(y_true_vals, means, vars_)
+            else:
+                cov80 = np.nan
+                cov95 = np.nan
+                logscore = np.nan
         
         rows.append({
             "Method": method_name,
@@ -119,6 +153,9 @@ def mc_variance_single_break(
             "MAE": metrics["MAE"],
             "Bias": metrics["Bias"],
             "Variance": metrics["Variance"],
+            "Coverage80": cov80,
+            "Coverage95": cov95,
+            "LogScore": logscore,
             "Successes": len(e),
             "Failures": failures[method_name],
         })

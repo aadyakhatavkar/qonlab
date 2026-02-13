@@ -3,17 +3,20 @@ Mean Recurring (Markov-Switching) Break: Monte Carlo Simulations
 ================================================================
 Monte Carlo experiments for AR(1) with recurring (Markov-switching) mean.
 
-Uses:
+Uses same forecasting methods as single breaks for consistency.
 - DGPs: dgps.mean_recurring
-- Estimators: estimators.mean_recurring, estimators.mean_singlebreak
+- Estimators: estimators.mean_singlebreak (same as single breaks)
 """
 
 import numpy as np
 import pandas as pd
 from dgps.mean_recurring import simulate_ms_ar1_mean_only
-from estimators.mean_recurring import (
-    forecast_ms_ar1_mean,
-    forecast_mean_arima_global,
+from estimators.mean_singlebreak import (
+    forecast_sarima_global,
+    forecast_sarima_rolling,
+    forecast_sarima_break_dummy_oracle,
+    forecast_ses,
+    forecast_holt_winters,
 )
 from protocols import calculate_metrics
 
@@ -29,10 +32,13 @@ def mc_mean_recurring(
     window=70,
     horizon=1,
     seed=42,
-    verbose=False
+    verbose=False,
+    innovation_type='gaussian',
+    dof=None
 ):
     """
     Monte Carlo for recurring (Markov-switching) mean breaks.
+    Uses same forecasting methods as single breaks for consistency.
     
     Parameters:
         n_sim: Number of MC replications
@@ -42,23 +48,28 @@ def mc_mean_recurring(
         mu0: Mean in regime 0
         mu1: Mean in regime 1
         sigma: Standard deviation
-        window: Rolling window size
-        horizon: Forecast horizon
+        window: Rolling window size for rolling SARIMA
+        horizon: Forecast horizon (1-step ahead)
         seed: Random seed
         verbose: Print progress
+        innovation_type: 'gaussian' or 'student' (Student-t innovations)
+        dof: Degrees of freedom for Student-t (required if innovation_type='student')
         
     Returns:
-        DataFrame with RMSE, MAE, Bias for each method
+        DataFrame with RMSE, MAE, Bias, Variance for each method
     """
     rng = np.random.default_rng(seed)
     
-    methods = {
-        "ARIMA Global": lambda ytr: forecast_mean_arima_global(ytr, horizon=horizon),
-        "MS AR(1)": lambda ytr: forecast_ms_ar1_mean(ytr, horizon=horizon)[0],
-    }
+    methods = [
+        ("SARIMA Global", lambda ytr: forecast_sarima_global(ytr)),
+        ("SARIMA Rolling", lambda ytr: forecast_sarima_rolling(ytr, window=window)),
+        ("SARIMA + Break Dummy (oracle Tb)", lambda ytr: forecast_sarima_break_dummy_oracle(ytr, Tb=T//2)),
+        ("Simple Exp. Smoothing (SES)", lambda ytr: forecast_ses(ytr)),
+        ("Holt-Winters (additive)", lambda ytr: forecast_holt_winters(ytr)),
+    ]
     
-    errors = {m: [] for m in methods}
-    failures = {m: 0 for m in methods}
+    errors = {name: [] for name, _ in methods}
+    failures = {name: 0 for name, _ in methods}
     
     for sim in range(n_sim):
         if verbose and (sim + 1) % max(1, n_sim // 10) == 0:
@@ -73,17 +84,12 @@ def mc_mean_recurring(
         # Choose random forecast origin (allow sufficient data for training)
         t_orig = rng.integers(max(T // 4, 50), T - horizon - 1)
         y_train = y[:t_orig]
-        y_true = float(y[t_orig]) if horizon == 1 else y[t_orig:t_orig+horizon]
+        y_true = float(y[t_orig])
         
-        # Generate forecasts
-        for method_name, method_func in methods.items():
+        # Generate forecasts using single break methods
+        for method_name, method_func in methods:
             try:
                 pred = method_func(y_train)
-                if isinstance(pred, np.ndarray):
-                    pred = float(pred[0]) if len(pred) > 0 else np.nan
-                else:
-                    pred = float(pred)
-                    
                 if not np.isnan(pred):
                     errors[method_name].append(y_true - pred)
                 else:
@@ -93,24 +99,29 @@ def mc_mean_recurring(
     
     # Compute metrics
     rows = []
-    for method_name in methods:
+    for method_name in [name for name, _ in methods]:
         e = np.asarray(errors[method_name], dtype=float)
-        e = e[~np.isnan(e)]
         
         if len(e) == 0:
-            metrics = {"RMSE": np.nan, "MAE": np.nan, "Bias": np.nan, "Variance": np.nan}
+            rows.append({
+                "Method": method_name,
+                "RMSE": np.nan,
+                "MAE": np.nan,
+                "Bias": np.nan,
+                "Variance": np.nan,
+                "N": 0,
+                "Fails": failures[method_name]
+            })
         else:
-            metrics = calculate_metrics(e)
-        
-        rows.append({
-            "Method": method_name,
-            "RMSE": metrics["RMSE"],
-            "MAE": metrics["MAE"],
-            "Bias": metrics["Bias"],
-            "Variance": metrics["Variance"],
-            "Successes": len(e),
-            "Failures": failures[method_name],
-        })
+            rows.append({
+                "Method": method_name,
+                "RMSE": float(np.sqrt(np.mean(e**2))),
+                "MAE": float(np.mean(np.abs(e))),
+                "Bias": float(np.mean(e)),
+                "Variance": float(np.var(e)),
+                "N": len(e),
+                "Fails": failures[method_name]
+            })
     
     df = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
     df["Break Type"] = f"Recurring (p={p})"
