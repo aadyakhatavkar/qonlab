@@ -101,12 +101,15 @@ def save_results(df, break_type, variant_name=None):
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
+        # Drop Successes/Failures columns before saving
+        df_save = df.drop(columns=['Successes', 'Failures'], errors='ignore')
+        
         if variant_name:
             filename = f"{RESULTS_DIR}/csv/{break_type}_{timestamp}_{variant_name}.csv"
         else:
             filename = f"{RESULTS_DIR}/csv/{break_type}_{timestamp}.csv"
         
-        df.to_csv(filename, index=False)
+        df_save.to_csv(filename, index=False)
         logger.info(f"✓ CSV saved: {filename}")
         return filename
     except Exception as e:
@@ -737,14 +740,23 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
         # Save results
         os.makedirs("outputs/csv", exist_ok=True)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        # Remove metadata columns from combined results before saving
+        df_combined = df_all.drop(columns=['Break Type', 'Innovation', 'Persistence', 'Successes', 'Failures', 'N'], errors='ignore')
+        
         filename = f"outputs/csv/aligned_breaks_{timestamp}.csv"
-        df_all.to_csv(filename, index=False)
+        df_combined.to_csv(filename, index=False)
         logger.info(f"✓ Combined results saved: {filename}")
+        
+        # Replace NaN in Coverage and LogScore columns with "NA"
+        for col in ['Coverage80', 'Coverage95', 'LogScore']:
+            if col in df_combined.columns:
+                df_combined[col] = df_combined[col].where(df_combined[col].notna(), 'NA')
         
         # Save combined results as LaTeX
         os.makedirs("outputs/tex", exist_ok=True)
         filename_latex = f"outputs/tex/aligned_breaks_{timestamp}.tex"
-        latex_str = df_all.to_latex(
+        latex_str = df_combined.to_latex(
             index=False,
             caption="Complete Structural Break Forecasting Results",
             label="tab:all_results",

@@ -16,6 +16,7 @@ except Exception:
 def forecast_variance_dist_sarima_global(y_train, horizon=1, order=(1, 0, 1), seasonal_order=(1, 0, 0, 12)):
     """
     Forecast using global SARIMA model on full sample.
+    Returns (mean, variance) tuple where variance is the residual variance.
     """
     try:
         res = ARIMA(
@@ -24,15 +25,19 @@ def forecast_variance_dist_sarima_global(y_train, horizon=1, order=(1, 0, 1), se
             seasonal_order=seasonal_order,
             trend="n"
         ).fit()
-        fc = res.forecast(steps=horizon)
-        return np.asarray(fc)
+        fc_mean = res.forecast(steps=horizon)
+        # Use residual variance as proxy for predictive variance
+        residual_var = np.var(res.resid, ddof=1) if len(res.resid) > 1 else np.var(y_train, ddof=1)
+        fc_var = np.full(horizon, residual_var)
+        return np.asarray(fc_mean), np.asarray(fc_var)
     except Exception:
-        return np.full(horizon, np.nan)
+        return np.full(horizon, np.nan), np.full(horizon, np.nan)
 
 
 def forecast_variance_dist_sarima_rolling(y_train, window=100, horizon=1, order=(1, 0, 1), seasonal_order=(1, 0, 0, 12)):
     """
     Forecast using rolling window SARIMA model.
+    Returns (mean, variance) tuple where variance is the residual variance.
     """
     try:
         y_win = y_train[-window:] if window < len(y_train) else y_train
@@ -42,10 +47,13 @@ def forecast_variance_dist_sarima_rolling(y_train, window=100, horizon=1, order=
             seasonal_order=seasonal_order,
             trend="n"
         ).fit()
-        fc = res.forecast(steps=horizon)
-        return np.asarray(fc)
+        fc_mean = res.forecast(steps=horizon)
+        # Use residual variance as proxy for predictive variance
+        residual_var = np.var(res.resid, ddof=1) if len(res.resid) > 1 else np.var(y_win, ddof=1)
+        fc_var = np.full(horizon, residual_var)
+        return np.asarray(fc_mean), np.asarray(fc_var)
     except Exception:
-        return np.full(horizon, np.nan)
+        return np.full(horizon, np.nan), np.full(horizon, np.nan)
 
 
 def forecast_garch_variance(y_train, horizon=1, p=1, q=1):

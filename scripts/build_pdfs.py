@@ -105,18 +105,11 @@ def get_latest_tables():
             if file.endswith('.csv'):
                 csv_files.append(Path(root) / file)
     
-    # Also get from outputs/tables/ directly
-    tables_dir = Path(__file__).parent.parent / 'outputs' / 'tables'
-    if tables_dir.exists():
-        for csv_file in tables_dir.glob('*.csv'):
-            if csv_file not in csv_files:
-                csv_files.append(csv_file)
-    
     if not csv_files:
         return []
     
     # Group files by scenario (ignore timestamp)
-    # Format: mean_single_20260213_165005_Gaussian.csv or mean_single_results.csv
+    # Format: mean_single_20260213_165005_Gaussian.csv or aligned_breaks_20260213_165005.csv
     scenarios = defaultdict(list)
     
     for csv_path in csv_files:
@@ -153,6 +146,7 @@ def get_latest_tables():
 def convert_csv_to_latex():
     """Convert CSV metrics files to LaTeX tables with actual data-driven captions."""
     import pandas as pd
+    import numpy as np
     
     # Get only latest tables (avoid duplicates)
     csv_files = get_latest_tables()
@@ -167,58 +161,105 @@ def convert_csv_to_latex():
             n_sim = int(df['N'].iloc[0]) if 'N' in df.columns else '?'
             n_methods = len(df)
             
+            # Remove metadata columns that shouldn't appear in table
+            drop_cols = []
+            if 'Break Type' in df.columns:
+                drop_cols.append('Break Type')
+            if 'Persistence' in df.columns:
+                drop_cols.append('Persistence')
+            if 'Innovation' in df.columns:
+                drop_cols.append('Innovation')
+            if 'Successes' in df.columns:
+                drop_cols.append('Successes')
+            if 'Failures' in df.columns:
+                drop_cols.append('Failures')
+            if 'N' in df.columns:
+                drop_cols.append('N')
+            if 'Failures' in df.columns:
+                drop_cols.append('Failures')
+            
+            df_display = df.drop(columns=drop_cols, errors='ignore')
+            
+            # Fill blank LogScore/Coverage values with "NA" for combined table
+            if 'aligned_breaks' in filename:
+                for col in ['Coverage80', 'Coverage95', 'LogScore']:
+                    if col in df_display.columns:
+                        df_display[col] = df_display[col].where(df_display[col].notna(), 'NA')
+            
+            # Fill blank LogScore/Coverage values with proper format
+            for col in ['LogScore', 'Coverage80', 'Coverage95']:
+                if col in df_display.columns:
+                    df_display[col] = df_display[col].fillna(np.nan)
+            
             # Create meaningful caption based on filename and data
             if 'variance' in filename:
                 if 'recurring' in filename:
-                    p_val = filename.split('p')[-1] if 'p' in filename else '?'
-                    caption = f"Variance Recurring (p={p_val}): {n_methods} methods, {n_sim} simulations"
+                    # For variance recurring, don't include p= in caption (it's not for variance)
+                    caption = f"Variance Recurring: {n_sim} simulations"
                 else:
                     # Check for innovation type
                     if 'Student-tdf5' in filename or 'tdf5' in filename:
-                        caption = f"Variance Single Break (Student-t df=5): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Variance Single Break (Student-t df=5): {n_sim} simulations"
                     elif 'Student-tdf3' in filename or 'tdf3' in filename:
-                        caption = f"Variance Single Break (Student-t df=3): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Variance Single Break (Student-t df=3): {n_sim} simulations"
                     elif 'Gaussian' in filename:
-                        caption = f"Variance Single Break (Gaussian): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Variance Single Break (Gaussian): {n_sim} simulations"
                     else:
-                        caption = f"Variance Single Break: {n_methods} methods, {n_sim} simulations"
+                        caption = f"Variance Single Break: {n_sim} simulations"
             elif 'mean' in filename:
                 if 'recurring' in filename:
-                    p_val = filename.split('p')[-1] if 'p' in filename else '?'
-                    caption = f"Mean Recurring (p={p_val}): {n_methods} methods, {n_sim} simulations"
+                    caption = f"Mean Recurring: {n_sim} simulations"
                 else:
                     # Check for innovation type
                     if 'Student-tdf5' in filename or 'tdf5' in filename:
-                        caption = f"Mean Single Break (Student-t df=5): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Mean Single Break (Student-t df=5): {n_sim} simulations"
                     elif 'Student-tdf3' in filename or 'tdf3' in filename:
-                        caption = f"Mean Single Break (Student-t df=3): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Mean Single Break (Student-t df=3): {n_sim} simulations"
                     elif 'Gaussian' in filename:
-                        caption = f"Mean Single Break (Gaussian): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Mean Single Break (Gaussian): {n_sim} simulations"
                     else:
-                        caption = f"Mean Single Break: {n_methods} methods, {n_sim} simulations"
+                        caption = f"Mean Single Break: {n_sim} simulations"
             elif 'parameter' in filename:
                 if 'recurring' in filename:
                     p_val = filename.split('p')[-1] if 'p' in filename else '?'
-                    caption = f"Parameter Recurring (p={p_val}): {n_methods} methods, {n_sim} simulations"
+                    caption = f"Parameter Recurring (p={p_val}): {n_sim} simulations"
                 else:
                     # Check for innovation type
                     if 'Student-tdf5' in filename or 'tdf5' in filename:
-                        caption = f"Parameter Single Break (Student-t df=5): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Parameter Single Break (Student-t df=5): {n_sim} simulations"
                     elif 'Student-tdf3' in filename or 'tdf3' in filename:
-                        caption = f"Parameter Single Break (Student-t df=3): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Parameter Single Break (Student-t df=3): {n_sim} simulations"
                     elif 'Gaussian' in filename:
-                        caption = f"Parameter Single Break (Gaussian): {n_methods} methods, {n_sim} simulations"
+                        caption = f"Parameter Single Break (Gaussian): {n_sim} simulations"
                     else:
-                        caption = f"Parameter Single Break: {n_methods} methods, {n_sim} simulations"
+                        caption = f"Parameter Single Break: {n_sim} simulations"
             else:
-                caption = f"{filename}: {n_methods} methods, {n_sim} simulations"
+                caption = f"{filename}: {n_sim} simulations"
             
             # Convert to LaTeX with dynamic caption
-            latex_content = df.to_latex(
+            latex_content = df_display.to_latex(
                 index=False,
                 float_format='%.4f',
                 caption=caption,
                 label=f"tab:{filename}"
+            )
+            
+            # Wrap table with size adjustment and centering for better page fit
+            latex_content = latex_content.replace(
+                '\\begin{table}',
+                '\\begin{table}[H]\n\\centering\n\\small'
+            )
+            latex_content = latex_content.replace(
+                '\\begin{tabular}',
+                '\\begin{tabular}'
+            )
+            latex_content = latex_content.replace(
+                '\\end{tabular}',
+                '\\end{tabular}'
+            )
+            latex_content = latex_content.replace(
+                '\\end{table}',
+                '\\normalsize\n\\end{table}'
             )
             
             # Create corresponding .tex file in same directory
@@ -270,10 +311,16 @@ def organize_figures_by_type():
     return organized
 
 
-def organize_tables_by_type():
-    """Organize recent TEX files by break type."""
-    files = find_latest_files(RESULTS_DIR, '*.tex', limit=100)
+def organize_tables_by_type(csv_files=None):
+    """Organize LaTeX files by break type (using only deduped latest CSVs)."""
     import re
+    
+    # If csv_files provided, convert to .tex files
+    if csv_files is None:
+        files = find_latest_files(RESULTS_DIR, '*.tex', limit=100)
+    else:
+        # Convert provided CSV paths to .tex files
+        files = [csv_path.with_suffix('.tex') for csv_path in csv_files]
     
     organized = {
         'variance': [],
@@ -283,6 +330,9 @@ def organize_tables_by_type():
     }
     
     for fpath in files:
+        if not fpath.exists():
+            continue
+            
         fname = fpath.name.lower()
         
         # Classify by break type
@@ -550,6 +600,7 @@ def create_table_pdf_from_tex(tables_dict, output_path):
 \usepackage{xcolor}
 \usepackage{longtable}
 \usepackage{array}
+\usepackage{float}
 \geometry{margin=0.75in, headheight=15pt}
 
 \pagestyle{fancy}
@@ -589,9 +640,6 @@ def create_table_pdf_from_tex(tables_dict, output_path):
 \end{itemize}
 
 \vspace{0.5cm}
-\newpage
-
-\tableofcontents
 \newpage
 
 """
@@ -743,6 +791,7 @@ def compile_combined():
 \usepackage{xcolor}
 \usepackage{longtable}
 \usepackage{array}
+\usepackage{float}
 \geometry{margin=0.75in, headheight=15pt}
 
 \pagestyle{fancy}
@@ -782,9 +831,6 @@ def compile_combined():
 \end{itemize}
 
 \vspace{0.5cm}
-\newpage
-
-\tableofcontents
 \newpage
 
 """
@@ -1010,7 +1056,8 @@ def compile_tables():
     # Convert to LaTeX
     convert_csv_to_latex()
     
-    tables = organize_tables_by_type()
+    # Organize using only the deduplicated CSV files
+    tables = organize_tables_by_type(csv_files=latest_csv)
     
     # Count tables
     total = sum(len(tables[bt]) for bt in tables)

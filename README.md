@@ -62,19 +62,20 @@ pixi run python runner.py
 ### Step 2: Generate Plots
 ```bash
 python scripts/generate_plots.py --all
-# Output: figures/{variance,mean,parameter}/*.png (19 plots)
+# Output: figures/{variance,mean,parameter}/*.png
+# See PLOTTING_QUICK_REFERENCE.txt for plot options
 ```
 
 ### Step 3: Compile Tables to PDF
 ```bash
 python scripts/build_pdfs.py --tables
-# Output: outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf (50 KB)
+# Output: outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf
 ```
 
-### Step 4: Create Combined Report
+### Step 4: Create Combined Report (Optional)
 ```bash
 python scripts/build_pdfs.py --combined
-# Output: outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf (3.6 MB)
+# Output: outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf
 # Contains: Executive Summary → TOC → Results Tables → Analysis Plots
 ```
 
