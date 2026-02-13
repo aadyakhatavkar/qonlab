@@ -20,14 +20,33 @@ curl -fsSL https://pixi.sh/install.sh | bash
 pixi install
 ```
 
-### Run Experiments
+### Get Results
 ```bash
-pixi run python runner.py              # All 3 break types (T=400, Tb=200, n_sim=300)
-pixi run python runner.py --quick      # Quick test (T=400, Tb=200, n_sim=30)
-pixi run python runner.py --variance   # Variance breaks only
-pixi run python runner.py --mean       # Mean breaks only
-pixi run python runner.py --parameter  # Parameter breaks only
+pixi run python main.py --pdf
 ```
+Runs all experiments + generates PDF report with tables & figures. Takes ~45 minutes. Output: `outputs/pdf/`
+
+### Quick Test (2 minutes)
+```bash
+pixi run python main.py --quick
+```
+Same as above but with n_sim=30 instead of 300 (for testing).
+
+### Full Run (45 minutes)
+```bash
+pixi run python main.py
+```
+All experiments without PDF generation. Results in `outputs/csv/` and `outputs/tex/`.
+
+### Regenerate PDF (30 seconds)
+```bash
+python scripts/build_pdfs.py --tables --figures
+```
+Builds PDF from existing results (use after experiments are done).
+
+---
+
+## Advanced Usage
 
 ---
 
@@ -49,35 +68,46 @@ Evaluates forecasting methods under three types of structural breaks:
 
 ---
 
-## Workflow
+## Advanced Usage
 
-**4-step process** from experiments to professional PDF report:
-
-### Step 1: Run Simulations
+### Run Individual Break Types
 ```bash
-pixi run python runner.py
-# Output: outputs/csv/*.csv and outputs/tex/*.tex
+pixi run python runner.py --variance   # Variance breaks only
+pixi run python runner.py --mean       # Mean breaks only  
+pixi run python runner.py --parameter  # Parameter breaks only
+pixi run python runner.py --quick      # Quick test
 ```
 
-### Step 2: Generate Plots
+### Step-by-Step Workflow
+
+#### Step 1: Run Specific Experiments
+```bash
+pixi run python runner.py --variance
+# Or combine: pixi run python runner.py --variance --mean --parameter
+```
+Output: `outputs/csv/*.csv` and `outputs/tex/*.tex`
+
+#### Step 2: Generate Plots
 ```bash
 python scripts/generate_plots.py --all
-# Output: figures/{variance,mean,parameter}/*.png
-# See PLOTTING_QUICK_REFERENCE.txt for plot options
 ```
+Output: `figures/{variance,mean,parameter}/*.png`  
+See `PLOTTING_QUICK_REFERENCE.txt` for plot options
 
-### Step 3: Compile Tables to PDF
+#### Step 3: Compile Tables & Figures to PDF
 ```bash
-python scripts/build_pdfs.py --tables
-# Output: outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf
+python scripts/build_pdfs.py --tables --figures
 ```
+Output: 
+- `outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf` (results)
+- `outputs/pdf/Figures_Analysis_YYYYMMDD_HHMMSS.pdf` (plots)
 
-### Step 4: Create Combined Report (Optional)
+#### Step 4: Create Combined Report (Optional)
 ```bash
 python scripts/build_pdfs.py --combined
-# Output: outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf
-# Contains: Executive Summary → TOC → Results Tables → Analysis Plots
 ```
+Output: `outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf`  
+(Executive Summary → TOC → Results Tables → Analysis Plots)
 
 ---
 
@@ -99,14 +129,14 @@ python scripts/build_pdfs.py --combined
 
 All results timestamped and organized in:
 
-- **`outputs/csv/`** — Raw metrics (RMSE, MAE, Bias, Variance) per method × scenario
-- **`outputs/tex/`** — LaTeX tables organized by break type and innovation type
-- **`figures/`** — 19 publication-quality plots:
+- **`outputs/tables/`** — All CSV results (raw metrics from runner: RMSE, MAE, Bias) per method × scenario × innovation type
+- **`outputs/tex/`** — LaTeX versions of tables (used for PDF generation)
+- **`figures/`** — Publication-quality plots:
   - Tier 1: Method comparisons (metrics across innovations)
   - Tier 2: DGP visualizations (example time series with breaks)
 - **`outputs/pdf/`** — Professional PDF reports:
-  - Tables PDF: Results organized by break type (50 KB)
-  - Combined PDF: Tables + figures in single report (3.6 MB)
+  - Tables PDF: Latest results from all break types (100+ KB)
+  - Combined PDF: Tables + figures in single report (optional)
 
 ---
 

@@ -103,6 +103,61 @@ def logscore_gaussian(y_true, y_pred, sigma2):
     return float(np.mean(log_scores))
 
 
+def coverage_from_errors(errors, confidence=0.95):
+    """Estimate coverage from error distribution.
+    
+    Uses error quantiles to construct prediction intervals.
+    For 95% confidence, uses 2.5% and 97.5% quantiles.
+    
+    Args:
+        errors: 1D array of forecast errors
+        confidence: Confidence level (default 0.95 for 95%)
+        
+    Returns:
+        float: Coverage as proportion (0-1)
+    """
+    e = np.asarray(errors, dtype=float)
+    if len(e) == 0:
+        return np.nan
+    
+    # Use quantiles of errors as PI bounds
+    alpha = 1 - confidence
+    q_lower = np.quantile(e, alpha/2)
+    q_upper = np.quantile(e, 1 - alpha/2)
+    
+    # Coverage: proportion of errors within the interval
+    in_interval = (e >= q_lower) & (e <= q_upper)
+    return float(np.mean(in_interval))
+
+
+def logscore_from_errors(errors):
+    """Estimate log-score from error distribution.
+    
+    Uses error variance as uncertainty estimate:
+    logscore ≈ -0.5*log(2π*Var(e)) - Mean(e²)/(2*Var(e))
+    
+    Approximation assumes 0-mean forecast errors (unbiased forecasts).
+    
+    Args:
+        errors: 1D array of forecast errors
+        
+    Returns:
+        float: Estimated log-score
+    """
+    e = np.asarray(errors, dtype=float)
+    if len(e) == 0:
+        return np.nan
+    
+    sigma2 = np.var(e)
+    if sigma2 <= 0:
+        return np.nan
+    
+    # Log-score under Gaussian: -0.5*log(2π*σ²) - e²/(2σ²)
+    # Average across samples
+    log_scores = -0.5 * np.log(2 * np.pi * sigma2) - (e**2) / (2 * sigma2)
+    return float(np.mean(log_scores))
+
+
 def coverage_95(y_true, y_pred, sigma2):
     """95% Coverage probability.
     

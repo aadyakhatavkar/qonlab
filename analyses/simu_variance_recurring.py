@@ -20,7 +20,7 @@ from estimators.variance_single import (
     variance_interval_coverage,
     variance_log_score_normal,
 )
-from analyses.metrics import rmse, mae, bias, var_error
+from analyses.metrics import rmse, mae, bias, var_error, coverage_from_errors, logscore_from_errors
 
 
 def mc_variance_recurring(

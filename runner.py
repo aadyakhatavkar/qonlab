@@ -96,8 +96,8 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 def save_results(df, break_type, variant_name=None):
     """Save results to CSV with timestamp and variant info."""
     try:
-        # Ensure csv directory exists
-        os.makedirs(f"{RESULTS_DIR}/csv", exist_ok=True)
+        # Ensure tables directory exists
+        os.makedirs(f"{RESULTS_DIR}/tables", exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
@@ -105,9 +105,9 @@ def save_results(df, break_type, variant_name=None):
         df_save = df.drop(columns=['Successes', 'Failures'], errors='ignore')
         
         if variant_name:
-            filename = f"{RESULTS_DIR}/csv/{break_type}_{timestamp}_{variant_name}.csv"
+            filename = f"{RESULTS_DIR}/tables/{break_type}_{timestamp}_{variant_name}.csv"
         else:
-            filename = f"{RESULTS_DIR}/csv/{break_type}_{timestamp}.csv"
+            filename = f"{RESULTS_DIR}/tables/{break_type}_{timestamp}.csv"
         
         df_save.to_csv(filename, index=False)
         logger.info(f"✓ CSV saved: {filename}")
@@ -738,13 +738,13 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
         total_elapsed = time.time() - total_start
         
         # Save results
-        os.makedirs("outputs/csv", exist_ok=True)
+        os.makedirs("outputs/tables", exist_ok=True)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         
         # Remove metadata columns from combined results before saving
         df_combined = df_all.drop(columns=['Break Type', 'Innovation', 'Persistence', 'Successes', 'Failures', 'N'], errors='ignore')
         
-        filename = f"outputs/csv/aligned_breaks_{timestamp}.csv"
+        filename = f"outputs/tables/aligned_breaks_{timestamp}.csv"
         df_combined.to_csv(filename, index=False)
         logger.info(f"✓ Combined results saved: {filename}")
         

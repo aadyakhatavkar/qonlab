@@ -7,7 +7,7 @@ from estimators.parameter_single import (
     forecast_rolling_sarima,
     forecast_markov_switching_ar,
 )
-from analyses.metrics import rmse, mae, bias, var_error
+from analyses.metrics import rmse, mae, bias, var_error, coverage_from_errors, logscore_from_errors
 
 # =====================================================
 # 4) Monte Carlo — POST-BREAK ONLY

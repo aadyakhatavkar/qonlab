@@ -1,26 +1,19 @@
 #!/usr/bin/env python3
 """
-Main CLI for Aligned Structural Break Experiments
-==================================================
-Authors: Aadya Khatavkar, Mahir Baylarov, Bakhodir Izzatulloev
+Main CLI for Structural Break Experiments
+==========================================
+Simplified interface for users who want complete results.
+
+AUTHORS: Aadya Khatavkar, Mahir Baylarov, Bakhodir Izzatulloev
 University of Bonn | Winter Semester 2025/26
 
-Unified interface to run aligned experiments for all 3 break types:
-  - Variance breaks (single + recurring)
-  - Mean breaks (single + recurring)
-  - Parameter breaks (single + recurring with persistence levels)
+QUICK START:
+  python main.py          # Run all experiments (full results)
+  python main.py --quick  # Quick test (30 simulations instead of 300)
+  python main.py --pdf    # Run experiments + generate PDF report
 
-Standardized parameters:
-  T = 400 (time series length)
-  Tb = 200 (break point for single breaks)
-  n_sim = 300 (Monte Carlo replications)
-
-Examples:
-  python main.py                    # Run all experiments
-  python main.py --quick            # Quick run (n_sim=30, same T and Tb)
-  python main.py --variance         # Run variance breaks only
-  python main.py --mean             # Run mean breaks only
-  python main.py --parameter        # Run parameter breaks only
+For fine-grained control (run individual break types):
+  See runner.py documentation
 """
 import sys
 import argparse
@@ -29,43 +22,46 @@ import subprocess
 def main():
     parser = argparse.ArgumentParser(
         prog='main.py',
-        description='Aligned Structural Break Experiments (All 3 Break Types)',
+        description='Structural Break Experiments - Quick Results',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Quick Mode: python main.py --quick (T=400, Tb=200, n_sim=30)
-Single Break Type: python main.py --variance
-Multiple Break Types: python main.py --variance --mean
-All Experiments: python main.py
+EXAMPLES:
+  python main.py              Run all 3 break types (full Monte Carlo)
+  python main.py --quick      Quick test mode (n_sim=30)
+  python main.py --pdf        Run experiments + build PDF with tables & figures
 
-See runner.py for full documentation.
+For advanced usage (run specific break types):
+  python runner.py --variance
+  python runner.py --mean
+  python runner.py --parameter
+  See runner.py for full documentation.
         """
     )
     
     parser.add_argument('--quick', action='store_true',
-                       help='Quick run (n_sim=30, same T and Tb)')
-    parser.add_argument('--variance', action='store_true', 
-                       help='Run variance breaks only')
-    parser.add_argument('--mean', action='store_true', 
-                       help='Run mean breaks only')
-    parser.add_argument('--parameter', action='store_true', 
-                       help='Run parameter breaks only')
+                       help='Quick run (n_sim=30 instead of 300)')
+    parser.add_argument('--pdf', action='store_true',
+                       help='Run experiments, then generate PDF report (tables + figures as appendix)')
     
     args = parser.parse_args()
     
-    # Build runner.py command
+    # Build runner.py command for all 3 break types
     cmd = [sys.executable, 'runner.py']
     
     if args.quick:
         cmd.append('--quick')
-    if args.variance:
-        cmd.append('--variance')
-    if args.mean:
-        cmd.append('--mean')
-    if args.parameter:
-        cmd.append('--parameter')
     
-    # Call the unified runner
-    return subprocess.run(cmd).returncode
+    # Run the experiments (all 3 break types)
+    result = subprocess.run(cmd).returncode
+    if result != 0:
+        return result
+    
+    # If --pdf flag is set, build tables + figures PDF after experiments
+    if args.pdf:
+        pdf_cmd = [sys.executable, 'scripts/build_pdfs.py', '--tables', '--figures']
+        return subprocess.run(pdf_cmd).returncode
+    
+    return 0
 
 
 if __name__ == '__main__':
