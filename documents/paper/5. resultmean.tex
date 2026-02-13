@@ -1,0 +1,42 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc} % Overleaf usually default, but safe
+\usepackage{amsmath}
+
+\begin{document}
+
+% Force section numbering to start at 5 (so this section prints as "5")
+\setcounter{section}{4}
+
+\section{Results: Mean Breaks}
+
+This subsection evaluates forecast performance when instability affects the conditional mean. The break shifts the intercept from $\mu_0$ to $\mu_1$ at $T_b$ in the single-break design, and follows a two-state Markov process in the recurring design. As in the parameter section, attention is given to RMSE, bias, and the variance of forecast errors in order to distinguish systematic forecast distortion from increased dispersion.
+
+\subsection{Single Mean Break}
+
+Under Gaussian innovations, the oracle specification that includes the true break dummy achieves the lowest RMSE (0.9789), as expected. Because the break location is assumed known, this model represents a benchmark rather than a feasible competitor. Its advantage relative to other models stems primarily from reduced error variance (0.9336), rather than a dramatic improvement in bias. Although its bias (0.1568) is not the smallest among the models, its dispersion is clearly lower.
+
+Among feasible approaches, Simple Exponential Smoothing (SES) performs best (RMSE = 1.0598), followed closely by Holt--Winters. Both adaptive smoothing methods outperform Rolling and Global SARIMA. The Global SARIMA model exhibits the highest bias (0.3800) and a relatively large forecast error variance (1.1741), indicating that parameter contamination from pre-break observations substantially distorts forecasts. Rolling SARIMA reduces bias somewhat but remains less competitive than smoothing-based approaches.
+
+When innovations follow a Student-$t$ distribution with three degrees of freedom, overall forecast errors increase, and differences between models widen. The oracle dummy again achieves the lowest RMSE (1.1056). SES remains the best feasible model, with lower RMSE and MAE than both rolling and global SARIMA. The performance deterioration of SARIMA-based models is accompanied by increased error variance, suggesting sensitivity to heavy-tailed disturbances. Bias remains positive across models, but dispersion differences dominate performance comparisons.
+
+For Student-$t$ innovations with five degrees of freedom, results are intermediate between the Gaussian and $t(3)$ cases. The oracle dummy retains the lowest RMSE (1.0610). SES again provides the strongest feasible performance, while Global SARIMA remains the weakest. Bias values vary modestly across models, but the principal differences arise from forecast error variance. In all innovation settings, the global model consistently exhibits the largest bias and one of the highest error variances, indicating that failure to adapt to the structural shift leads to persistent overprediction after the break.
+
+Across distributions, adaptive level-based methods (SES and Holt--Winters) systematically outperform rolling and global SARIMA. The primary channel of improvement is a reduction in forecast dispersion rather than a complete elimination of bias.
+
+\subsection{Recurring Mean Break}
+
+We next consider stochastic switching in the mean. In this design, regimes alternate according to a Markov process, so that intercept changes occur repeatedly rather than once.
+
+The oracle dummy remains the best-performing specification in terms of RMSE (1.0957). However, its advantage over the other models is smaller than in the single-break case. Because the dummy captures only a deterministic shift at a fixed time, it cannot fully track repeated regime changes. This is reflected in a forecast error variance (1.1997) that is closer to those of the competing models.
+
+Among feasible approaches, Global SARIMA achieves the lowest RMSE (1.1253), followed closely by Rolling SARIMA (1.1504). In contrast to the single-break case, smoothing methods no longer dominate. SES and Holt--Winters exhibit higher RMSE and noticeably larger error variances. Under recurring switching, purely level-based smoothing appears less effective because the mean alternates between regimes rather than shifting once.
+
+Bias values across all models are small and of similar magnitude. Differences in performance therefore stem primarily from changes in error variance. Compared to the single-break design, dispersion is higher for all methods, reflecting the additional uncertainty introduced by stochastic regime switching.
+
+Overall, the recurring mean results indicate that the relative advantage of adaptive smoothing diminishes when breaks are stochastic and repeated. Models that maintain a richer dynamic structure, such as SARIMA specifications, become more competitive in this environment.
+
+\end{document}
+

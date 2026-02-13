@@ -56,9 +56,10 @@ For advanced usage (run specific break types):
     if result != 0:
         return result
     
-    # If --pdf flag is set, build tables + figures PDF after experiments
+    # If --pdf flag is set, build PDF with tables after experiments
+    # (plots are not generated, so we only build tables PDF)
     if args.pdf:
-        pdf_cmd = [sys.executable, 'scripts/build_pdfs.py', '--tables', '--figures']
+        pdf_cmd = [sys.executable, 'scripts/build_pdfs.py', '--tables']
         return subprocess.run(pdf_cmd).returncode
     
     return 0

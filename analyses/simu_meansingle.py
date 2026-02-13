@@ -9,7 +9,7 @@ from estimators.mean_singlebreak import (
     forecast_ses,
     forecast_holt_winters,
 )
-from analyses.metrics import rmse, mae, bias, var_error, coverage_from_errors, logscore_from_errors
+from analyses.metrics import rmse, mae, bias, var_error
 
 # =========================================================
 # 3) Monte Carlo evaluation
@@ -103,9 +103,6 @@ def run_mc_single_break_sarima(
             "MAE": mae(e),
             "Bias": bias(e),
             "Var(error)": var_error(e),
-            "Coverage95": coverage_from_errors(e, confidence=0.95),
-            "Coverage80": coverage_from_errors(e, confidence=0.80),
-            "LogScore": logscore_from_errors(e),
             "Successes": n_success,
             "Failures": n_fail,
             "N": n_success  # Total attempts

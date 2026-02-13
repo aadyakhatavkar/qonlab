@@ -95,7 +95,7 @@ def find_latest_files(directory, pattern='*', max_age_hours=None, limit=None):
 
 
 def get_latest_tables():
-    """Get only the latest CSV files per scenario (avoid duplicates)."""
+    """Get only the latest CSV files per scenario, keeping all innovation variants."""
     import os
     from collections import defaultdict
     
@@ -108,26 +108,25 @@ def get_latest_tables():
     if not csv_files:
         return []
     
-    # Group files by scenario (ignore timestamp)
-    # Format: mean_single_20260213_165005_Gaussian.csv or aligned_breaks_20260213_165005.csv
+    # Group files by break_type + mode + variant
+    # Keep latest of each combo (Gaussian, Student-tdf3, Student-tdf5, MarkovSwitching, etc.)
     scenarios = defaultdict(list)
     
     for csv_path in csv_files:
         filename = csv_path.stem
-        # Extract scenario name (everything before timestamp or _results)
+        
         if '_results' in filename:
-            # Aggregated: mean_single_results, parameter_recurring_p0.95_results, etc.
-            scenario_key = filename.replace('_results', '')
+            # Skip aggregated results files
+            continue
         else:
-            # Detailed: mean_single_20260213_165005_Gaussian.csv
-            # Extract parts: mean_single and the variant (Gaussian, tdf3, tdf5, p09, etc.)
+            # Detailed: mean_single_20260213_211638_Gaussian.csv
+            # Extract break_type + mode + variant
             parts = filename.split('_')
             if len(parts) >= 3:
-                # mean_single_<timestamp>_<variant>
-                break_type = parts[0]  # mean, parameter, variance
-                break_mode = parts[1]  # single, recurring
-                variant = parts[-1]    # Gaussian, tdf3, tdf5, p09, p095, p099, MarkovSwitching
-                scenario_key = f"{break_type}_{break_mode}_{variant}"
+                break_type = parts[0]  # mean, variance, parameter
+                mode = parts[1]  # single, recurring
+                variant = parts[-1]  # Gaussian, Student-tdf3, Student-tdf5, MarkovSwitching, p09, etc.
+                scenario_key = f"{break_type}_{mode}_{variant}"
             else:
                 scenario_key = filename
         
@@ -1148,27 +1147,65 @@ OUTPUT LOCATION:
         do_tables = args.tables
         do_combined = args.combined
     
-    # Validate required files exist
+    # Check what files exist
     tables_exist = any(RESULTS_DIR.glob('**/*.csv'))
     figures_exist = any(FIGURES_DIR.glob('**/*.png'))
     
-    if (do_tables or do_combined) and not tables_exist:
-        print("⚠ ERROR: No tables found. Cannot generate PDF.")
-        print("   CSV files needed in: outputs/csv/")
-        print("   Generate tables with:")
-        print("   → pixi run python scripts/build_pdfs.py --tables")
-        print("   OR run full simulations with:")
-        print("   → python runner.py")
+    # Smart validation: tell user what exists, what's missing, and what to do
+    print("\n" + "="*70)
+    print("FILE STATUS CHECK")
+    print("="*70)
+    
+    status_msg = []
+    if tables_exist:
+        latest_tables = sorted(RESULTS_DIR.glob('**/*.csv'))[-5:]  # Show 5 latest
+        status_msg.append(f"✓ Tables found ({len(list(RESULTS_DIR.glob('**/*.csv')))} files)")
+    else:
+        status_msg.append("✗ No tables found")
+    
+    if figures_exist:
+        latest_figures = sorted(FIGURES_DIR.glob('**/*.png'))[-5:]
+        status_msg.append(f"✓ Figures found ({len(list(FIGURES_DIR.glob('**/*.png')))} files)")
+    else:
+        if do_figures or do_combined:
+            status_msg.append("✗ No figures found (plots generation is disabled)")
+    
+    for msg in status_msg:
+        print(f"  {msg}")
+    print()
+    
+    # Determine if we can proceed
+    can_do_tables = tables_exist
+    can_do_figures = figures_exist
+    can_do_combined = tables_exist and figures_exist
+    
+    # Check if requested tasks can be completed
+    if (do_tables and not can_do_tables) or (do_figures and not can_do_figures) or (do_combined and not can_do_combined):
+        print("⚠ Cannot complete requested compilation:\n")
+        
+        if do_tables and not can_do_tables:
+            print("  • Tables required but not found")
+            print("    → pixi run python main.py          (full, 300 simulations)")
+            print("    → pixi run python main.py --quick  (quick test, 30 simulations)\n")
+        
+        if do_figures and not can_do_figures:
+            print("  • Figures required but not available")
+            print("    → Plots generation is currently disabled\n")
+        
+        if do_combined and not can_do_combined:
+            print("  • Combined PDF requires both tables and figures")
+            missing = []
+            if not tables_exist:
+                missing.append("tables")
+                print("    • Tables missing → pixi run python main.py")
+            if not figures_exist:
+                missing.append("figures")
+                print("    • Figures missing → (not available)")
+            print()
+        
         return
     
-    if (do_figures or do_combined) and not figures_exist:
-        print("⚠ ERROR: No figures found. Cannot generate PDF.")
-        print("   PNG files needed in: outputs/figures/")
-        print("   Generate figures with:")
-        print("   → pixi run python scripts/generate_plots.py --all")
-        return
-    
-    print(f"\nCompilation started at: {DATE_READABLE}")
+    print(f"Compilation started at: {DATE_READABLE}")
     print(f"Output directory: {COMPILATIONS_DIR}\n")
     
     if do_figures:
@@ -1180,9 +1217,18 @@ OUTPUT LOCATION:
     if do_combined:
         compile_combined()
     
+    # Show where files were saved
     print(f"\n" + "="*70)
     print("Compilation complete!")
     print("="*70)
+    print(f"\nAll PDFs saved to: {COMPILATIONS_DIR}")
+    print("\nYou can find your files:")
+    pdf_files = sorted(COMPILATIONS_DIR.glob('*.pdf'), key=lambda x: x.stat().st_mtime, reverse=True)
+    if pdf_files:
+        for pdf in pdf_files[:3]:  # Show 3 most recent
+            size_mb = pdf.stat().st_size / (1024*1024)
+            print(f"  • {pdf.name} ({size_mb:.2f} MB)")
+    print()
 
 
 if __name__ == '__main__':

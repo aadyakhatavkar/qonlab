@@ -59,7 +59,7 @@ def mc_variance_recurring(
         "SARIMA Global": lambda ytr: forecast_variance_dist_sarima_global(ytr, horizon=horizon),
         "SARIMA Rolling": lambda ytr: forecast_variance_dist_sarima_rolling(ytr, window=window, horizon=horizon),
         "SARIMA Avg-Window": lambda ytr: forecast_variance_averaged_window(ytr, window_sizes=[window], horizon=horizon),
-        "MS AR(1)": lambda ytr: forecast_markov_switching(ytr, horizon=horizon)[0],
+        "MS AR(1)": lambda ytr: forecast_markov_switching(ytr, horizon=horizon),  # Return full tuple!
     }
     
     errors = {m: [] for m in methods}
@@ -150,7 +150,7 @@ def mc_variance_recurring(
             "RMSE": rmse_val,
             "MAE": mae_val,
             "Bias": bias_val,
-            "Var(error)": var_error_val,
+            "Variance": var_error_val,
             "Coverage80": cov80,
             "Coverage95": cov95,
             "LogScore": logscore,

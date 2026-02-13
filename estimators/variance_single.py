@@ -13,7 +13,7 @@ except Exception:
     arch_model = None
 
 
-def forecast_variance_dist_sarima_global(y_train, horizon=1, order=(1, 0, 1), seasonal_order=(1, 0, 0, 12)):
+def forecast_variance_dist_sarima_global(y_train, horizon=1, order=(1, 0, 0), seasonal_order=(0, 0, 0, 0)):
     """
     Forecast using global SARIMA model on full sample.
     Returns (mean, variance) tuple where variance is the residual variance.
@@ -23,7 +23,9 @@ def forecast_variance_dist_sarima_global(y_train, horizon=1, order=(1, 0, 1), se
             y_train,
             order=order,
             seasonal_order=seasonal_order,
-            trend="n"
+            trend="n",
+            enforce_stationarity=True,
+            enforce_invertibility=True
         ).fit()
         fc_mean = res.forecast(steps=horizon)
         # Use residual variance as proxy for predictive variance
@@ -76,28 +78,51 @@ def forecast_garch_variance(y_train, horizon=1, p=1, q=1):
 def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horizon=1, order=(1, 0, 1), seasonal_order=(1, 0, 0, 12)):
     """
     Forecast by averaging predictions across multiple rolling windows.
+    Adapts window sizes to fit available training data.
+    If no valid windows available, falls back to SARIMA Global.
     """
     try:
         if isinstance(window_sizes, int):
             window_sizes = [window_sizes]
 
-        forecasts = []
-
-        for ws in window_sizes:
-            try:
-                fc = forecast_variance_dist_sarima_rolling(
-                    y_train, window=ws, horizon=horizon, order=order, seasonal_order=seasonal_order
-                )
-                forecasts.append(fc)
-            except Exception:
-                continue
-
-        if not forecasts:
+        # Adapt windows to training data size: use windows that are 30-80% of data length
+        data_len = len(y_train)
+        if data_len < 20:
+            # Data too short, just use global
             return forecast_variance_dist_sarima_global(y_train, horizon=horizon, order=order, seasonal_order=seasonal_order)
+        
+        # Create adaptive windows: 25%, 50%, 75% of data length (but min 10, max 80% of data)
+        adaptive_windows = [
+            max(10, int(0.25 * data_len)),
+            max(20, int(0.50 * data_len)),
+            min(int(0.75 * data_len), int(0.80 * data_len))
+        ]
+        
+        forecasts = []
+        for ws in adaptive_windows:
+            if ws < data_len:
+                try:
+                    fc_mean, fc_var = forecast_variance_dist_sarima_rolling(
+                        y_train, window=ws, horizon=horizon, order=order, seasonal_order=seasonal_order
+                    )
+                    if not np.any(np.isnan(fc_mean)) and not np.any(np.isnan(fc_var)):
+                        forecasts.append((fc_mean, fc_var))
+                except Exception:
+                    continue
 
-        return np.mean(np.array(forecasts), axis=0)
-    except Exception:
-        return np.full(horizon, np.nan)
+        if forecasts:
+            # Average means and variances separately
+            means_list = [m for m, v in forecasts]
+            vars_list = [v for m, v in forecasts]
+            avg_mean = np.mean(np.array(means_list), axis=0)
+            avg_var = np.mean(np.array(vars_list), axis=0)
+            return (avg_mean, avg_var)
+        else:
+            # Fallback to SARIMA Global if all rolling windows fail
+            return forecast_variance_dist_sarima_global(y_train, horizon=horizon, order=order, seasonal_order=seasonal_order)
+    except Exception as e:
+        # Last resort: return NaN tuple
+        return (np.full(horizon, np.nan), np.full(horizon, np.nan))
 
 
 def variance_rmse_mae_bias(y_true, y_pred):

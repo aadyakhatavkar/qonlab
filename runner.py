@@ -27,6 +27,12 @@ Features:
   - Results saved to outputs/ directory with separate tables by innovation type
   - Results aggregation and comparison
 """
+import warnings
+
+# Suppress non-stationary SARIMAX warnings (these are expected and don't block execution)
+warnings.filterwarnings('ignore', message='.*Non-stationary.*seasonal autoregressive.*')
+warnings.filterwarnings('ignore', module='statsmodels.tsa.statespace.sarimax')
+
 import argparse
 import os
 import sys
