@@ -4,8 +4,10 @@ Single Variance Break Estimators
 Forecasting methods for AR(1) with a single variance break.
 """
 import numpy as np
+import warnings
 from scipy.stats import norm
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
 try:
     from arch import arch_model
@@ -13,20 +15,36 @@ except Exception:
     arch_model = None
 
 
-def forecast_variance_dist_sarima_global(y_train, horizon=1, order=(1, 0, 0), seasonal_order=(0, 0, 0, 0)):
+def _fit_arima_safely(y, order, seasonal_order, trend="n",
+                      enforce_stationarity=True, enforce_invertibility=True):
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=ConvergenceWarning)
+        warnings.filterwarnings("ignore", message=".*Non-stationary starting.*")
+        warnings.filterwarnings("ignore", message=".*Non-invertible starting.*")
+        return ARIMA(
+            y,
+            order=order,
+            seasonal_order=seasonal_order,
+            trend=trend,
+            enforce_stationarity=enforce_stationarity,
+            enforce_invertibility=enforce_invertibility
+        ).fit(method_kwargs={"maxiter": 200})
+
+
+def forecast_variance_dist_sarima_global(y_train, horizon=1, order=(1, 0, 1), seasonal_order=(1, 0, 0, 12)):
     """
     Forecast using global SARIMA model on full sample.
     Returns (mean, variance) tuple where variance is the residual variance.
     """
     try:
-        res = ARIMA(
+        res = _fit_arima_safely(
             y_train,
             order=order,
             seasonal_order=seasonal_order,
             trend="n",
             enforce_stationarity=True,
             enforce_invertibility=True
-        ).fit()
+        )
         fc_mean = res.forecast(steps=horizon)
         # Use residual variance as proxy for predictive variance
         residual_var = np.var(res.resid, ddof=1) if len(res.resid) > 1 else np.var(y_train, ddof=1)
@@ -43,12 +61,14 @@ def forecast_variance_dist_sarima_rolling(y_train, window=100, horizon=1, order=
     """
     try:
         y_win = y_train[-window:] if window < len(y_train) else y_train
-        res = ARIMA(
+        res = _fit_arima_safely(
             y_win,
             order=order,
             seasonal_order=seasonal_order,
-            trend="n"
-        ).fit()
+            trend="n",
+            enforce_stationarity=True,
+            enforce_invertibility=True
+        )
         fc_mean = res.forecast(steps=horizon)
         # Use residual variance as proxy for predictive variance
         residual_var = np.var(res.resid, ddof=1) if len(res.resid) > 1 else np.var(y_win, ddof=1)
@@ -65,8 +85,10 @@ def forecast_garch_variance(y_train, horizon=1, p=1, q=1):
     if arch_model is None:
         raise ImportError("arch package is required for GARCH forecasts (pip install arch)")
 
-    model = arch_model(y_train, mean='AR', lags=1, vol='GARCH', p=p, q=q, rescale=False)
-    res = model.fit(disp='off')
+    model = arch_model(y_train, mean='AR', lags=1, vol='GARCH', p=p, q=q, rescale=True)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*optimizer returned code.*")
+        res = model.fit(disp='off')
     fc = res.forecast(horizon=horizon, reindex=False)
     mean = fc.mean.values[-1]
     var = fc.variance.values[-1]
@@ -119,9 +141,14 @@ def forecast_variance_averaged_window(y_train, window_sizes=[20, 50, 100], horiz
             return (avg_mean, avg_var)
         else:
             # Fallback to SARIMA Global if all rolling windows fail
-            return forecast_variance_dist_sarima_global(y_train, horizon=horizon, order=order, seasonal_order=seasonal_order)
-    except Exception as e:
-        # Last resort: return NaN tuple
+            global_result = forecast_variance_dist_sarima_global(y_train, horizon=horizon, order=order, seasonal_order=seasonal_order)
+            if isinstance(global_result, tuple):
+                return global_result
+            else:
+                # Ensure it's a tuple
+                return (global_result, np.full(horizon, np.nan))
+    except Exception:
+        # Last resort: return valid tuple of NaNs
         return (np.full(horizon, np.nan), np.full(horizon, np.nan))
 
 

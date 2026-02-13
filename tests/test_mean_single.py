@@ -14,20 +14,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from dgps.mean_singlebreaks import simulate_mean_break_ar1
+from dgps.mean_singlebreaks import simulate_single_break_ar1
 from estimators.mean_singlebreak import (
-    forecast_mean_sarima_global,
-    forecast_mean_sarima_rolling,
-    mean_rmse_mae_bias,
-    mean_interval_coverage,
-    mean_log_score_normal,
+    forecast_global_sarima,
+    forecast_rolling_sarima,
 )
 
 
 def test_simulate_mean_break_seed():
     """Test that DGP is reproducible with seed."""
-    y1 = simulate_mean_break_ar1(T=60, Tb=30, mu0=0.0, mu1=2.0, seed=123)
-    y2 = simulate_mean_break_ar1(T=60, Tb=30, mu0=0.0, mu1=2.0, seed=123)
+    y1 = simulate_single_break_ar1(T=60, Tb=30, mu0=0.0, mu1=2.0, seed=123)
+    y2 = simulate_single_break_ar1(T=60, Tb=30, mu0=0.0, mu1=2.0, seed=123)
     assert np.allclose(y1, y2), "Mean DGP not reproducible with same seed"
 
 

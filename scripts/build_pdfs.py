@@ -174,8 +174,22 @@ def convert_csv_to_latex():
                 drop_cols.append('Failures')
             if 'N' in df.columns:
                 drop_cols.append('N')
-            if 'Failures' in df.columns:
-                drop_cols.append('Failures')
+            
+            # For variance tables, remove Coverage80/Coverage95 (keep LogScore for uncertainty quantification)
+            if 'variance' in filename:
+                if 'Coverage80' in df.columns:
+                    drop_cols.append('Coverage80')
+                if 'Coverage95' in df.columns:
+                    drop_cols.append('Coverage95')
+            
+            # For mean and parameter tables, remove Coverage80/Coverage95/LogScore
+            if 'mean' in filename or 'parameter' in filename:
+                if 'Coverage80' in df.columns:
+                    drop_cols.append('Coverage80')
+                if 'Coverage95' in df.columns:
+                    drop_cols.append('Coverage95')
+                if 'LogScore' in df.columns:
+                    drop_cols.append('LogScore')
             
             df_display = df.drop(columns=drop_cols, errors='ignore')
             
@@ -1181,26 +1195,23 @@ OUTPUT LOCATION:
     
     # Check if requested tasks can be completed
     if (do_tables and not can_do_tables) or (do_figures and not can_do_figures) or (do_combined and not can_do_combined):
-        print("⚠ Cannot complete requested compilation:\n")
+        print("⚠ Missing files for requested compilation:\n")
         
         if do_tables and not can_do_tables:
             print("  • Tables required but not found")
-            print("    → pixi run python main.py          (full, 300 simulations)")
-            print("    → pixi run python main.py --quick  (quick test, 30 simulations)\n")
+            print("    → Run: pixi run python main.py --quick  (30 runs)")
+            print("    → Or:  pixi run python main.py         (300 runs)\n")
         
         if do_figures and not can_do_figures:
             print("  • Figures required but not available")
-            print("    → Plots generation is currently disabled\n")
+            print("    → Run: pixi run python scripts/generate_plots.py --all\n")
         
         if do_combined and not can_do_combined:
             print("  • Combined PDF requires both tables and figures")
-            missing = []
             if not tables_exist:
-                missing.append("tables")
                 print("    • Tables missing → pixi run python main.py")
             if not figures_exist:
-                missing.append("figures")
-                print("    • Figures missing → (not available)")
+                print("    • Figures missing → pixi run python scripts/generate_plots.py --all")
             print()
         
         return

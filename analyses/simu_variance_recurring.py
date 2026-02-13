@@ -59,12 +59,12 @@ def mc_variance_recurring(
         "SARIMA Global": lambda ytr: forecast_variance_dist_sarima_global(ytr, horizon=horizon),
         "SARIMA Rolling": lambda ytr: forecast_variance_dist_sarima_rolling(ytr, window=window, horizon=horizon),
         "SARIMA Avg-Window": lambda ytr: forecast_variance_averaged_window(ytr, window_sizes=[window], horizon=horizon),
-        "MS AR(1)": lambda ytr: forecast_markov_switching(ytr, horizon=horizon),  # Return full tuple!
+        "MS AR(1)": lambda ytr: forecast_markov_switching(ytr, horizon=horizon, rng=rng),  # Return full tuple!
     }
     
     errors = {m: [] for m in methods}
     failures = {m: 0 for m in methods}
-    variance_preds = {m: [] for m in methods}  # (pred_mean, pred_var) tuples
+    dist_inputs = {m: [] for m in methods}  # (y_true, pred_mean, pred_var) tuples
     
     for sim in range(n_sim):
         if verbose and (sim + 1) % max(1, n_sim // 10) == 0:
@@ -91,17 +91,17 @@ def mc_variance_recurring(
                     pred_mean, pred_var = result
                     pred_mean = float(np.asarray(pred_mean).flat[0])
                     pred_var = float(np.asarray(pred_var).flat[0])
-                    variance_preds[method_name].append((pred_mean, pred_var))
                     pred = pred_mean
                 elif isinstance(result, np.ndarray):
                     pred = float(result[0]) if len(result) > 0 else np.nan
-                    variance_preds[method_name].append((pred, np.nan))
+                    pred_var = np.nan
                 else:
                     pred = float(result)
-                    variance_preds[method_name].append((pred, np.nan))
+                    pred_var = np.nan
                     
                 if not np.isnan(pred):
                     errors[method_name].append(y_true - pred)
+                    dist_inputs[method_name].append((float(y_true), float(pred), float(pred_var)))
                 else:
                     failures[method_name] += 1
             except Exception:
@@ -128,18 +128,23 @@ def mc_variance_recurring(
             var_error_val = var_error(e)
             
             # Compute coverage and log-score from variance predictions if available
-            var_preds = variance_preds[method_name]
-            if len(var_preds) > 0:
-                means = np.array([m for m, v in var_preds])
-                vars_ = np.array([v for m, v in var_preds])
-                
-                # Reconstruct y_true values for coverage calculation
-                y_true_vals = means + e
-                
-                # Calculate coverage probabilities
-                cov80 = variance_interval_coverage(y_true_vals, means, vars_, level=0.80)
-                cov95 = variance_interval_coverage(y_true_vals, means, vars_, level=0.95)
-                logscore = variance_log_score_normal(y_true_vals, means, vars_)
+            dist = dist_inputs[method_name]
+            if len(dist) > 0:
+                y_true_vals = np.array([yt for yt, _, _ in dist], dtype=float)
+                means = np.array([pm for _, pm, _ in dist], dtype=float)
+                vars_ = np.array([pv for _, _, pv in dist], dtype=float)
+                mask = np.isfinite(y_true_vals) & np.isfinite(means) & np.isfinite(vars_)
+                if np.any(mask):
+                    y_true_vals = y_true_vals[mask]
+                    means = means[mask]
+                    vars_ = vars_[mask]
+                    cov80 = variance_interval_coverage(y_true_vals, means, vars_, level=0.80)
+                    cov95 = variance_interval_coverage(y_true_vals, means, vars_, level=0.95)
+                    logscore = variance_log_score_normal(y_true_vals, means, vars_)
+                else:
+                    cov80 = np.nan
+                    cov95 = np.nan
+                    logscore = np.nan
             else:
                 cov80 = np.nan
                 cov95 = np.nan

@@ -8,7 +8,7 @@ from scipy.stats import norm
 from statsmodels.tsa.arima.model import ARIMA
 
 
-def forecast_ms_ar1_mean(y_train, horizon=1, p00_init=0.9, p11_init=0.9):
+def forecast_ms_ar1_mean(y_train, horizon=1, p00_init=0.9, p11_init=0.9, rng=None):
     """
     Forecast AR(1) mean using Markov-switching model.
     
@@ -32,6 +32,7 @@ def forecast_ms_ar1_mean(y_train, horizon=1, p00_init=0.9, p11_init=0.9):
     """
     y = np.asarray(y_train, dtype=float)
     T = len(y)
+    rng = rng if rng is not None else np.random.default_rng()
     
     # Detect regime shifts using moving average
     window = max(10, T // 10)
@@ -80,12 +81,12 @@ def forecast_ms_ar1_mean(y_train, horizon=1, p00_init=0.9, p11_init=0.9):
             next_mean = mu0 + ar1_coef * (current_val - mu0)
             next_vol = sigma_0
             # Transition to next state
-            current_state = 1 if np.random.rand() > p00 else 0
+            current_state = 1 if rng.random() > p00 else 0
         else:
             next_mean = mu1 + ar1_coef * (current_val - mu1)
             next_vol = sigma_1
             # Transition to next state
-            current_state = 0 if np.random.rand() > p11 else 1
+            current_state = 0 if rng.random() > p11 else 1
         
         means.append(next_mean)
         vols.append(next_vol ** 2)

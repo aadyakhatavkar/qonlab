@@ -64,7 +64,7 @@ def mc_mean_recurring(
     methods = [
         ("SARIMA Global", lambda ytr: forecast_sarima_global(ytr)),
         ("SARIMA Rolling", lambda ytr: forecast_sarima_rolling(ytr, window=window)),
-        ("SARIMA + Break Dummy (oracle Tb)", lambda ytr: forecast_sarima_break_dummy_oracle(ytr, Tb=T//2)),
+        ("SARIMA + Midpoint Dummy (proxy Tb)", lambda ytr: forecast_sarima_break_dummy_oracle(ytr, Tb=T//2)),
         ("Simple Exp. Smoothing (SES)", lambda ytr: forecast_ses(ytr)),
         ("Holt-Winters (additive)", lambda ytr: forecast_holt_winters(ytr)),
     ]
@@ -113,7 +113,7 @@ def mc_mean_recurring(
             "Var(error)": var_error(e),
             "Successes": n_success,
             "Failures": n_fail,
-            "N": n_success
+            "N": n_sim
         })
     
     df = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)

@@ -17,11 +17,8 @@ if ROOT not in sys.path:
 from dgps.parameter_recurring import simulate_ms_ar1_phi_only
 from estimators.parameter_recurring import (
     forecast_markov_switching_ar,
-    parameter_rmse_mae_bias,
-    parameter_interval_coverage,
-    parameter_log_score_normal,
 )
-from estimators.parameter_single import forecast_parameter_sarima_global
+from estimators.parameter_single import forecast_global_sarima
 
 
 def test_simulate_ms_parameter_seed():

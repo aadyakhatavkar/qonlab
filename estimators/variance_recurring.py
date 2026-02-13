@@ -7,8 +7,9 @@ import numpy as np
 from scipy.stats import norm
 
 
-def forecast_markov_switching(y_train, horizon=1, p00_init=0.9, p11_init=0.9, 
-                              ar1_init=0.5, sigma0_init=1.0, sigma1_init=2.0):
+def forecast_markov_switching(y_train, horizon=1, p00_init=0.9, p11_init=0.9,
+                              ar1_init=0.5, sigma0_init=1.0, sigma1_init=2.0,
+                              rng=None):
     """
     Forecast AR(1) variance using Markov-switching model.
     
@@ -37,6 +38,7 @@ def forecast_markov_switching(y_train, horizon=1, p00_init=0.9, p11_init=0.9,
     """
     y = np.asarray(y_train, dtype=float)
     T = len(y)
+    rng = rng if rng is not None else np.random.default_rng()
     
     # Very simple estimation: use rolling volatility to detect states
     window = max(10, T // 10)
@@ -83,10 +85,10 @@ def forecast_markov_switching(y_train, horizon=1, p00_init=0.9, p11_init=0.9,
         
         # State transition
         if current_state == 0:
-            next_state = 1 if np.random.rand() > p00 else 0
+            next_state = 1 if rng.random() > p00 else 0
             current_vol = sigma0
         else:
-            next_state = 0 if np.random.rand() > p11 else 1
+            next_state = 0 if rng.random() > p11 else 1
             current_vol = sigma1
         
         means.append(next_mean)

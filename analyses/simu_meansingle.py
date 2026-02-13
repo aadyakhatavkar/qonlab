@@ -87,7 +87,10 @@ def run_mc_single_break_sarima(
         for name, func in methods:
             try:
                 f = func(y_train)
-                errors[name].append(y_true - f)
+                if np.isfinite(f):
+                    errors[name].append(y_true - f)
+                else:
+                    fails[name] += 1
             except Exception:
                 fails[name] += 1
 
@@ -105,7 +108,7 @@ def run_mc_single_break_sarima(
             "Var(error)": var_error(e),
             "Successes": n_success,
             "Failures": n_fail,
-            "N": n_success  # Total attempts
+            "N": n_sim
         })
 
     df = pd.DataFrame(rows).sort_values("RMSE", na_position="last").reset_index(drop=True)
@@ -116,4 +119,3 @@ def run_mc_single_break_sarima(
     df.to_csv(outputs_dir / "mean_single_results.csv", index=False)
     
     return df
-

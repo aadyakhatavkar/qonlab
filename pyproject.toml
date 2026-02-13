@@ -3,8 +3,5 @@ name = "qonlab"
 version = "0.0.0"
 description = "Variance-break analysis tools and experiments"
 
-[tool.pytask.ini_options]
-paths = ["."]
-
 [tool.setuptools]
 packages = ["analyses", "dgps", "estimators", "scripts"]

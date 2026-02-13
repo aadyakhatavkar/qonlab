@@ -80,7 +80,7 @@ def monte_carlo_single_break_post(
             "RMSE": rmse(e),
             "MAE": mae(e),
             "Bias": bias(e),
-            "Var(error)": var_error(e),
+            "Variance": var_error(e),
             "Successes": n_success,
             "Failures": n_sim - n_success,
             "N": n_sim

@@ -29,15 +29,17 @@ Features:
 """
 import warnings
 
-# Suppress non-stationary SARIMAX warnings (these are expected and don't block execution)
-warnings.filterwarnings('ignore', message='.*Non-stationary.*seasonal autoregressive.*')
-warnings.filterwarnings('ignore', module='statsmodels.tsa.statespace.sarimax')
+# Suppress expected optimizer/start-value warnings from repeated SARIMA/GARCH fits.
+warnings.filterwarnings("ignore", message=".*Non-stationary starting autoregressive.*")
+warnings.filterwarnings("ignore", message=".*Non-stationary starting seasonal autoregressive.*")
+warnings.filterwarnings("ignore", message=".*Non-invertible starting MA parameters.*")
+warnings.filterwarnings("ignore", message=".*Maximum Likelihood optimization failed to converge.*")
+warnings.filterwarnings("ignore", message=".*optimizer returned code.*")
 
 import argparse
 import os
 import sys
 import time
-import warnings
 import traceback
 import logging
 from pathlib import Path
@@ -749,6 +751,11 @@ Persistence: 0.90, 0.95, 0.99 (parameter recurring only)
         
         # Remove metadata columns from combined results before saving
         df_combined = df_all.drop(columns=['Break Type', 'Innovation', 'Persistence', 'Successes', 'Failures', 'N'], errors='ignore')
+        
+        # Filter out rows where all metric columns are NaN (failed forecasts)
+        metric_cols = ['RMSE', 'MAE', 'Bias', 'Variance', 'LogScore']
+        metric_cols = [c for c in metric_cols if c in df_combined.columns]
+        df_combined = df_combined.dropna(subset=metric_cols, how='all')
         
         filename = f"outputs/tables/aligned_breaks_{timestamp}.csv"
         df_combined.to_csv(filename, index=False)

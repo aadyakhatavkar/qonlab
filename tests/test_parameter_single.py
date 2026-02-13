@@ -14,20 +14,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from dgps.parameter_single import simulate_parameter_break_ar1
+from dgps.parameter_single import simulate_single_break_ar1
 from estimators.parameter_single import (
-    forecast_parameter_sarima_global,
-    forecast_parameter_sarima_rolling,
-    parameter_rmse_mae_bias,
-    parameter_interval_coverage,
-    parameter_log_score_normal,
+    forecast_global_sarima,
+    forecast_rolling_sarima,
+    forecast_markov_switching_ar,
 )
 
 
 def test_simulate_parameter_break_seed():
     """Test that DGP is reproducible with seed."""
-    y1 = simulate_parameter_break_ar1(T=60, Tb=30, phi0=0.3, phi1=0.8, seed=123)
-    y2 = simulate_parameter_break_ar1(T=60, Tb=30, phi0=0.3, phi1=0.8, seed=123)
+    y1 = simulate_single_break_ar1(T=60, Tb=30, phi0=0.3, phi1=0.8, seed=123)
+    y2 = simulate_single_break_ar1(T=60, Tb=30, phi0=0.3, phi1=0.8, seed=123)
     assert np.allclose(y1, y2), "Parameter DGP not reproducible with same seed"
 
 

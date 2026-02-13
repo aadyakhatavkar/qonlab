@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from dgps.variance_single import simulate_variance_break_ar1
 from estimators.variance_single import (
+    forecast_variance_dist_sarima_global,
     forecast_variance_dist_sarima_rolling,
     variance_log_score_normal,
     variance_interval_coverage,
@@ -57,7 +58,7 @@ def plot_logscore_comparison():
                 
                 try:
                     if method == 'SARIMA Global':
-                        mean, var = forecast_variance_dist_sarima_rolling(y_train, window=window, horizon=len(y_test))
+                        mean, var = forecast_variance_dist_sarima_global(y_train, horizon=len(y_test))
                     elif method == 'SARIMA Rolling':
                         mean, var = forecast_variance_dist_sarima_rolling(y_train, window=window, horizon=len(y_test))
                     elif method == 'GARCH':
