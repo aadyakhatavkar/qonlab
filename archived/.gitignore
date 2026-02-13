@@ -1,0 +1,6 @@
+# Ignore all contents in archived/
+*
+
+# But track these files (the structure)
+!.gitignore
+!README.md
