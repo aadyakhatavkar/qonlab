@@ -16,12 +16,6 @@ env/
 # Pytest
 .pytest_cache/
 # Data / outputs
-results/
-figures/
-logs/
-# OS
-.DS_Store
-Thumbs.db
-# IDEs
-.vscode/
-.idea/
+outputs/
+# Logs
+full_run.log
