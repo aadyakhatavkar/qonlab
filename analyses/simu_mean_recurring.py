@@ -19,7 +19,7 @@ from estimators.mean_singlebreak import (
     forecast_ses,
     forecast_holt_winters,
 )
-from analyses.metrics import rmse, mae, bias, var_error, coverage_from_errors, logscore_from_errors
+from analyses.metrics import rmse, mae, bias, var_error
 
 
 def mc_mean_recurring(

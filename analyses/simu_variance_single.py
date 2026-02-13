@@ -159,7 +159,7 @@ def mc_variance_single_break(
             "RMSE": rmse_val,
             "MAE": mae_val,
             "Bias": bias_val,
-            "Var(error)": var_error_val,
+            "Variance": var_error_val,
             "Coverage80": cov80,
             "Coverage95": cov95,
             "LogScore": logscore,
@@ -180,12 +180,14 @@ def mc_variance_single_break(
 
 
 def _safe_forecast_garch(y_train, horizon=1):
-    """Safe wrapper for GARCH that returns NaN on failure."""
+    """Safe wrapper for GARCH that returns (mean, variance) tuple."""
     try:
         mean, var = forecast_garch_variance(y_train, horizon=horizon)
-        return float(mean[0]) if isinstance(mean, np.ndarray) else float(mean)
+        mean_val = float(mean[0]) if isinstance(mean, np.ndarray) else float(mean)
+        var_val = float(var[0]) if isinstance(var, np.ndarray) else float(var)
+        return (mean_val, var_val)  # Return full tuple!
     except Exception:
-        return np.nan
+        return (np.nan, np.nan)
 
 
 __all__ = ["mc_variance_single_break"]
