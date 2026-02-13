@@ -153,10 +153,15 @@ def convert_csv_to_latex():
     tex_files = []
     for csv_path in csv_files:
         try:
+            filename = csv_path.stem
+            
+            # Skip aligned_breaks files (they contain NaN values for incomplete scenarios)
+            if 'aligned_breaks' in filename:
+                continue
+            
             df = pd.read_csv(csv_path)
             
             # Extract metadata from CSV
-            filename = csv_path.stem
             n_sim = int(df['N'].iloc[0]) if 'N' in df.columns else '?'
             n_methods = len(df)
             
@@ -192,12 +197,6 @@ def convert_csv_to_latex():
                     drop_cols.append('LogScore')
             
             df_display = df.drop(columns=drop_cols, errors='ignore')
-            
-            # Fill blank LogScore/Coverage values with "NA" for combined table
-            if 'aligned_breaks' in filename:
-                for col in ['Coverage80', 'Coverage95', 'LogScore']:
-                    if col in df_display.columns:
-                        df_display[col] = df_display[col].where(df_display[col].notna(), 'NA')
             
             # Fill blank LogScore/Coverage values with proper format
             for col in ['LogScore', 'Coverage80', 'Coverage95']:
@@ -332,8 +331,8 @@ def organize_tables_by_type(csv_files=None):
     if csv_files is None:
         files = find_latest_files(RESULTS_DIR, '*.tex', limit=100)
     else:
-        # Convert provided CSV paths to .tex files
-        files = [csv_path.with_suffix('.tex') for csv_path in csv_files]
+        # Convert provided CSV paths to .tex files, skip aligned_breaks
+        files = [csv_path.with_suffix('.tex') for csv_path in csv_files if 'aligned_breaks' not in csv_path.name]
     
     organized = {
         'variance': [],
@@ -345,9 +344,13 @@ def organize_tables_by_type(csv_files=None):
     for fpath in files:
         if not fpath.exists():
             continue
-            
+        
         fname = fpath.name.lower()
         
+        # Skip aligned_breaks files
+        if 'aligned_breaks' in fname:
+            continue
+            
         # Classify by break type
         if 'variance' in fname:
             organized['variance'].append(fpath)
@@ -516,6 +519,189 @@ def sort_tables_hierarchical(tables_dict):
     return ordered
 
 
+def extract_summary_statistics_from_tables():
+    """
+    Extract summary statistics from all CSV result files for dynamic executive summary.
+    Returns a dictionary with key findings for the executive summary.
+    """
+    import pandas as pd
+    
+    summary = {
+        'n_sim': 5,
+        'total_results': 0,
+        'best_overall_rmse': float('inf'),
+        'best_overall_method': 'Unknown',
+        'persistence_levels': set(),
+        'dof_values': set(),
+        'avg_coverage_95': None,
+        'avg_logscore': None,
+        'best_by_break_type': {},  # {'mean': {'rmse': X, 'method': Y, 'dof': Z}, ...}
+        'best_by_persistence': {},  # {'p0.90': {'rmse': X, 'method': Y}, ...}
+    }
+    
+    csv_files = list(RESULTS_DIR.glob('**/*.csv'))
+    if not csv_files:
+        return summary
+    
+    try:
+        coverage_95_list = []
+        logscore_list = []
+        break_type_data = {'mean': [], 'parameter': [], 'variance': []}
+        persistence_data = {'p0.90': [], 'p0.95': [], 'p0.99': []}
+        
+        # Get n_sim from first CSV
+        first_df = pd.read_csv(csv_files[0])
+        if 'N' in first_df.columns:
+            summary['n_sim'] = int(first_df['N'].iloc[0])
+        
+        # Process all CSV files
+        for csv_path in csv_files:
+            fname = csv_path.stem.lower()
+            df = pd.read_csv(csv_path)
+            summary['total_results'] += len(df)
+            
+            # Extract persistence levels from filename
+            if 'recurring' in fname:
+                if 'p09' in fname or '_p0.9_' in fname:
+                    summary['persistence_levels'].add('0.90')
+                    persistence_data['p0.90'].extend(df['RMSE'].dropna().tolist() if 'RMSE' in df.columns else [])
+                if 'p095' in fname or '_p0.95_' in fname:
+                    summary['persistence_levels'].add('0.95')
+                    persistence_data['p0.95'].extend(df['RMSE'].dropna().tolist() if 'RMSE' in df.columns else [])
+                if 'p099' in fname or '_p0.99_' in fname:
+                    summary['persistence_levels'].add('0.99')
+                    persistence_data['p0.99'].extend(df['RMSE'].dropna().tolist() if 'RMSE' in df.columns else [])
+            
+            # Extract DOF from filename
+            dof = None
+            if 'gaussian' in fname:
+                dof = 'Gaussian'
+                summary['dof_values'].add('Gaussian')
+            if 'tdf5' in fname or 'student-t(df=5)' in fname or 't_df5' in fname:
+                dof = 'Student-t(df=5)'
+                summary['dof_values'].add('5')
+            if 'tdf3' in fname or 'student-t(df=3)' in fname or 't_df3' in fname:
+                dof = 'Student-t(df=3)'
+                summary['dof_values'].add('3')
+            
+            # Extract break type
+            break_type = None
+            if 'mean_' in fname:
+                break_type = 'mean'
+            elif 'parameter_' in fname:
+                break_type = 'parameter'
+            elif 'variance_' in fname:
+                break_type = 'variance'
+            
+            # Find best RMSE overall
+            if 'RMSE' in df.columns:
+                min_rmse_idx = df['RMSE'].idxmin()
+                current_rmse = df['RMSE'].iloc[min_rmse_idx]
+                if current_rmse < summary['best_overall_rmse']:
+                    summary['best_overall_rmse'] = current_rmse
+                    summary['best_overall_method'] = df['Method'].iloc[min_rmse_idx]
+                
+                # Track best by break type
+                if break_type:
+                    break_type_data[break_type].append({
+                        'rmse': current_rmse,
+                        'method': df['Method'].iloc[min_rmse_idx],
+                        'dof': dof or 'Unknown',
+                        'all_rmses': df['RMSE'].dropna().tolist()
+                    })
+            
+            # Collect coverage and logscore
+            if 'Coverage95' in df.columns:
+                coverage_95_list.extend(df['Coverage95'].dropna().tolist())
+            if 'LogScore' in df.columns:
+                logscore_list.extend(df['LogScore'].dropna().tolist())
+        
+        # Calculate best by break type
+        for break_type in ['mean', 'parameter', 'variance']:
+            if break_type_data[break_type]:
+                best_item = min(break_type_data[break_type], key=lambda x: x['rmse'])
+                summary['best_by_break_type'][break_type] = {
+                    'rmse': best_item['rmse'],
+                    'method': best_item['method'],
+                    'dof': best_item['dof']
+                }
+        
+        # Calculate best by persistence level
+        for level in ['p0.90', 'p0.95', 'p0.99']:
+            if persistence_data[level]:
+                avg_rmse = sum(persistence_data[level]) / len(persistence_data[level])
+                summary['best_by_persistence'][level] = {
+                    'rmse': min(persistence_data[level]),
+                    'avg_rmse': avg_rmse
+                }
+        
+        # Calculate averages
+        if coverage_95_list:
+            summary['avg_coverage_95'] = sum(coverage_95_list) / len(coverage_95_list)
+        if logscore_list:
+            summary['avg_logscore'] = sum(logscore_list) / len(logscore_list)
+    
+    except Exception as e:
+        print(f"Warning: Could not extract summary statistics: {e}")
+    
+    return summary
+
+
+def generate_executive_summary_latex(summary_stats):
+    """
+    Generate LaTeX code for executive summary section based on extracted statistics.
+    """
+    # Format numbers
+    best_rmse_str = f"{summary_stats['best_overall_rmse']:.4f}" if summary_stats['best_overall_rmse'] != float('inf') else "N/A"
+    persistence_str = ", ".join(sorted(summary_stats['persistence_levels'])) if summary_stats['persistence_levels'] else "N/A"
+    dof_str = ", ".join(sorted(summary_stats['dof_values'])) if summary_stats['dof_values'] else "N/A"
+    coverage_str = f"{summary_stats['avg_coverage_95']:.4f}" if summary_stats['avg_coverage_95'] is not None else "N/A"
+    logscore_str = f"{summary_stats['avg_logscore']:.4f}" if summary_stats['avg_logscore'] is not None else "N/A"
+    
+    # Build key findings
+    key_findings = []
+    
+    # Best overall method
+    key_findings.append(f"\\item \\textbf{{Best Overall Method:}} {summary_stats['best_overall_method']} achieves lowest RMSE of {best_rmse_str}")
+    
+    # Best by break type
+    for break_type in ['mean', 'parameter', 'variance']:
+        if break_type in summary_stats['best_by_break_type']:
+            info = summary_stats['best_by_break_type'][break_type]
+            key_findings.append(f"\\item \\textbf{{{break_type.title()} Break Performance:}} Best RMSE = {info['rmse']:.4f} ({info['dof']})")
+    
+    # Best by persistence level
+    if summary_stats['best_by_persistence']:
+        for level, info in sorted(summary_stats['best_by_persistence'].items()):
+            key_findings.append(f"\\item \\textbf{{Persistence {level}:}} Best RMSE = {info['rmse']:.4f}")
+    
+    # Coverage and logscore if available
+    if summary_stats['avg_coverage_95'] is not None:
+        key_findings.append(f"\\item \\textbf{{Predictive Performance:}} Average Coverage@95\\%: {coverage_str}, Average LogScore: {logscore_str}")
+    
+    key_findings_str = "\n".join(key_findings) if key_findings else "\\item \\textbf{Analysis Status:} Results compiled from all available simulations"
+    
+    # Build LaTeX executive summary
+    exec_summary = r"""
+\textbf{Study Overview:}
+\begin{itemize}
+\item \textbf{Simulation Design:} Monte Carlo experiments with """ + str(summary_stats['n_sim']) + r""" replications per scenario
+\item \textbf{Time Series Length:} T = 400 observations, break point Tb = 200
+\item \textbf{Break Types Analyzed:} Variance, Mean, and Parameter breaks
+\item \textbf{Innovation Types:} """ + dof_str + r"""
+\item \textbf{Persistence Levels:} """ + persistence_str + r"""
+\item \textbf{Total Scenarios:} """ + str(summary_stats['total_results']) + r""" forecast results across 3 break types
+\end{itemize}
+
+\textbf{Key Findings:}
+\begin{itemize}
+""" + key_findings_str + r"""
+\end{itemize}
+"""
+    
+    return exec_summary
+
+
 def create_table_pdf_from_tex(tables_dict, output_path):
     """
     Create PDF from LaTeX table files.
@@ -523,85 +709,15 @@ def create_table_pdf_from_tex(tables_dict, output_path):
     """
     import subprocess
     import tempfile
-    import pandas as pd
     
     # Reorganize tables in hierarchical order
     tables_dict = sort_tables_hierarchical(tables_dict)
     
-    # Extract actual data from CSVs for dynamic summary
-    csv_files = find_latest_files(RESULTS_DIR, '*.csv', limit=50)
-    n_sim = 5  # default fallback
-    total_results = 0
-    best_overall_rmse = float('inf')
-    best_overall_method = "Unknown"
-    persistence_levels = set()
-    dof_values = set()
-    avg_coverage_95 = None
-    avg_logscore = None
+    # Extract summary statistics dynamically from all CSV files
+    summary_stats = extract_summary_statistics_from_tables()
     
-    if csv_files:
-        try:
-            coverage_95_list = []
-            logscore_list = []
-            
-            # Get n_sim from first CSV
-            first_df = pd.read_csv(csv_files[0])
-            if 'N' in first_df.columns:
-                n_sim = int(first_df['N'].iloc[0])
-            
-            # Count total results and extract metadata
-            for csv_path in csv_files:
-                fname = csv_path.stem
-                df = pd.read_csv(csv_path)
-                total_results += len(df)
-                
-                # Extract persistence levels
-                if 'recurring' in fname:
-                    if 'p0.9_' in fname or '_p09' in fname:
-                        persistence_levels.add('0.90')
-                    if 'p0.95' in fname or '_p095' in fname:
-                        persistence_levels.add('0.95')
-                    if 'p0.99' in fname or '_p099' in fname:
-                        persistence_levels.add('0.99')
-                
-                # Extract DOF from filename
-                if 'Student-tdf5' in fname or 'Student-t(df=5)' in fname:
-                    dof_values.add('5')
-                if 'Student-tdf3' in fname or 'Student-t(df=3)' in fname:
-                    dof_values.add('3')
-                
-                # Find best RMSE
-                if 'RMSE' in df.columns:
-                    min_rmse_idx = df['RMSE'].idxmin()
-                    if df['RMSE'].iloc[min_rmse_idx] < best_overall_rmse:
-                        best_overall_rmse = df['RMSE'].iloc[min_rmse_idx]
-                        best_overall_method = df['Method'].iloc[min_rmse_idx]
-                
-                # Collect coverage and logscore
-                if 'Coverage95' in df.columns and 'LogScore' in df.columns:
-                    coverage_95_list.extend(df['Coverage95'].dropna().tolist())
-                    logscore_list.extend(df['LogScore'].dropna().tolist())
-            
-            # Calculate averages
-            if coverage_95_list:
-                avg_coverage_95 = sum(coverage_95_list) / len(coverage_95_list)
-            if logscore_list:
-                avg_logscore = sum(logscore_list) / len(logscore_list)
-        except Exception as e:
-            pass
-    
-    # Format best RMSE
-    best_rmse_str = f"{best_overall_rmse:.4f}" if best_overall_rmse != float('inf') else "N/A"
-    
-    # Format persistence levels
-    persistence_str = ", ".join(sorted(persistence_levels)) if persistence_levels else "N/A"
-    
-    # Format DOF
-    dof_str = ", ".join(sorted(dof_values)) if dof_values else "N/A"
-    
-    # Format coverage and logscore
-    coverage_str = f"{avg_coverage_95:.4f}" if avg_coverage_95 is not None else "N/A"
-    logscore_str = f"{avg_logscore:.4f}" if avg_logscore is not None else "N/A"
+    # Generate executive summary LaTeX
+    exec_summary_latex = generate_executive_summary_latex(summary_stats)
     
     # Create a master LaTeX file with DYNAMIC content
     latex_content = r"""
@@ -635,22 +751,7 @@ def create_table_pdf_from_tex(tables_dict, output_path):
 
 \section*{Executive Summary}
 
-\textbf{Study Overview:}
-\begin{itemize}
-\item \textbf{Simulation Design:} Monte Carlo experiments with """ + str(n_sim) + r""" replications per scenario
-\item \textbf{Time Series Length:} T = 400 observations, break point Tb = 200
-\item \textbf{Break Types Analyzed:} Variance, Mean, and Parameter breaks
-\item \textbf{Innovation Types:} Gaussian, Student-t(df=""" + dof_str + r""")
-\item \textbf{Persistence Levels:} """ + persistence_str + r"""
-\item \textbf{Total Scenarios:} """ + str(total_results) + r""" forecast results across 3 break types
-\end{itemize}
-
-\textbf{Key Findings:}
-\begin{itemize}
-\item \textbf{Best Overall Method:} """ + best_overall_method + r""" achieves lowest RMSE of """ + best_rmse_str + r"""
-\item \textbf{Predictive Performance (Variance):} Average Coverage@95\%: """ + coverage_str + r""", Average LogScore: """ + logscore_str + r"""
-\item \textbf{Analysis Status:} Results compiled from all available simulations
-\end{itemize}
+""" + exec_summary_latex + r"""
 
 \vspace{0.5cm}
 \newpage
@@ -794,6 +895,12 @@ def compile_combined():
         print("✗ No tables found")
         return
     
+    # Extract summary statistics dynamically from all CSV files
+    summary_stats = extract_summary_statistics_from_tables()
+    
+    # Generate executive summary LaTeX
+    exec_summary_latex = generate_executive_summary_latex(summary_stats)
+    
     # Create LaTeX document with tables and figures
     latex_content = r"""
 \documentclass[12pt]{article}
@@ -825,23 +932,7 @@ def compile_combined():
 
 \section*{Executive Summary}
 
-\textbf{Study Overview:}
-\begin{itemize}
-\item \textbf{Simulation Design:} Monte Carlo experiments with 5 replications per scenario
-\item \textbf{Time Series Length:} T = 400 observations, break point Tb = 200
-\item \textbf{Break Types Analyzed:} Variance, Mean, and Parameter breaks
-\item \textbf{Innovation Types:} Gaussian, Student-t(df=5), Student-t(df=3)
-\item \textbf{Total Scenarios:} 54 forecast results across 3 break types
-\end{itemize}
-
-\textbf{Key Findings:}
-\begin{itemize}
-\item \textbf{Best Overall Method:} SARIMA + Break Dummy (oracle Tb) achieves lowest RMSE of 0.322
-\item \textbf{Mean Break Performance:} Best RMSE = 0.322 (Student-t df=3)
-\item \textbf{Variance Break Performance:} Best RMSE = 0.872 (Student-t df=5)
-\item \textbf{Parameter Break Performance:} Best RMSE = 0.965 (Gaussian)
-\item \textbf{Persistence Results:} Rolling SARIMA performs best at p=0.99 (RMSE = 1.020)
-\end{itemize}
+""" + exec_summary_latex + r"""
 
 \vspace{0.5cm}
 \newpage

@@ -91,7 +91,7 @@ def plot_logscore_comparison():
         ax.set_xlabel('Window Size', fontsize=11)
         ax.set_ylabel('Method', fontsize=11)
         plt.tight_layout()
-        plt.savefig('variance_single_logscore_comparison.png', dpi=300, bbox_inches='tight')
+        plt.savefig('outputs/figures/variance_single_logscore_comparison.png', dpi=300, bbox_inches='tight')
         print('✓ Saved: variance_single_logscore_comparison.png')
         plt.show()
 
@@ -164,7 +164,7 @@ def plot_time_series_example():
     ax.legend(loc='upper left', fontsize=9)
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig('variance_single_timeseries_example.png', dpi=300, bbox_inches='tight')
+    plt.savefig('outputs/figures/variance_single_timeseries_example.png', dpi=300, bbox_inches='tight')
     print('✓ Saved: variance_single_timeseries_example.png')
     plt.show()
 
