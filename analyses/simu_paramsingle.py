@@ -22,7 +22,7 @@ def monte_carlo_single_break_post(
     seed=123
 ):
     """
-    Monte Carlo evaluation for single parameter break with random forecast origin after Tb.
+    Monte Carlo evaluation for single parameter break with random forecast origin.
     
     Parameters:
         n_sim: Number of Monte Carlo replications
@@ -53,8 +53,8 @@ def monte_carlo_single_break_post(
             rng=rng
         )
 
-        # Choose random forecast origin between Tb and T
-        t_post_random = rng.integers(Tb + 1, T - 1)
+        # Choose random forecast origin from full series (fair comparison with recurring)
+        t_post_random = rng.integers(max(T // 4, 50), T - 1)
         y_train = y[:t_post_random]
         y_true = y[t_post_random]
 

@@ -31,7 +31,7 @@ def run_mc_single_break_sarima(
     dof=None
 ):
     """
-    Monte Carlo evaluation for single mean break with random forecast origin after Tb.
+    Monte Carlo evaluation for single mean break with random forecast origin.
     
     Parameters:
         n_sim: Number of Monte Carlo replications
@@ -73,8 +73,8 @@ def run_mc_single_break_sarima(
     fails  = {name: 0 for name, _ in methods}
 
     for _ in range(n_sim):
-        # Choose random forecast origin between Tb and T
-        t0 = rng.integers(Tb + 1, T - 1)
+        # Choose random forecast origin from full series (fair comparison with recurring)
+        t0 = rng.integers(max(T // 4, 50), T - 1)
         
         y = simulate_single_break_ar1(
             T=T, Tb=Tb, mu0=mu0, mu1=mu1, phi=phi, sigma=sigma,

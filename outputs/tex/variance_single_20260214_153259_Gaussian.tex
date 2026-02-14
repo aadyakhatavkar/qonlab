@@ -1,0 +1,16 @@
+\begin{table}[h!]
+\centering
+\caption{Variance Single Results - Gaussian}
+\label{tab:variance_single_gaussian}
+\begin{tabular}{llllllllr}
+\toprule
+Method & RMSE & MAE & Bias & Variance & Coverage80 & Coverage95 & LogScore & Successes \\
+\midrule
+GARCH & 1.7579 & 1.3739 & -0.1288 & 3.0737 & 0.7700 & 0.9300 & -1.9395 & 300 \\
+SARIMA Avg-Window & 1.7601 & 1.3518 & -0.1166 & 3.0845 & 0.7233 & 0.9000 & -1.9675 & 300 \\
+SARIMA Global & 1.7606 & 1.3603 & -0.1136 & 3.0869 & 0.6667 & 0.8567 & -2.0782 & 300 \\
+SARIMA Rolling & 1.7804 & 1.3547 & -0.1155 & 3.1565 & 0.7533 & 0.9067 & -1.9584 & 300 \\
+\bottomrule
+\end{tabular}
+
+\end{table}

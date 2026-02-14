@@ -58,21 +58,46 @@ For advanced usage (run specific break types):
     
     # If --pdf flag is set, update paper tables then build PDF
     if args.pdf:
-        # Step 1: Update paper tables with latest results
+        # Step 1: Generate figures from results
         print("\n" + "="*70)
-        print("STEP 1: Updating paper tables with latest experimental results...")
+        print("STEP 1: Generating figures from simulation results...")
+        print("="*70)
+        fig_cmd = [sys.executable, 'scripts/generate_plots.py']
+        result = subprocess.run(fig_cmd).returncode
+        if result != 0:
+            print("\n⚠️  Figure generation encountered issues, but continuing...")
+        
+        # Step 2: Update paper tables with latest results
+        print("\n" + "="*70)
+        print("STEP 2: Updating paper tables with latest experimental results...")
         print("="*70)
         update_cmd = [sys.executable, 'scripts/update_paper_tables.py']
         result = subprocess.run(update_cmd).returncode
         if result != 0:
             print("\n⚠️  Table update encountered issues, but continuing with PDF build...")
         
-        # Step 2: Build PDF with updated tables
+        # Step 3: Build PDF with tables and figures
         print("\n" + "="*70)
-        print("STEP 2: Building PDF with updated tables...")
+        print("STEP 3: Building PDF with tables and figures...")
         print("="*70)
-        pdf_cmd = [sys.executable, 'scripts/build_pdfs.py', '--tables']
+        pdf_cmd = [sys.executable, 'scripts/build_pdfs.py', '--all']
         return subprocess.run(pdf_cmd).returncode
+    
+    # No --pdf flag: show helpful next steps
+    print("\n" + "="*70)
+    print("✅ EXPERIMENTS COMPLETE")
+    print("="*70)
+    print("\n📁 Results saved to: outputs/tables/")
+    print("\n📊 NEXT STEPS:")
+    print("   1. Generate figures:")
+    print("      pixi run python scripts/generate_plots.py")
+    print("")
+    print("   2. Build PDF report:")
+    print("      pixi run python scripts/build_pdfs.py --all")
+    print("")
+    print("   Or do both at once (re-run with --pdf):")
+    print("      pixi run python main.py --pdf")
+    print("="*70 + "\n")
     
     return 0
 

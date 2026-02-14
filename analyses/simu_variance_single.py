@@ -85,8 +85,9 @@ def mc_variance_single_break(
             seed=rng.integers(0, 1_000_000)
         )
         
-        # Choose random forecast origin between Tb and T
-        t_orig = rng.integers(Tb + 1, T - horizon - 1)
+        # Choose random forecast origin from full series (not just post-break)
+        # This makes comparison fair with recurring break simulations
+        t_orig = rng.integers(max(T // 4, 50), T - horizon - 1)
         y_train = y[:t_orig]
         y_true = float(y[t_orig]) if horizon == 1 else y[t_orig:t_orig+horizon]
         

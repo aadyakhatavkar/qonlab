@@ -20,6 +20,7 @@ ipykernel = ">=7.1.0,<8"
 jinja2 = "*"
 reportlab = ">=4.4.10,<5"
 pillow = ">=12.1.1,<13"
+pypdf2 = ">=3.0.1,<4"
 
 [pypi-dependencies]
 yfinance = "*"

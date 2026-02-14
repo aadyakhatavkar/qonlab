@@ -1,0 +1,64 @@
+\begin{table}
+\caption{Complete Structural Break Forecasting Results}
+\label{tab:all_results}
+\begin{tabular}{lrrrrlllr}
+\toprule
+Method & RMSE & MAE & Bias & Variance & Coverage80 & Coverage95 & LogScore & Var(error) \\
+\midrule
+GARCH & 1.7579 & 1.3739 & -0.1288 & 3.0737 & 0.7700 & 0.9300 & -1.9395 & NaN \\
+SARIMA Avg-Window & 1.7601 & 1.3518 & -0.1166 & 3.0845 & 0.7233 & 0.9000 & -1.9675 & NaN \\
+SARIMA Global & 1.7606 & 1.3603 & -0.1136 & 3.0869 & 0.6667 & 0.8567 & -2.0782 & NaN \\
+SARIMA Rolling & 1.7804 & 1.3547 & -0.1155 & 3.1565 & 0.7533 & 0.9067 & -1.9584 & NaN \\
+GARCH & 1.8432 & 1.2884 & 0.0003 & 3.3975 & 0.7900 & 0.9333 & -1.9965 & NaN \\
+SARIMA Avg-Window & 1.8656 & 1.3303 & -0.0152 & 3.4802 & 0.7633 & 0.9033 & -2.0667 & NaN \\
+SARIMA Global & 1.8683 & 1.3134 & -0.0098 & 3.4906 & 0.7067 & 0.8733 & -2.1652 & NaN \\
+SARIMA Rolling & 1.8729 & 1.3356 & -0.0158 & 3.5076 & 0.7667 & 0.9067 & -2.0477 & NaN \\
+GARCH & 1.7964 & 1.0749 & -0.1044 & 3.2162 & 0.8567 & 0.9200 & -2.2218 & NaN \\
+SARIMA Global & 1.8083 & 1.0883 & -0.1028 & 3.2595 & 0.8067 & 0.9067 & -2.2834 & NaN \\
+SARIMA Avg-Window & 1.8130 & 1.0969 & -0.1106 & 3.2748 & 0.8333 & 0.9200 & -2.2084 & NaN \\
+SARIMA Rolling & 1.8363 & 1.1143 & -0.1304 & 3.3548 & 0.8433 & 0.9200 & -2.1789 & NaN \\
+MS AR(1) & 1.4787 & 1.1691 & -0.2057 & 2.1443 & 0.7900 & 0.9033 & -1.9859 & NaN \\
+SARIMA Rolling & 1.4826 & 1.1731 & -0.1803 & 2.1655 & 0.8033 & 0.9467 & -1.8035 & NaN \\
+SARIMA Avg-Window & 1.4876 & 1.1766 & -0.1820 & 2.1799 & 0.8233 & 0.9533 & -1.7950 & NaN \\
+SARIMA Global & 1.4960 & 1.1795 & -0.1978 & 2.1990 & 0.8267 & 0.9567 & -1.8202 & NaN \\
+SARIMA + Break Dummy (oracle Tb) & 1.0581 & 0.8188 & 0.1954 & NaN & NA & NA & NA & 1.0815 \\
+Simple Exp. Smoothing (SES) & 1.1144 & 0.8646 & 0.1075 & NaN & NA & NA & NA & 1.2304 \\
+Holt-Winters (additive) & 1.1442 & 0.8823 & 0.0870 & NaN & NA & NA & NA & 1.3017 \\
+SARIMA Rolling & 1.1460 & 0.8771 & 0.2304 & NaN & NA & NA & NA & 1.2603 \\
+SARIMA Global & 1.1853 & 0.9143 & 0.3546 & NaN & NA & NA & NA & 1.2792 \\
+SARIMA + Break Dummy (oracle Tb) & 1.1073 & 0.7964 & 0.1466 & NaN & NA & NA & NA & 1.2047 \\
+Simple Exp. Smoothing (SES) & 1.1173 & 0.8099 & 0.0790 & NaN & NA & NA & NA & 1.2422 \\
+SARIMA Rolling & 1.1533 & 0.8395 & 0.1698 & NaN & NA & NA & NA & 1.3013 \\
+Holt-Winters (additive) & 1.1540 & 0.8285 & 0.0837 & NaN & NA & NA & NA & 1.3247 \\
+SARIMA Global & 1.1802 & 0.8594 & 0.3085 & NaN & NA & NA & NA & 1.2976 \\
+SARIMA + Break Dummy (oracle Tb) & 1.8712 & 0.7949 & 0.2239 & NaN & NA & NA & NA & 3.4511 \\
+SARIMA Rolling & 1.9194 & 0.8726 & 0.2262 & NaN & NA & NA & NA & 3.6331 \\
+Simple Exp. Smoothing (SES) & 1.9198 & 0.8783 & 0.1370 & NaN & NA & NA & NA & 3.6667 \\
+SARIMA Global & 1.9204 & 0.8858 & 0.3331 & NaN & NA & NA & NA & 3.5771 \\
+Holt-Winters (additive) & 1.9370 & 0.8964 & 0.1287 & NaN & NA & NA & NA & 3.7355 \\
+SARIMA + Midpoint Dummy (proxy Tb) & 1.0957 & 0.8906 & 0.0287 & NaN & NA & NA & NA & 1.1997 \\
+SARIMA Global & 1.1253 & 0.9019 & 0.1931 & NaN & NA & NA & NA & 1.2290 \\
+SARIMA Rolling & 1.1504 & 0.9285 & 0.1919 & NaN & NA & NA & NA & 1.2867 \\
+Simple Exp. Smoothing (SES) & 1.1548 & 0.9101 & 0.0267 & NaN & NA & NA & NA & 1.3329 \\
+Holt-Winters (additive) & 1.1798 & 0.9235 & 0.0114 & NaN & NA & NA & NA & 1.3918 \\
+MS AR & 1.1156 & 0.8924 & -0.0554 & 1.2414 & NA & NA & NA & NaN \\
+Rolling SARIMA & 1.1158 & 0.8844 & -0.0498 & 1.2426 & NA & NA & NA & NaN \\
+Global SARIMA & 1.1906 & 0.9439 & -0.0750 & 1.4119 & NA & NA & NA & NaN \\
+MS AR & 1.1223 & 0.8029 & -0.0549 & 1.2564 & NA & NA & NA & NaN \\
+Rolling SARIMA & 1.1531 & 0.8137 & -0.0346 & 1.3284 & NA & NA & NA & NaN \\
+Global SARIMA & 1.2391 & 0.8700 & -0.0596 & 1.5317 & NA & NA & NA & NaN \\
+Rolling SARIMA & 0.8775 & 0.6418 & -0.0345 & 0.7688 & NA & NA & NA & NaN \\
+Global SARIMA & 0.9642 & 0.6999 & -0.0191 & 0.9294 & NA & NA & NA & NaN \\
+MS AR & 0.9702 & 0.6560 & 0.0168 & 0.9409 & NA & NA & NA & NaN \\
+MS AR & 1.1426 & 0.8922 & 0.0253 & 1.3049 & NA & NA & NA & NaN \\
+Global SARIMA & 1.1695 & 0.9117 & 0.0041 & 1.3676 & NA & NA & NA & NaN \\
+Rolling SARIMA & 1.1875 & 0.9257 & 0.0059 & 1.4100 & NA & NA & NA & NaN \\
+MS AR & 1.0778 & 0.8570 & 0.0408 & 1.1600 & NA & NA & NA & NaN \\
+Rolling SARIMA & 1.1215 & 0.8990 & -0.0027 & 1.2578 & NA & NA & NA & NaN \\
+Global SARIMA & 1.1238 & 0.8952 & -0.0114 & 1.2627 & NA & NA & NA & NaN \\
+MS AR & 1.0318 & 0.8043 & -0.0102 & 1.0645 & NA & NA & NA & NaN \\
+Rolling SARIMA & 1.0668 & 0.8408 & -0.0122 & 1.1380 & NA & NA & NA & NaN \\
+Global SARIMA & 1.0974 & 0.8515 & -0.0582 & 1.2009 & NA & NA & NA & NaN \\
+\bottomrule
+\end{tabular}
+\end{table}

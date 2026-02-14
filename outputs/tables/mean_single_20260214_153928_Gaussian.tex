@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\small
+\caption{Mean Single Break (Gaussian): 300 simulations}
+\label{tab:mean_single_20260214_153928_Gaussian}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 1.0581 & 0.8188 & 0.1954 & 1.0815 \\
+Simple Exp. Smoothing (SES) & 1.1144 & 0.8646 & 0.1075 & 1.2304 \\
+Holt-Winters (additive) & 1.1442 & 0.8823 & 0.0870 & 1.3017 \\
+SARIMA Rolling & 1.1460 & 0.8771 & 0.2304 & 1.2603 \\
+SARIMA Global & 1.1853 & 0.9143 & 0.3546 & 1.2792 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}

@@ -794,6 +794,16 @@ Results saved to:
   Log: {log_file}
 
 Metrics available: RMSE, MAE, Bias, Variance
+
+📊 NEXT STEPS:
+  1. Generate figures:
+     pixi run python scripts/generate_plots.py
+
+  2. Build PDF report (tables + figures):
+     pixi run python scripts/build_pdfs.py --all
+
+  Or run everything together:
+     pixi run python main.py --pdf
 """
         print(summary)
         logger.info(summary)

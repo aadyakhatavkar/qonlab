@@ -1,0 +1,17 @@
+\begin{table}[h!]
+\centering
+\caption{Mean Single Results - Student-tdf3}
+\label{tab:mean_single_student-tdf3}
+\begin{tabular}{llllr}
+\toprule
+Method & RMSE & MAE & Bias & Successes \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 1.8712 & 0.7949 & 0.2239 & 300 \\
+SARIMA Rolling & 1.9194 & 0.8726 & 0.2262 & 300 \\
+Simple Exp. Smoothing (SES) & 1.9198 & 0.8783 & 0.1370 & 300 \\
+SARIMA Global & 1.9204 & 0.8858 & 0.3331 & 300 \\
+Holt-Winters (additive) & 1.9370 & 0.8964 & 0.1287 & 300 \\
+\bottomrule
+\end{tabular}
+
+\end{table}

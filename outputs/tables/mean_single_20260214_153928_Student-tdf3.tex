@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\small
+\caption{Mean Single Break (Student-t df=3): 300 simulations}
+\label{tab:mean_single_20260214_153928_Student-tdf3}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 1.8712 & 0.7949 & 0.2239 & 3.4511 \\
+SARIMA Rolling & 1.9194 & 0.8726 & 0.2262 & 3.6331 \\
+Simple Exp. Smoothing (SES) & 1.9198 & 0.8783 & 0.1370 & 3.6667 \\
+SARIMA Global & 1.9204 & 0.8858 & 0.3331 & 3.5771 \\
+Holt-Winters (additive) & 1.9370 & 0.8964 & 0.1287 & 3.7355 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}

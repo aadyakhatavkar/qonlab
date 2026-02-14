@@ -1,5 +1,10 @@
 # Structural Break Forecasting
 
+[![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-38%20passed-brightgreen.svg)](tests/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 **A Monte Carlo Study of Time Series Forecasting Under Parameter Instability**
 
 University of Bonn | Winter Semester 2025/26  
@@ -24,7 +29,7 @@ pixi install
 ```bash
 pixi run python main.py --pdf
 ```
-Runs all experiments + generates PDF report with tables & figures. Takes ~25 minutes. Output: `outputs/pdf/`
+Runs all experiments + generates PDF report with tables & figures. Takes ~20-25 minutes. Output: `outputs/pdf/`
 
 ### Quick Test (2 minutes)
 ```bash
@@ -32,15 +37,15 @@ pixi run python main.py --quick
 ```
 Same as above but with n_sim=30 instead of 300 (for testing).
 
-### Full Run (~25 minutes)
+### Full Run (~20 minutes)
 ```bash
 pixi run python main.py
 ```
-All experiments without PDF generation. Results in `outputs/csv/` and `outputs/tex/`.
+All experiments without PDF generation. Results in `outputs/tables/` and `outputs/tex/`.
 
 ### Regenerate PDF
 ```bash
-python scripts/build_pdfs.py --tables --figures
+pixi run python scripts/build_pdfs.py --all
 ```
 Builds PDF from existing results (use after experiments are done).
 
@@ -81,18 +86,17 @@ pixi run python runner.py --quick      # Quick test
 pixi run python runner.py --variance
 # Or combine: pixi run python runner.py --variance --mean --parameter
 ```
-Output: `outputs/csv/*.csv` and `outputs/tex/*.tex`
+Output: `outputs/tables/*.csv` and `outputs/tex/*.tex`
 
 #### Step 2: Generate Plots
 ```bash
-python scripts/generate_plots.py --all
+pixi run python scripts/generate_plots.py
 ```
-Output: `figures/{variance,mean,parameter}/*.png`  
-See `PLOTTING_QUICK_REFERENCE.txt` for plot options
+Output: `outputs/figures/*.png`
 
 #### Step 3: Compile Tables & Figures to PDF
 ```bash
-python scripts/build_pdfs.py --tables --figures
+pixi run python scripts/build_pdfs.py --all
 ```
 Output: 
 - `outputs/pdf/Tables_Results_YYYYMMDD_HHMMSS.pdf` (results)
@@ -100,7 +104,7 @@ Output:
 
 #### Step 4: Create Combined Report (Optional)
 ```bash
-python scripts/build_pdfs.py --combined
+pixi run python scripts/build_pdfs.py --combined
 ```
 Output: `outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf`  
 (Executive Summary → TOC → Results Tables → Analysis Plots)
@@ -109,15 +113,16 @@ Output: `outputs/pdf/Complete_Analysis_YYYYMMDD_HHMMSS.pdf`
 
 ## Methods Compared
 
-| Method | Description | Adapts? |
-|--------|-------------|----------|
-| Global ARIMA | Baseline: fit entire sample | No |
-| Rolling ARIMA | Adaptive: last 50 observations | Yes |
-| GARCH(1,1) | Volatility targeting | Yes |
-| Markov Switching | Hidden regime detection | Yes |
-| Oracle Dummy | Known break point (benchmark) | Yes |
+| Method | Description | Adapts? | Used For |
+|--------|-------------|----------|----------|
+| Global SARIMA | Baseline: fit entire sample | No | All |
+| Rolling SARIMA | Adaptive: last 100 observations | Yes | All |
+| GARCH(1,1) | Volatility targeting | Yes | Variance |
+| Markov Switching | Hidden regime detection | Yes | Parameter |
+| Oracle Dummy | Known break point (benchmark) | Yes | Mean |
+| SES / Holt-Winters | Exponential smoothing | Yes | Mean |
 
-**Oracle Dummy** represents the upper bound (perfect break knowledge), while **Global ARIMA** represents the lower bound (complete break ignorance).
+**Oracle Dummy** represents the upper bound (perfect break knowledge), while **Global SARIMA** represents the lower bound (complete break ignorance).
 
 ---
 
@@ -127,7 +132,7 @@ All results timestamped and organized in:
 
 - **`outputs/tables/`** — All CSV results (raw metrics from runner: RMSE, MAE, Bias) per method × scenario × innovation type
 - **`outputs/tex/`** — LaTeX versions of tables (used for PDF generation)
-- **`figures/`** — Publication-quality plots:
+- **`outputs/figures/`** — Publication-quality plots:
   - Tier 1: Method comparisons (metrics across innovations)
   - Tier 2: DGP visualizations (example time series with breaks)
 - **`outputs/pdf/`** — Professional PDF reports:

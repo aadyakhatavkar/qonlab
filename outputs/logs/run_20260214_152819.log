@@ -1,0 +1,90 @@
+[2026-02-14 15:28:19,763] INFO: ======================================================================
+[2026-02-14 15:28:19,763] INFO: STRUCTURAL BREAK EXPERIMENTS RUNNER STARTED
+[2026-02-14 15:28:19,763] INFO: ======================================================================
+[2026-02-14 15:28:20,963] INFO: Parameters: T=400, Tb=200, n_sim=30
+[2026-02-14 15:28:20,963] INFO: Quick mode: True
+[2026-02-14 15:28:20,963] INFO: Starting variance break experiments...
+[2026-02-14 15:28:20,963] INFO: ======================================================================
+[2026-02-14 15:28:20,963] INFO: VARIANCE BREAK EXPERIMENTS START
+[2026-02-14 15:28:20,963] INFO: ======================================================================
+[2026-02-14 15:28:20,963] INFO: [1/2] Single variance breaks (T=400, Tb=200, n_sim=30)
+[2026-02-14 15:28:20,963] INFO: Starting variance_single: Gaussian
+[2026-02-14 15:28:28,508] INFO: ✓ variance_single Gaussian completed in 7.5s
+[2026-02-14 15:28:28,508] INFO: Starting variance_single: Student-t(df=5)
+[2026-02-14 15:28:37,401] INFO: ✓ variance_single Student-t(df=5) completed in 8.9s
+[2026-02-14 15:28:37,401] INFO: Starting variance_single: Student-t(df=3)
+[2026-02-14 15:28:47,292] INFO: ✓ variance_single Student-t(df=3) completed in 9.9s
+[2026-02-14 15:28:47,293] INFO: Saving variance_single results by innovation type...
+[2026-02-14 15:28:47,296] INFO:   Gaussian: best method = GARCH (RMSE=1.9306)
+[2026-02-14 15:28:47,301] INFO: ✓ CSV saved: outputs/tables/variance_single_20260214_152847_Gaussian.csv
+[2026-02-14 15:28:47,406] INFO: ✓ LaTeX table saved: outputs/tex/variance_single_20260214_152847_Gaussian.tex
+[2026-02-14 15:28:47,407] INFO:   Student-t(df=3): best method = GARCH (RMSE=1.9721)
+[2026-02-14 15:28:47,408] INFO: ✓ CSV saved: outputs/tables/variance_single_20260214_152847_Student-tdf3.csv
+[2026-02-14 15:28:47,411] INFO: ✓ LaTeX table saved: outputs/tex/variance_single_20260214_152847_Student-tdf3.tex
+[2026-02-14 15:28:47,412] INFO:   Student-t(df=5): best method = SARIMA Rolling (RMSE=2.2750)
+[2026-02-14 15:28:47,413] INFO: ✓ CSV saved: outputs/tables/variance_single_20260214_152847_Student-tdf5.csv
+[2026-02-14 15:28:47,416] INFO: ✓ LaTeX table saved: outputs/tex/variance_single_20260214_152847_Student-tdf5.tex
+[2026-02-14 15:28:47,416] INFO: [2/2] Recurring variance breaks (T=400, n_sim=30)
+[2026-02-14 15:28:47,416] INFO: Starting variance_recurring (Markov-switching)
+[2026-02-14 15:28:56,855] INFO: ✓ variance_recurring completed in 9.4s
+[2026-02-14 15:28:56,855] INFO: Saving variance_recurring results...
+[2026-02-14 15:28:56,857] INFO: ✓ CSV saved: outputs/tables/variance_recurring_20260214_152856_MarkovSwitching.csv
+[2026-02-14 15:28:56,863] INFO: ✓ LaTeX table saved: outputs/tex/variance_recurring_20260214_152856_MarkovSwitching.tex
+[2026-02-14 15:28:56,863] INFO:   ✓ Saved variance_recurring
+[2026-02-14 15:28:56,868] INFO: ======================================================================
+[2026-02-14 15:28:56,868] INFO: VARIANCE BREAK EXPERIMENTS COMPLETED
+[2026-02-14 15:28:56,868] INFO: ======================================================================
+[2026-02-14 15:28:56,869] INFO: Starting mean break experiments...
+[2026-02-14 15:28:56,869] INFO: ======================================================================
+[2026-02-14 15:28:56,869] INFO: MEAN BREAK EXPERIMENTS START
+[2026-02-14 15:28:56,869] INFO: ======================================================================
+[2026-02-14 15:28:56,869] INFO: [1/2] Single mean breaks (T=400, Tb=200, n_sim=30)
+[2026-02-14 15:28:56,869] ERROR: ✗ Mean breaks FAILED: BrokenPipeError: [Errno 32] Broken pipe
+[2026-02-14 15:28:56,873] ERROR: Traceback (most recent call last):
+  File "/home/aadya/bonn-repo/qonlab/runner.py", line 717, in main
+    mean_results = run_mean_breaks()
+  File "/home/aadya/bonn-repo/qonlab/runner.py", line 377, in run_mean_breaks
+    print(f"      └─ {inn_name}...", end=" ", flush=True)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [Errno 32] Broken pipe
+
+[2026-02-14 15:28:56,873] INFO: Starting parameter break experiments...
+[2026-02-14 15:28:56,873] INFO: ======================================================================
+[2026-02-14 15:28:56,873] INFO: PARAMETER BREAK EXPERIMENTS START
+[2026-02-14 15:28:56,873] INFO: ======================================================================
+[2026-02-14 15:28:56,873] INFO: [1/2] Single parameter breaks (T=400, Tb=200, n_sim=30)
+[2026-02-14 15:28:56,873] ERROR: ✗ Parameter breaks FAILED: BrokenPipeError: [Errno 32] Broken pipe
+[2026-02-14 15:28:56,874] ERROR: Traceback (most recent call last):
+  File "/home/aadya/bonn-repo/qonlab/runner.py", line 729, in main
+    parameter_results = run_parameter_breaks()
+  File "/home/aadya/bonn-repo/qonlab/runner.py", line 510, in run_parameter_breaks
+    print(f"      └─ {inn_name}...", end=" ", flush=True)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [Errno 32] Broken pipe
+
+[2026-02-14 15:28:56,877] INFO: ✓ Combined results saved: outputs/tables/aligned_breaks_20260214_152856.csv
+[2026-02-14 15:28:56,882] INFO: ✓ LaTeX table saved: outputs/tex/aligned_breaks_20260214_152856.tex
+[2026-02-14 15:28:56,882] INFO: 
+======================================================================
+ OVERALL SUMMARY
+======================================================================
+Total results: 16 rows
+Time elapsed: 35.9 seconds (0.6 minutes)
+
+Results saved to: 
+  CSV: outputs/tables/aligned_breaks_20260214_152856.csv
+  LaTeX: outputs/tex/aligned_breaks_20260214_152856.tex
+  Log: outputs/logs/run_20260214_152819.log
+
+Metrics available: RMSE, MAE, Bias, Variance
+
+[2026-02-14 15:28:56,893] INFO: Top methods:
+           Method     RMSE      MAE      Bias
+         MS AR(1) 1.599193 1.233251  0.271357
+SARIMA Avg-Window 1.651638 1.232872  0.258758
+    SARIMA Global 1.673099 1.266698  0.286254
+   SARIMA Rolling 1.698236 1.289042  0.205989
+            GARCH 1.930630 1.551001 -0.383527
+[2026-02-14 15:28:56,893] INFO: ======================================================================
+[2026-02-14 15:28:56,893] INFO: RUNNER COMPLETED SUCCESSFULLY
+[2026-02-14 15:28:56,893] INFO: ======================================================================

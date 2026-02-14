@@ -2,14 +2,14 @@
 """
 Compile Latest Figures and Tables into PDFs
 ==============================================
-Creates timestamped PDFs of latest figures and tables.
-Organized by break type and tier.
-Placed in outputs/pdf/
+Creates timestamped PDFs of latest figures and tables with executive summaries.
+Outputs saved to outputs/pdf/
 
 Usage:
-    python scripts/build_pdfs.py --figures      # Latest figures only
-    python scripts/build_pdfs.py --tables       # Latest tables only
-    python scripts/build_pdfs.py --all          # Both figures and tables
+    python scripts/build_pdfs.py --figures      # Figures appendix (with exec summary)
+    python scripts/build_pdfs.py --tables       # Tables PDF (with exec summary)
+    python scripts/build_pdfs.py --combined     # Merge tables + figures (no rearrangement)
+    python scripts/build_pdfs.py --all          # All three PDFs (default)
     python scripts/build_pdfs.py --list         # List recent files
 """
 
@@ -702,6 +702,167 @@ def generate_executive_summary_latex(summary_stats):
     return exec_summary
 
 
+def generate_figure_executive_summary_latex():
+    """
+    Generate LaTeX code for figure appendix executive summary.
+    """
+    # Count figures by category
+    figures = list(FIGURES_DIR.glob('*.png'))
+    
+    dgp_figures = [f for f in figures if 'dgp' in f.name.lower() or 'recurring_' in f.name.lower()]
+    analysis_figures = [f for f in figures if f not in dgp_figures]
+    
+    dgp_count = len(dgp_figures)
+    analysis_count = len(analysis_figures)
+    total_count = len(figures)
+    
+    exec_summary = r"""
+\textbf{Overview:} """ + str(total_count) + r""" figures total --- """ + str(dgp_count) + r""" DGP illustrations and """ + str(analysis_count) + r""" analysis results from Monte Carlo simulations (300 replications).
+"""
+    
+    return exec_summary
+
+
+def create_figures_appendix_pdf(output_path):
+    """
+    Create a professional figures appendix PDF with executive summary.
+    Uses LaTeX for consistent styling with tables PDF.
+    """
+    import subprocess
+    import tempfile
+    
+    figures = sorted(FIGURES_DIR.glob('*.png'))
+    
+    if not figures:
+        print("  ✗ No figures found")
+        return False
+    
+    # Categorize figures
+    dgp_figures = [f for f in figures if 'dgp' in f.name.lower() or 'recurring_' in f.name.lower()]
+    analysis_figures = [f for f in figures if f not in dgp_figures]
+    
+    # Generate executive summary
+    exec_summary_latex = generate_figure_executive_summary_latex()
+    
+    # Build LaTeX document
+    latex_content = r"""
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\geometry{margin=0.75in, headheight=15pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\textit{Figure Appendix - Structural Breaks}}
+\fancyfoot[C]{\thepage}
+
+\title{\Large\textbf{Structural Break Analysis: Figure Appendix}}
+\author{}
+\date{""" + DATE_READABLE + r"""}
+
+\begin{document}
+\maketitle
+\vspace{0.3cm}
+
+\section*{Executive Summary}
+
+""" + exec_summary_latex + r"""
+
+\vspace{0.5cm}
+\newpage
+
+"""
+    
+    # Add DGP figures section
+    if dgp_figures:
+        latex_content += r"""
+\section{Data Generating Process Illustrations}
+These figures illustrate the structural break patterns used in our Monte Carlo simulations.
+
+"""
+        for i, fig_path in enumerate(sorted(dgp_figures), 1):
+            # Clean figure name for caption
+            caption = fig_path.stem.replace('_', ' ').replace('dgp', 'DGP').title()
+            latex_content += r"""
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{""" + str(fig_path) + r"""}
+\caption{""" + caption + r"""}
+\end{figure}
+
+"""
+    
+    # Add analysis figures section
+    if analysis_figures:
+        latex_content += r"""
+\newpage
+\section{Analysis Results}
+These figures present results from Monte Carlo simulations (300 replications per scenario).
+All data sourced from \texttt{outputs/tables/*.csv}.
+
+"""
+        # Sort analysis figures, but put bias_comparison at the end
+        sorted_analysis = sorted(analysis_figures, key=lambda f: (1 if 'bias' in f.name.lower() else 0, f.name))
+        for i, fig_path in enumerate(sorted_analysis, 1):
+            caption = fig_path.stem.replace('_', ' ').title()
+            latex_content += r"""
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{""" + str(fig_path) + r"""}
+\caption{""" + caption + r"""}
+\end{figure}
+
+"""
+    
+    latex_content += r"""
+\end{document}
+"""
+    
+    # Compile LaTeX to PDF
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tex_path = Path(tmpdir) / 'figures_appendix.tex'
+        with open(tex_path, 'w') as f:
+            f.write(latex_content)
+        
+        try:
+            result = subprocess.run(
+                ['pdflatex', '-interaction=nonstopmode', '-output-directory', tmpdir, str(tex_path)],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+            
+            # Run twice for proper references
+            subprocess.run(
+                ['pdflatex', '-interaction=nonstopmode', '-output-directory', tmpdir, str(tex_path)],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+            
+            pdf_path = Path(tmpdir) / 'figures_appendix.pdf'
+            if pdf_path.exists():
+                shutil.copy(pdf_path, output_path)
+                return True
+            else:
+                print(f"  ⚠ PDF not generated. LaTeX output:\n{result.stdout[:500]}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            print("  ⚠ LaTeX compilation timed out")
+            return False
+        except FileNotFoundError:
+            print("  ⚠ pdflatex not found. Install TeX distribution.")
+            return False
+        except Exception as e:
+            print(f"  ⚠ LaTeX compilation failed: {e}")
+            return False
+
+
 def create_table_pdf_from_tex(tables_dict, output_path):
     """
     Create PDF from LaTeX table files.
@@ -874,209 +1035,63 @@ def create_table_pdf_from_tex(tables_dict, output_path):
 
 
 def compile_combined():
-    """Compile tables and figures into a single comprehensive PDF."""
-    import subprocess
-    import tempfile
-    
+    """
+    Compile tables and figures into a single PDF by merging individual PDFs.
+    Does NOT rearrange content - simply concatenates tables PDF + figures PDF.
+    """
     print("\n" + "="*70)
-    print("COMPILING TABLES AND FIGURES INTO SINGLE PDF")
+    print("COMPILING COMBINED PDF (Tables + Figures Appendix)")
     print("="*70 + "\n")
     
-    tables = organize_tables_by_type()
-    figs = organize_figures_by_type()
+    # First, compile tables and figures separately
+    print("Step 1: Compiling Tables PDF...")
+    tables_pdf = compile_tables()
     
-    # Count files
-    total_tables = sum(len(tables[bt]) for bt in tables)
-    total_figs = sum(len(figs[bt][tier]) for bt in figs for tier in figs[bt])
+    print("\nStep 2: Compiling Figures Appendix PDF...")
+    figures_pdf = compile_figures()
     
-    print(f"Found {total_tables} tables and {total_figs} figures")
+    # Check what we have
+    if tables_pdf is None and figures_pdf is None:
+        print("✗ No PDFs generated - nothing to merge")
+        return None
     
-    if total_tables == 0:
-        print("✗ No tables found")
-        return
+    if tables_pdf is None:
+        print("⚠ Only figures PDF available (tables failed)")
+        return figures_pdf
     
-    # Extract summary statistics dynamically from all CSV files
-    summary_stats = extract_summary_statistics_from_tables()
+    if figures_pdf is None:
+        print("⚠ Only tables PDF available (figures failed)")
+        return tables_pdf
     
-    # Generate executive summary LaTeX
-    exec_summary_latex = generate_executive_summary_latex(summary_stats)
+    # Merge the two PDFs
+    print("\nStep 3: Merging PDFs...")
     
-    # Create LaTeX document with tables and figures
-    latex_content = r"""
-\documentclass[12pt]{article}
-\usepackage{geometry}
-\usepackage{booktabs}
-\usepackage{graphicx}
-\usepackage{fancyhdr}
-\usepackage{xcolor}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{float}
-\geometry{margin=0.75in, headheight=15pt}
+    if not HAS_PYPDF:
+        print("⚠ PyPDF2 not installed. Install with: pip install PyPDF2")
+        print("  Individual PDFs are available separately.")
+        return tables_pdf
+    
+    try:
+        output_name = f"Combined_Tables_Figures_{TIMESTAMP}.pdf"
+        output_path = COMPILATIONS_DIR / output_name
+        
+        merger = PdfMerger()
+        merger.append(str(tables_pdf))
+        merger.append(str(figures_pdf))
+        merger.write(str(output_path))
+        merger.close()
+        
+        size_mb = output_path.stat().st_size / (1024*1024)
+        print(f"✓ Successfully created combined PDF: {output_path}")
+        print(f"  Size: {size_mb:.2f} MB")
+        print(f"  Contents: Tables PDF + Figures Appendix (no rearrangement)")
+        return output_path
+        
+    except Exception as e:
+        print(f"⚠ PDF merge failed: {e}")
+        print("  Individual PDFs are available separately.")
+        return tables_pdf
 
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[R]{\textit{Analysis Results - Structural Breaks}}
-\fancyfoot[C]{\thepage}
-
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{0.9}
-
-\title{\Large\textbf{Structural Break Analysis Results}}
-\author{}
-\date{""" + DATE_READABLE + r"""}
-
-\begin{document}
-\maketitle
-\vspace{0.3cm}
-
-\section*{Executive Summary}
-
-""" + exec_summary_latex + r"""
-
-\vspace{0.5cm}
-\newpage
-
-"""
-    
-    # Add Tables - properly ordered by break type
-    section_num = 1
-    for break_type in ['mean', 'parameter', 'variance']:
-        tables_list = tables.get(break_type, [])
-        if not tables_list:
-            continue
-        
-        title = break_type.title()
-        latex_content += f"\n\\section{{{section_num}. {title} Break}}\n\n"
-        
-        single_tables = [t for t in tables_list if 'single' in t.name]
-        recurring_tables = [t for t in tables_list if 'recurring' in t.name or 'p0' in t.name]
-        
-        subsection_num = 1
-        if single_tables:
-            latex_content += f"\\subsection{{{section_num}.{subsection_num} Single Break}}\n\n"
-            for table_path in sorted(single_tables):
-                try:
-                    with open(table_path, 'r') as f:
-                        latex_content += f.read()
-                        latex_content += "\n"
-                except:
-                    pass
-            subsection_num += 1
-        
-        if recurring_tables:
-            subsection_title = "Persistence Results" if break_type == 'parameter' else "Recurring Break"
-            latex_content += f"\\subsection{{{section_num}.{subsection_num} {subsection_title}}}\n\n"
-            for table_path in sorted(recurring_tables):
-                try:
-                    with open(table_path, 'r') as f:
-                        latex_content += f.read()
-                        latex_content += "\n"
-                except:
-                    pass
-        
-        section_num += 1
-    
-    # Add Combined Results (Table 15 under Section 4)
-    other_tables = tables.get('other', [])
-    if other_tables:
-        latex_content += r"\section{4. Combined Results}" + "\n\n"
-        for table_path in other_tables:
-            try:
-                with open(table_path, 'r') as f:
-                    content = f.read()
-                    content = content.replace(r'\begin{table}', '')
-                    content = content.replace(r'\end{table}', '')
-                    content = content.replace(r'\caption{Complete Structural Break Forecasting Results}', r'\caption{Complete Structural Break Forecasting Results}\\')
-                    content = content.replace(r'\label{tab:all_results}', '')
-                    content = content.replace(r'\begin{tabular}', r'\begin{longtable}')
-                    content = content.replace(r'\end{tabular}', r'\end{longtable}')
-                    
-                    lines = content.split('\n')
-                    new_lines = []
-                    for line in lines:
-                        line = line.replace(' Successes & Failures &', '')
-                        if '&' in line and 'Successes' not in line and 'Failures' not in line:
-                            parts = line.split('&')
-                            if len(parts) >= 11:
-                                parts_new = parts[:8] + parts[10:]
-                                line = '&'.join(parts_new)
-                        new_lines.append(line)
-                    
-                    content = '\n'.join(new_lines)
-                    latex_content += content
-                    latex_content += "\n\n"
-            except:
-                pass
-    
-    # Add Figures section at the END (Section 5)
-    if total_figs > 0:
-        latex_content += r"\newpage" + "\n\n"
-        latex_content += r"\section{5. Analysis Plots}" + "\n\n"
-        latex_content += r"{\small" + "\n"
-        
-        section_num = 5
-        subsection_num = 1
-        for break_type in ['mean', 'parameter', 'variance']:
-            if figs[break_type]['tier1'] or figs[break_type]['tier2']:
-                latex_content += f"\n\\subsection{{{section_num}.{subsection_num} {break_type.title()} Break}}\n\n"
-                
-                # Tier 1 plots
-                if figs[break_type]['tier1']:
-                    latex_content += "\\textbf{Tier 1 - Method Comparison}\n\n"
-                    for fig_path in figs[break_type]['tier1'][:3]:
-                        try:
-                            latex_content += f"\\includegraphics[width=5.5cm]{{{fig_path}}}\n\n"
-                        except:
-                            pass
-                
-                # Tier 2 plots
-                if figs[break_type]['tier2']:
-                    latex_content += "\\textbf{Tier 2 - DGP Visualization}\n\n"
-                    for fig_path in figs[break_type]['tier2'][:2]:
-                        try:
-                            latex_content += f"\\includegraphics[width=5.5cm]{{{fig_path}}}\n\n"
-                        except:
-                            pass
-                
-                subsection_num += 1
-        
-        latex_content += r"}" + "\n"
-    
-    latex_content += r"\end{document}"
-    
-    # Compile with pdflatex
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
-        tex_file = tmpdir / 'combined.tex'
-        
-        with open(tex_file, 'w') as f:
-            f.write(latex_content)
-        
-        try:
-            result = subprocess.run(
-                ['pdflatex', '-interaction=nonstopmode', '-output-directory', str(tmpdir), str(tex_file)],
-                capture_output=True,
-                timeout=60
-            )
-            
-            pdf_src = tmpdir / 'combined.pdf'
-            if pdf_src.exists():
-                output_name = f"Complete_Analysis_{TIMESTAMP}.pdf"
-                output_path = COMPILATIONS_DIR / output_name
-                shutil.copy(pdf_src, output_path)
-                size_mb = output_path.stat().st_size / (1024*1024)
-                print(f"✓ Successfully created: {output_path}")
-                print(f"  Size: {size_mb:.2f} MB")
-                print(f"  Location: {output_path}")
-                return True
-            else:
-                print(f"⚠ PDF file not created. pdflatex output:")
-                print(result.stdout.decode('utf-8', errors='ignore')[-500:])
-        except Exception as e:
-            print(f"  ⚠ pdflatex failed: {e}")
-    
-    return False
 
 
 def list_recent_files():
@@ -1112,38 +1127,40 @@ def list_recent_files():
 # =========================================================
 
 def compile_figures():
-    """Compile latest figures into PDF."""
+    """Compile latest figures into PDF appendix with executive summary."""
     print("\n" + "="*70)
-    print("COMPILING FIGURES INTO PDF")
+    print("COMPILING FIGURES APPENDIX PDF")
     print("="*70 + "\n")
     
-    figs = organize_figures_by_type()
+    figures = list(FIGURES_DIR.glob('*.png'))
+    total = len(figures)
     
-    # Count figures
-    total = sum(len(figs[bt][tier]) for bt in figs for tier in figs[bt])
-    print(f"Found {total} figures")
+    # Categorize
+    dgp_figures = [f for f in figures if 'dgp' in f.name.lower() or 'recurring_' in f.name.lower()]
+    analysis_figures = [f for f in figures if f not in dgp_figures]
     
-    for break_type in ['variance', 'mean', 'parameter']:
-        count = sum(len(figs[break_type][tier]) for tier in figs[break_type])
-        if count > 0:
-            print(f"  {break_type}: {count} figures")
+    print(f"Found {total} figures:")
+    print(f"  DGP Illustrations: {len(dgp_figures)}")
+    print(f"  Analysis Results:  {len(analysis_figures)}")
     
     if total == 0:
         print("✗ No figures found in figures/ directory")
-        return
+        return None
     
-    output_name = f"Figures_Tier1-2_{TIMESTAMP}.pdf"
+    output_name = f"Figures_Appendix_{TIMESTAMP}.pdf"
     output_path = COMPILATIONS_DIR / output_name
     
     print(f"\nCreating PDF: {output_name}")
     
-    if create_figure_pdf_native(figs, output_path):
+    if create_figures_appendix_pdf(output_path):
         size_mb = output_path.stat().st_size / (1024*1024)
         print(f"✓ Successfully created: {output_path}")
         print(f"  Size: {size_mb:.2f} MB")
         print(f"  Location: {output_path}")
+        return output_path
     else:
         print(f"✗ Failed to create PDF")
+        return None
 
 
 def compile_tables():
@@ -1174,7 +1191,7 @@ def compile_tables():
     
     if total == 0:
         print("✗ No tables found in outputs/tables/ directory")
-        return
+        return None
     
     output_name = f"Tables_Results_{TIMESTAMP}.pdf"
     output_path = COMPILATIONS_DIR / output_name
@@ -1186,9 +1203,11 @@ def compile_tables():
         print(f"✓ Successfully created: {output_path}")
         print(f"  Size: {size_mb:.2f} MB")
         print(f"  Location: {output_path}")
+        return output_path
     else:
         print(f"⚠ Could not create table PDF (pdflatex may not be installed)")
         print(f"  Install with: sudo apt install texlive-latex-base")
+        return None
 
 
 # =========================================================
@@ -1207,7 +1226,7 @@ EXAMPLES:
   # Compile tables only
   %(prog)s --tables
   
-  # Compile combined document (tables + figures)
+  # Compile combined document (tables + figures merged)
   %(prog)s --combined
   
   # Compile all three (default)
@@ -1218,18 +1237,18 @@ EXAMPLES:
   
 OUTPUT LOCATION:
   PDFs are saved to: outputs/pdf/
-  Format: Figures_Tier1-2_YYYYMMDD_HHMMSS.pdf
-  Format: Tables_Results_YYYYMMDD_HHMMSS.pdf
-  Format: Complete_Analysis_YYYYMMDD_HHMMSS.pdf (combined tables + figures)
+  Format: Figures_Appendix_YYYYMMDD_HHMMSS.pdf (with executive summary)
+  Format: Tables_Results_YYYYMMDD_HHMMSS.pdf (with executive summary)
+  Format: Combined_Tables_Figures_YYYYMMDD_HHMMSS.pdf (simple merge of tables + figures)
 """
     )
     
     parser.add_argument('--figures', action='store_true', 
-                       help='Compile figures only')
+                       help='Compile figures appendix PDF (with executive summary)')
     parser.add_argument('--tables', action='store_true',
-                       help='Compile tables only')
+                       help='Compile tables PDF (with executive summary)')
     parser.add_argument('--combined', action='store_true',
-                       help='Compile combined PDF with tables and figures')
+                       help='Merge tables + figures into one PDF (no rearrangement)')
     parser.add_argument('--all', action='store_true',
                        help='Compile figures, tables, and combined (default)')
     parser.add_argument('--list', action='store_true',
