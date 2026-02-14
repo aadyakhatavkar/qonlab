@@ -157,6 +157,12 @@ y_t = \mu_{S_t} + \phi (y_{t-1} - \mu_{S_t}) + \varepsilon_t,
 \end{equation}
 with $\mu_0 = 0$, $\mu_1 = 2$, and $\phi = 0.6$. Regime changes therefore induce stochastic shifts in the unconditional mean while persistence and variance remain constant.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{WhatsApp Image 2026-02-14 at 00.08.51.jpeg}
+    \caption{Recurring Mean Break DGP}
+\end{figure}
+
 \subsubsection{Recurring Variance Break}
 
 Variance switching is modeled as
@@ -169,6 +175,18 @@ where $\mu = 0$, $\phi = 0.6$, and
 \end{equation}
 with $\sigma_1 = 1$ and $\sigma_2 = 2$. Regime transitions generate recurrent volatility shifts without altering the conditional mean dynamics.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{WhatsApp Image 2026-02-14 at 00.57.26.jpeg}
+    \caption{Recurring Variance Break DGP}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{dgp_variance_95.png}
+    \caption{Recurring Variance DGP (Markov-Switching, p=0.95)}
+\end{figure}
+
 \subsubsection{Recurring Parameter Break}
 
 Persistence switching is defined by
@@ -177,11 +195,35 @@ y_t = \phi_{S_t} y_{t-1} + \varepsilon_t,
 \end{equation}
 where $\phi_0 = 0.2$ and $\phi_1 = 0.9$.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{WhatsApp Image 2026-02-14 at 00.57.41.jpeg}
+    \caption{Recurring Parameter Break DGP}
+\end{figure}
+
 In this case, regime persistence varies across experiments according to
 \begin{equation}
 p_{00} = p_{11} \in \{0.90, 0.95, 0.99\}.
 \end{equation}
 Higher persistence values imply longer regime durations and therefore stronger dynamic instability.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{dgp_parameter_90.png}
+    \caption{Recurring Parameter DGP (Markov-Switching, p=0.90)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{dgp_parameter_95.png}
+    \caption{Recurring Parameter DGP (Markov-Switching, p=0.95)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{dgp_parameter_99.png}
+    \caption{Recurring Parameter DGP (Markov-Switching, p=0.99)}
+\end{figure}
 
 \subsection{Design Considerations}
 
@@ -389,22 +431,68 @@ All performance measures are averaged across Monte Carlo replications to obtain 
 \subsubsection{Single Mean Break}
 
 Under Gaussian innovations, the oracle specification that includes the true break dummy achieves the lowest RMSE (0.9789), as expected. Because the break location is assumed known, this model represents a benchmark rather than a feasible competitor. Its advantage relative to other models stems primarily from reduced error variance (0.9336), rather than a dramatic improvement in bias. Although its bias (0.1568) is not the smallest among the models, its dispersion is clearly lower.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\linewidth]{1.jpeg}
-\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Mean Single Break (Gaussian): 300 simulations}
+\label{tab:mean_single_20260213_223729_Gaussian}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 0.9789 & 0.7607 & 0.1568 & 0.9336 \\
+Simple Exp. Smoothing (SES) & 1.0598 & 0.8488 & 0.0644 & 1.1190 \\
+Holt-Winters (additive) & 1.0979 & 0.8643 & 0.0266 & 1.2047 \\
+SARIMA Rolling & 1.1424 & 0.9059 & 0.1833 & 1.2715 \\
+SARIMA Global & 1.1482 & 0.8985 & 0.3800 & 1.1741 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
 
 When innovations follow a Student-$t$ distribution with three degrees of freedom, overall forecast errors increase, and differences between models widen. The oracle dummy again achieves the lowest RMSE (1.1056). SES remains the best feasible model, with lower RMSE and MAE than both rolling and global SARIMA. The performance deterioration of SARIMA-based models is accompanied by increased error variance, suggesting sensitivity to heavy-tailed disturbances. Bias remains positive across models, but dispersion differences dominate performance comparisons.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\linewidth]{2.jpeg}
-\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Mean Single Break (Student-t df=3): 300 simulations}
+\label{tab:mean_single_20260213_223729_Student-tdf3}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 1.1056 & 0.7405 & 0.1655 & 1.1950 \\
+Simple Exp. Smoothing (SES) & 1.1328 & 0.7774 & 0.0644 & 1.2790 \\
+Holt-Winters (additive) & 1.1371 & 0.8046 & 0.0457 & 1.2910 \\
+SARIMA Rolling & 1.2195 & 0.8434 & 0.2114 & 1.4424 \\
+SARIMA Global & 1.2284 & 0.8695 & 0.3984 & 1.3502 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
 
 For Student-$t$ innovations with five degrees of freedom, results are intermediate between the Gaussian and $t(3)$ cases. The oracle dummy retains the lowest RMSE (1.0610). SES again provides the strongest feasible performance, while Global SARIMA remains the weakest. Bias values vary modestly across models, but the principal differences arise from forecast error variance. In all innovation settings, the global model consistently exhibits the largest bias and one of the highest error variances, indicating that failure to adapt to the structural shift leads to persistent overprediction after the break.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\linewidth]{3.jpeg}
-\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Mean Single Break (Student-t df=5): 300 simulations}
+\label{tab:mean_single_20260213_223729_Student-tdf5}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 1.0610 & 0.7785 & 0.1451 & 1.1046 \\
+Simple Exp. Smoothing (SES) & 1.1278 & 0.8284 & 0.0363 & 1.2707 \\
+Holt-Winters (additive) & 1.1599 & 0.8561 & -0.0054 & 1.3454 \\
+SARIMA Rolling & 1.2033 & 0.8659 & 0.2105 & 1.4037 \\
+SARIMA Global & 1.2419 & 0.9227 & 0.3903 & 1.3899 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
+
 Across distributions, adaptive level-based methods (SES and Holt--Winters) systematically outperform rolling and global SARIMA. The primary channel of improvement is a reduction in forecast dispersion rather than a complete elimination of bias.
 
 \subsubsection{Recurring Mean Break}
@@ -412,17 +500,27 @@ Across distributions, adaptive level-based methods (SES and Holt--Winters) syste
 We next consider stochastic switching in the mean. In this design, regimes alternate according to a Markov process, so that intercept changes occur repeatedly rather than once.
 
 The oracle dummy remains the best-performing specification in terms of RMSE (1.0957). However, its advantage over the other models is smaller than in the single-break case. Because the dummy captures only a deterministic shift at a fixed time, it cannot fully track repeated regime changes. This is reflected in a forecast error variance (1.1997) that is closer to those of the competing models.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\linewidth]{4.jpeg}
-    \caption{Enter Caption}
-\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Mean Recurring: 300 simulations}
+\label{tab:mean_recurring_20260213_223933_MarkovSwitching}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 1.0957 & 0.8906 & 0.0287 & 1.1997 \\
+SARIMA Global & 1.1253 & 0.9019 & 0.1931 & 1.2290 \\
+SARIMA Rolling & 1.1504 & 0.9285 & 0.1919 & 1.2867 \\
+Simple Exp. Smoothing (SES) & 1.1548 & 0.9101 & 0.0267 & 1.3329 \\
+Holt-Winters (additive) & 1.1798 & 0.9235 & 0.0114 & 1.3918 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
 
 Among feasible approaches, Global SARIMA achieves the lowest RMSE (1.1253), followed closely by Rolling SARIMA (1.1504). In contrast to the single-break case, smoothing methods no longer dominate. SES and Holt--Winters exhibit higher RMSE and noticeably larger error variances. Under recurring switching, purely level-based smoothing appears less effective because the mean alternates between regimes rather than shifting once.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\linewidth]{5.jpeg}
-\end{figure}
 
 Bias values across all models are small and of similar magnitude. Differences in performance therefore stem primarily from changes in error variance. Compared to the single-break design, dispersion is higher for all methods, reflecting the additional uncertainty introduced by stochastic regime switching.
 
@@ -436,9 +534,60 @@ We begin with the deterministic break in persistence, where the autoregressive c
 
 Under Gaussian errors, the Markov-switching AR (MS-AR) model achieves the lowest RMSE (1.0735), followed by Rolling SARIMA (1.0950), while Global SARIMA performs worse (1.1702). The same ranking holds for MAE, indicating that allowing for regime-dependent persistence improves overall forecast accuracy. Bias is small across all models, suggesting that the gains are not driven by systematic correction of forecast direction. Instead, improvements arise primarily from reductions in dispersion. Forecast error variance declines from 1.3685 under Global SARIMA to 1.1512 under MS-AR, confirming that explicit regime modeling enhances precision rather than eliminating bias.
 
+\begin{table}[H]
+\centering
+\small
+\caption{Parameter Single Break (Gaussian): 300 simulations}
+\label{tab:parameter_single_20260213_224418_Gaussian}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+MS AR & 1.0735 & 0.8456 & 0.0353 & 1.1512 \\
+Rolling SARIMA & 1.0950 & 0.8651 & 0.0433 & 1.1971 \\
+Global SARIMA & 1.1702 & 0.9297 & 0.0288 & 1.3685 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
+
 When innovations follow a Student-$t$ distribution with three degrees of freedom, the ranking changes. Rolling SARIMA achieves the lowest RMSE (0.9106), outperforming MS-AR (1.0502) and Global SARIMA (1.0931). The reduction in forecast error variance is particularly pronounced for the rolling specification (0.8287 compared to 1.1027 for MS-AR). Bias remains small in magnitude for all models. Under strongly heavy-tailed shocks, rolling estimation appears more robust, likely because it adapts mechanically to recent observations without relying on likelihood-based regime classification, which may be sensitive to extreme realizations.
 
+\begin{table}[H]
+\centering
+\small
+\caption{Parameter Single Break (Student-t df=3): 300 simulations}
+\label{tab:parameter_single_20260213_224418_Student-tdf3}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+Rolling SARIMA & 0.9106 & 0.6792 & 0.0212 & 0.8287 \\
+MS AR & 1.0502 & 0.7118 & -0.0138 & 1.1027 \\
+Global SARIMA & 1.0931 & 0.7951 & 0.0526 & 1.1921 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
+
 For Student-$t$ innovations with five degrees of freedom, the results are intermediate. MS-AR again delivers the lowest RMSE (0.9653), though the margin relative to Rolling SARIMA (0.9781) is modest. Forecast error variances are closer across models than in the Gaussian case, and bias remains small and stable. Compared to the $t(3)$ case, the deterioration in MS-AR performance is less pronounced, indicating that moderate deviations from normality do not substantially weaken the benefits of explicit regime modeling.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Parameter Single Break (Student-t df=5): 300 simulations}
+\label{tab:parameter_single_20260213_224418_Student-tdf5}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+MS AR & 0.9653 & 0.7309 & 0.0408 & 0.9302 \\
+Rolling SARIMA & 0.9781 & 0.7510 & 0.0143 & 0.9565 \\
+Global SARIMA & 1.0476 & 0.8032 & 0.0124 & 1.0973 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
 
 Across all innovation distributions, Global SARIMA consistently exhibits the highest RMSE and forecast error variance. Differences in bias remain limited throughout. The principal effect of structural adaptation is therefore variance reduction rather than systematic correction of mean forecasts. Overall, the single-break results indicate that modeling regime-dependent persistence improves forecast stability under Gaussian and moderately heavy-tailed shocks, while rolling estimation provides greater robustness under strongly heavy-tailed disturbances.
 
@@ -448,13 +597,30 @@ We next consider stochastic regime switching, where the autoregressive coefficie
 
 When regime persistence is relatively low ($p = 0.90$), switching occurs frequently. In this environment, MS-AR achieves the lowest RMSE (1.1426), while Global SARIMA (1.1695) and Rolling SARIMA (1.1875) perform worse. The differences across models are driven mainly by forecast error variance. MS-AR produces the lowest variance (1.3049), compared to 1.3676 and 1.4100 for the global and rolling specifications, respectively. Bias remains small for all methods and does not materially differentiate performance. Under frequent switching, explicit regime modeling primarily improves control of forecast dispersion.
 
+\begin{table}[H]
+\centering
+\small
+\caption{Parameter Recurring (p=09): 300 simulations}
+\label{tab:parameter_recurring_20260213_224850_p09}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+MS AR & 1.1426 & 0.8922 & 0.0253 & 1.3049 \\
+Global SARIMA & 1.1695 & 0.9117 & 0.0041 & 1.3676 \\
+Rolling SARIMA & 1.1875 & 0.9257 & 0.0059 & 1.4100 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
+
 At moderate persistence ($p = 0.95$), overall forecast errors decline relative to the $p = 0.90$ case. MS-AR continues to deliver the lowest RMSE (1.0778), though the gap relative to the rolling approach narrows. Forecast error variance decreases for all models, consistent with longer regime durations reducing instability. Bias fluctuates slightly but remains economically small. As regimes become more persistent, recent observations carry greater informational content about current dynamics, improving the relative performance of rolling estimation.
 
 \begin{table}[H]
 \centering
 \small
-\caption{Parameter Recurring (p=0.95): 300 simulations}
-\label{tab:parameter_recurring_p0.95}
+\caption{Parameter Recurring (p=095): 300 simulations}
+\label{tab:parameter_recurring_20260213_224850_p095}
 \begin{tabular}{lrrrr}
 \toprule
 Method & RMSE & MAE & Bias & Var(error) \\
@@ -469,6 +635,23 @@ Global SARIMA & 1.1238 & 0.8952 & -0.0114 & 1.2627 \\
 
 When persistence is high ($p = 0.99$), forecast errors decline further for all methods. MS-AR again achieves the lowest RMSE (1.0318), but the difference relative to Rolling SARIMA (1.0668) is smaller than under lower persistence. Forecast error variances converge across models, and bias becomes slightly negative for the global and rolling specifications, although magnitudes remain modest. With highly persistent regimes, rolling estimation approximates within-regime dynamics more effectively, reducing the advantage of explicit regime probability weighting.
 
+\begin{table}[H]
+\centering
+\small
+\caption{Parameter Recurring (p=099): 300 simulations}
+\label{tab:parameter_recurring_20260213_224850_p099}
+\begin{tabular}{lrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Var(error) \\
+\midrule
+MS AR & 1.0318 & 0.8043 & -0.0102 & 1.0645 \\
+Rolling SARIMA & 1.0668 & 0.8408 & -0.0123 & 1.1380 \\
+Global SARIMA & 1.0974 & 0.8515 & -0.0582 & 1.2009 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
+
 Across all persistence levels, Global SARIMA consistently exhibits higher forecast error variance than the alternative methods. Differences in bias remain limited, indicating that forecast improvements stem primarily from reductions in dispersion rather than systematic mean correction. Overall, the recurring-break results show that explicit regime modeling yields consistent gains, particularly when switching is frequent, while rolling estimation becomes increasingly competitive as regimes grow more persistent.
 
 \subsection{Variance Break Results}
@@ -479,27 +662,63 @@ This subsection evaluates forecast performance when structural instability affec
 
 Under Gaussian innovations, differences across models are relatively small in terms of RMSE. The SARIMA averaged-window approach achieves the lowest RMSE (2.0518), closely followed by GARCH (2.0535). Global and Rolling SARIMA perform slightly worse. The ranking is similar for MAE. Bias remains modest across specifications, with values ranging between 0.1884 and 0.2094, indicating limited systematic forecast distortion. The primary differences arise in forecast error variance and log score. The averaged-window SARIMA exhibits the lowest error variance (4.1746), while Rolling SARIMA shows the highest (4.2430). Log scores are also slightly more favorable for the averaged-window model. Overall, under Gaussian variance shifts, no model dominates strongly, but approaches that allow partial adaptation to changing volatility perform marginally better.
 
+\begin{table}[H]
+\centering
+\small
+\caption{Variance Single Break (Gaussian): 300 simulations}
+\label{tab:variance_single_20260213_222544_Gaussian}
+\begin{tabular}{lrrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Variance & LogScore \\
+\midrule
+SARIMA Avg-Window & 2.0518 & 1.6331 & 0.1884 & 4.1746 & -2.2981 \\
+GARCH & 2.0535 & 1.6338 & 0.2024 & 4.1759 & -2.2569 \\
+SARIMA Global & 2.0610 & 1.6356 & 0.2094 & 4.2040 & -2.4520 \\
+SARIMA Rolling & 2.0688 & 1.6423 & 0.1924 & 4.2430 & -2.2781 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
+
 When innovations follow a Student-$t$ distribution with three degrees of freedom, GARCH achieves the lowest RMSE (2.0311), although the difference relative to Global SARIMA is minimal. Forecast error variance is also lowest under GARCH (4.0423). In contrast, Rolling and averaged-window SARIMA show higher dispersion. Bias values are somewhat larger than in the Gaussian case, reflecting the influence of heavy-tailed shocks. The log predictive score is most favorable for GARCH, suggesting improved density calibration under volatility instability combined with heavy-tailed innovations. In this setting, explicitly modeling conditional heteroskedasticity provides measurable gains.
 
 \begin{table}[H]
 \centering
 \small
-\caption{Variance Single Break: 300 simulations}
-\label{tab:variance_single_results}
-\begin{tabular}{lrrrrrrr}
+\caption{Variance Single Break (Student-t df=3): 300 simulations}
+\label{tab:variance_single_20260213_222544_Student-tdf3}
+\begin{tabular}{lrrrrr}
 \toprule
-Method & RMSE & MAE & Bias & Var(error) & Coverage80 & Coverage95 & LogScore \\
+Method & RMSE & MAE & Bias & Variance & LogScore \\
 \midrule
-GARCH & 2.0311 & 1.3335 & 0.2884 & 4.0423 & 0.0000 & 0.0000 & NaN \\
-SARIMA Global & 2.0378 & 1.3493 & 0.2924 & 4.0670 & 0.7233 & 0.8533 & -2.3866 \\
-SARIMA Rolling & 2.0948 & 1.4147 & 0.2680 & 4.3164 & 0.7867 & 0.8900 & -2.1916 \\
-SARIMA Avg-Window & NaN & NaN & NaN & NaN & NaN & NaN & NaN \\
+GARCH & 2.0311 & 1.3335 & 0.2884 & 4.0423 & -2.1884 \\
+SARIMA Global & 2.0360 & 1.3406 & 0.3010 & 4.0548 & -2.3739 \\
+SARIMA Rolling & 2.0548 & 1.3649 & 0.2966 & 4.1342 & -2.1548 \\
+SARIMA Avg-Window & 2.0576 & 1.3688 & 0.2856 & 4.1520 & -2.2049 \\
 \bottomrule
 \end{tabular}
 \normalsize
 \end{table}
 
 For Student-$t$ innovations with five degrees of freedom, overall forecast errors increase relative to the Gaussian case. The averaged-window SARIMA achieves the lowest RMSE (2.2381), though differences across models remain small. Error variances are higher than in the Gaussian design, and dispersion differences become more pronounced. GARCH no longer provides a clear advantage in RMSE, although its log score remains competitive. Rolling SARIMA continues to exhibit comparatively higher error variance. Across distributions, improvements in this single-break variance design are modest and primarily driven by differences in error dispersion rather than bias reduction.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Variance Single Break (Student-t df=5): 300 simulations}
+\label{tab:variance_single_20260213_222544_Student-tdf5}
+\begin{tabular}{lrrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Variance & LogScore \\
+\midrule
+SARIMA Avg-Window & 2.2381 & 1.5678 & 0.1849 & 4.9751 & -2.4155 \\
+GARCH & 2.2438 & 1.5575 & 0.1922 & 4.9975 & -2.3550 \\
+SARIMA Global & 2.2517 & 1.5617 & 0.1993 & 5.0306 & -2.6524 \\
+SARIMA Rolling & 2.2551 & 1.5607 & 0.2086 & 5.0422 & -2.3774 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
 
 Taken together, the single variance break results indicate that modeling conditional heteroskedasticity becomes more relevant as innovation distributions deviate from normality. However, when the variance shift is deterministic and occurs only once, the relative performance differences across models remain limited.
 
@@ -510,6 +729,24 @@ The recurring variance design introduces stochastic switching between low- and h
 Global SARIMA achieves the lowest RMSE (1.6018), closely followed by the Markov-switching AR(1) model (1.6031). Rolling and averaged-window SARIMA perform slightly worse. Bias values are small and negative across all specifications, indicating mild underprediction but no substantial systematic distortion. The key distinction lies in forecast error variance. Global SARIMA produces the lowest dispersion (2.5532), whereas rolling and averaged-window approaches exhibit higher variance.
 
 The log predictive score reveals an important pattern. Although Global SARIMA performs well in RMSE terms, its log score is less favorable than that of the Markov-switching model. The MS-AR(1) specification delivers the most favorable log score (-2.1097), indicating better calibration of predictive density under recurring volatility shifts. This suggests that explicitly modeling regime-dependent variance improves density forecasting even when point forecast gains are small.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Variance Recurring: 300 simulations}
+\label{tab:variance_recurring_20260213_222712_MarkovSwitching}
+\begin{tabular}{lrrrrr}
+\toprule
+Method & RMSE & MAE & Bias & Variance & LogScore \\
+\midrule
+SARIMA Global & 1.6018 & 1.2311 & -0.1129 & 2.5532 & -1.8845 \\
+MS AR(1) & 1.6031 & 1.2303 & -0.1114 & 2.5575 & -2.1097 \\
+SARIMA Rolling & 1.6237 & 1.2554 & -0.1145 & 2.6233 & -1.8654 \\
+SARIMA Avg-Window & 1.6247 & 1.2484 & -0.0935 & 2.6309 & -1.8874 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{table}
 
 Compared to the single-break case, forecast error variance is substantially lower in absolute terms, reflecting the stochastic rather than abrupt nature of regime changes. However, differences across models are more closely tied to density accuracy than to point forecast measures.
 

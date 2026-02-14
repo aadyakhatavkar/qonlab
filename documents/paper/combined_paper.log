@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  14 FEB 2026 00:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.28)  14 FEB 2026 01:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -442,8 +442,102 @@ Overfull \hbox (0.86336pt too wide) in paragraph at lines 89--90
  or from a stan-dard-ized Student-
  []
 
-[4] [5] [6]
-Overfull \hbox (20.595pt too wide) in paragraph at lines 213--214
+[4]
+<WhatsApp Image 2026-02-14 at 00.08.51.jpeg, id=165, 889.3225pt x 326.21875pt>
+File: WhatsApp Image 2026-02-14 at 00.08.51.jpeg Graphic file (type jpg)
+<use WhatsApp Image 2026-02-14 at 00.08.51.jpeg>
+Package pdftex.def Info: WhatsApp Image 2026-02-14 at 00.08.51.jpeg  used on in
+put line 162.
+(pdftex.def)             Requested size: 446.26582pt x 163.69633pt.
+ [5]
+<WhatsApp Image 2026-02-14 at 00.57.26.jpeg, id=178, 895.345pt x 646.415pt>
+File: WhatsApp Image 2026-02-14 at 00.57.26.jpeg Graphic file (type jpg)
+<use WhatsApp Image 2026-02-14 at 00.57.26.jpeg>
+Package pdftex.def Info: WhatsApp Image 2026-02-14 at 00.57.26.jpeg  used on in
+put line 180.
+(pdftex.def)             Requested size: 446.26582pt x 322.20062pt.
+ [6 <./WhatsApp Image 2026-02-14 at 00.08.51.jpeg>]
+
+LaTeX Warning: File `dgp_variance_95.png' not found on input line 186.
+
+
+! Package pdftex.def Error: File `dgp_variance_95.png' not found: using draft s
+etting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.186 ...idth=0.95\linewidth]{dgp_variance_95.png}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 1
+86.
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+) [7 <./WhatsApp Image 2026-02-14 at 00.57.26.jpeg>]
+<WhatsApp Image 2026-02-14 at 00.57.41.jpeg, id=192, 1038.88126pt x 382.42876pt
+>
+File: WhatsApp Image 2026-02-14 at 00.57.41.jpeg Graphic file (type jpg)
+<use WhatsApp Image 2026-02-14 at 00.57.41.jpeg>
+Package pdftex.def Info: WhatsApp Image 2026-02-14 at 00.57.41.jpeg  used on in
+put line 200.
+(pdftex.def)             Requested size: 446.26582pt x 164.27776pt.
+ [8]
+
+LaTeX Warning: File `dgp_parameter_90.png' not found on input line 212.
+
+
+! Package pdftex.def Error: File `dgp_parameter_90.png' not found: using draft 
+setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.212 ...dth=0.95\linewidth]{dgp_parameter_90.png}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[9 <./WhatsApp Image 2026-02-14 at 00.57.41.jpeg>]
+
+LaTeX Warning: File `dgp_parameter_95.png' not found on input line 218.
+
+
+! Package pdftex.def Error: File `dgp_parameter_95.png' not found: using draft 
+setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.218 ...dth=0.95\linewidth]{dgp_parameter_95.png}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[10]
+
+LaTeX Warning: File `dgp_parameter_99.png' not found on input line 224.
+
+
+! Package pdftex.def Error: File `dgp_parameter_99.png' not found: using draft 
+setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.224 ...dth=0.95\linewidth]{dgp_parameter_99.png}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[11] [12]
+Overfull \hbox (20.595pt too wide) in paragraph at lines 255--256
  []\T1/cmr/bx/n/12 (ii) Rolling SARIMA[] \T1/cmr/m/n/12 To al-low for pa-ram-e-
 ter adap-ta-tion, the same SARIMA$\OT1/cmr/m/n/12 (1\OML/cmm/m/it/12 ; \OT1/cmr
 /m/n/12 0\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 1)(1\OML/cmm/m/it/12 ; \OT1/cmr/m/n
@@ -451,57 +545,24 @@ ter adap-ta-tion, the same SARIMA$\OT1/cmr/m/n/12 (1\OML/cmm/m/it/12 ; \OT1/cmr
  []
 
 
-Overfull \hbox (0.59123pt too wide) in paragraph at lines 236--237
+Overfull \hbox (0.59123pt too wide) in paragraph at lines 278--279
 []\T1/cmr/m/n/12 The one-step-ahead fore-cast is com-puted as a probability-wei
 ghted av-er-age across regimes: 
  []
 
-[7] [8]
-<1.jpeg, id=216, 560.0925pt x 171.64125pt>
-File: 1.jpeg Graphic file (type jpg)
-<use 1.jpeg>
-Package pdftex.def Info: 1.jpeg  used on input line 394.
-(pdftex.def)             Requested size: 469.75502pt x 143.96288pt.
- [9]
-<2.jpeg, id=227, 569.12625pt x 171.64125pt>
-File: 2.jpeg Graphic file (type jpg)
-<use 2.jpeg>
-Package pdftex.def Info: 2.jpeg  used on input line 400.
-(pdftex.def)             Requested size: 469.75502pt x 141.6791pt.
-<3.jpeg, id=228, 564.1075pt x 157.58875pt>
-File: 3.jpeg Graphic file (type jpg)
-<use 3.jpeg>
-Package pdftex.def Info: 3.jpeg  used on input line 406.
-(pdftex.def)             Requested size: 469.75502pt x 131.23145pt.
- [10 <./1.jpeg> <./2.jpeg>]
-<4.jpeg, id=233, 889.3225pt x 326.21875pt>
-File: 4.jpeg Graphic file (type jpg)
-<use 4.jpeg>
-Package pdftex.def Info: 4.jpeg  used on input line 417.
-(pdftex.def)             Requested size: 469.75502pt x 172.31271pt.
-<5.jpeg, id=234, 563.10374pt x 183.68625pt>
-File: 5.jpeg Graphic file (type jpg)
-<use 5.jpeg>
-Package pdftex.def Info: 5.jpeg  used on input line 424.
-(pdftex.def)             Requested size: 469.75502pt x 153.2359pt.
- [11 <./3.jpeg> <./4.jpeg>] [12 <./5.jpeg>] [13] [14]
-Overfull \hbox (26.93965pt too wide) in paragraph at lines 489--500
- [][] 
- []
-
-
-Overfull \hbox (1.76158pt too wide) in paragraph at lines 508--509
+[13] [14] [15] [16] [17] [18] [19] [20] [21]
+Overfull \hbox (1.76158pt too wide) in paragraph at lines 727--728
 \T1/cmr/m/n/12 The re-cur-ring vari-ance de-sign in-tro-duces stochas-tic switc
 h-ing be-tween low- and high-volatility
  []
 
-[15]
-Overfull \hbox (1.65288pt too wide) in paragraph at lines 528--529
+[22] [23]
+Overfull \hbox (1.65288pt too wide) in paragraph at lines 765--766
 []\T1/cmr/m/n/12 The re-sults also high-light the role of in-no-va-tion dis-tri
 -bu-tions. Un-der heavy-tailed Student-
  []
 
-[16] [17] (./combined_paper.aux)
+[24] [25] (./combined_paper.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -514,33 +575,34 @@ Package rerunfilecheck Info: File `combined_paper.out' has not changed.
 (rerunfilecheck)             Checksum: B84AAF479A68160F1362D757FEE41DB0;5959.
  ) 
 Here is how much of TeX's memory you used:
- 11018 strings out of 476182
- 165042 string characters out of 5795595
- 1934975 words of memory out of 5000000
- 32769 multiletter control sequences out of 15000+600000
- 576022 words of font info for 83 fonts, out of 8000000 for 9000
+ 11184 strings out of 476182
+ 170663 string characters out of 5795595
+ 1935975 words of memory out of 5000000
+ 32905 multiletter control sequences out of 15000+600000
+ 576335 words of font info for 84 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,8n,79p,909b,555s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,8n,79p,909b,587s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1200.600
 pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095.60
-0pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1200.6
-00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.
-600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1200
-.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx172
-8.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm14
-40.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx2
-074.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></
-usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/sha
-re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on combined_paper.pdf (17 pages, 427441 bytes).
+0pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1200.6
+00pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1200.
+600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440
+.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm120
+0.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx17
+28.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1
+440.600pk> </home/aadya/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx
+2074.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10
+.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/tex
+live/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmsy8.pfb>
+Output written on combined_paper.pdf (25 pages, 494899 bytes).
 PDF statistics:
- 718 PDF objects out of 1000 (max. 8388607)
- 329 compressed objects within 4 object streams
- 111 named destinations out of 1000 (max. 500000)
- 282 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 801 PDF objects out of 1000 (max. 8388607)
+ 381 compressed objects within 4 object streams
+ 137 named destinations out of 1000 (max. 500000)
+ 272 words of extra memory for PDF output out of 10000 (max. 10000000)
 
