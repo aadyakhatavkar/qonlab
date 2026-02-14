@@ -29,6 +29,9 @@ Winter Semester 2025/26
 \begin{document}
 
 \maketitle
+\clearpage
+\tableofcontents
+\clearpage
 
 \section{Introduction}
 
@@ -157,12 +160,6 @@ y_t = \mu_{S_t} + \phi (y_{t-1} - \mu_{S_t}) + \varepsilon_t,
 \end{equation}
 with $\mu_0 = 0$, $\mu_1 = 2$, and $\phi = 0.6$. Regime changes therefore induce stochastic shifts in the unconditional mean while persistence and variance remain constant.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\linewidth]{WhatsApp Image 2026-02-14 at 00.08.51.jpeg}
-    \caption{Recurring Mean Break DGP}
-\end{figure}
-
 \subsubsection{Recurring Variance Break}
 
 Variance switching is modeled as
@@ -175,18 +172,6 @@ where $\mu = 0$, $\phi = 0.6$, and
 \end{equation}
 with $\sigma_1 = 1$ and $\sigma_2 = 2$. Regime transitions generate recurrent volatility shifts without altering the conditional mean dynamics.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\linewidth]{WhatsApp Image 2026-02-14 at 00.57.26.jpeg}
-    \caption{Recurring Variance Break DGP}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\linewidth]{dgp_variance_95.png}
-    \caption{Recurring Variance DGP (Markov-Switching, p=0.95)}
-\end{figure}
-
 \subsubsection{Recurring Parameter Break}
 
 Persistence switching is defined by
@@ -195,35 +180,11 @@ y_t = \phi_{S_t} y_{t-1} + \varepsilon_t,
 \end{equation}
 where $\phi_0 = 0.2$ and $\phi_1 = 0.9$.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\linewidth]{WhatsApp Image 2026-02-14 at 00.57.41.jpeg}
-    \caption{Recurring Parameter Break DGP}
-\end{figure}
-
 In this case, regime persistence varies across experiments according to
 \begin{equation}
 p_{00} = p_{11} \in \{0.90, 0.95, 0.99\}.
 \end{equation}
 Higher persistence values imply longer regime durations and therefore stronger dynamic instability.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\linewidth]{dgp_parameter_90.png}
-    \caption{Recurring Parameter DGP (Markov-Switching, p=0.90)}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\linewidth]{dgp_parameter_95.png}
-    \caption{Recurring Parameter DGP (Markov-Switching, p=0.95)}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\linewidth]{dgp_parameter_99.png}
-    \caption{Recurring Parameter DGP (Markov-Switching, p=0.99)}
-\end{figure}
 
 \subsection{Design Considerations}
 
@@ -499,6 +460,13 @@ Across distributions, adaptive level-based methods (SES and Holt--Winters) syste
 
 We next consider stochastic switching in the mean. In this design, regimes alternate according to a Markov process, so that intercept changes occur repeatedly rather than once.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{recurring_mean_dgp_toponly.png}
+\caption{Recurring mean DGP (Markov-switching, $p=0.95$).}
+\label{fig:recurring_mean_results_dgp}
+\end{figure}
+
 The oracle dummy remains the best-performing specification in terms of RMSE (1.0957). However, its advantage over the other models is smaller than in the single-break case. Because the dummy captures only a deterministic shift at a fixed time, it cannot fully track repeated regime changes. This is reflected in a forecast error variance (1.1997) that is closer to those of the competing models.
 
 \begin{table}[H]
@@ -594,6 +562,13 @@ Across all innovation distributions, Global SARIMA consistently exhibits the hig
 \subsubsection{Recurring Parameter Breaks}
 
 We next consider stochastic regime switching, where the autoregressive coefficient alternates between $\phi_0 = 0.2$ and $\phi_1 = 0.9$ according to a two-state Markov process. Results are reported for persistence levels $p = 0.90, 0.95, 0.99$, corresponding to increasing expected regime durations. As before, we evaluate mean forecast performance, bias, and forecast error variance.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{recurring_parameter_dgp_persistence_combined.png}
+\caption{Recurring parameter DGP across persistence levels ($p=0.90, 0.95, 0.99$).}
+\label{fig:recurring_parameter_results_dgp}
+\end{figure}
 
 When regime persistence is relatively low ($p = 0.90$), switching occurs frequently. In this environment, MS-AR achieves the lowest RMSE (1.1426), while Global SARIMA (1.1695) and Rolling SARIMA (1.1875) perform worse. The differences across models are driven mainly by forecast error variance. MS-AR produces the lowest variance (1.3049), compared to 1.3676 and 1.4100 for the global and rolling specifications, respectively. Bias remains small for all methods and does not materially differentiate performance. Under frequent switching, explicit regime modeling primarily improves control of forecast dispersion.
 
@@ -725,6 +700,13 @@ Taken together, the single variance break results indicate that modeling conditi
 \subsubsection{Recurring Variance Break}
 
 The recurring variance design introduces stochastic switching between low- and high-volatility regimes. In this environment, differences across models become more pronounced.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{recurring_variance_dgp_toponly.png}
+\caption{Recurring variance DGP (Markov-switching, $p=0.95$).}
+\label{fig:recurring_variance_results_dgp}
+\end{figure}
 
 Global SARIMA achieves the lowest RMSE (1.6018), closely followed by the Markov-switching AR(1) model (1.6031). Rolling and averaged-window SARIMA perform slightly worse. Bias values are small and negative across all specifications, indicating mild underprediction but no substantial systematic distortion. The key distinction lies in forecast error variance. Global SARIMA produces the lowest dispersion (2.5532), whereas rolling and averaged-window approaches exhibit higher variance.
 
