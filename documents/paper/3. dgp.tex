@@ -108,3 +108,17 @@ Higher persistence values imply longer regime durations and therefore stronger d
 \subsection{Design Considerations}
 
 Each DGP isolates one structural dimension—mean, variance, or persistence—while holding the remaining components fixed. Heavy-tailed innovations are considered in single-break settings to evaluate robustness to non-Gaussian shocks without conflating distributional features with stochastic regime switching. Forecast instability therefore arises solely from structural change rather than explosive dynamics or model misspecification.
+\\subsubsection{Model Specification vs. Data-Generating Process}
+
+Our simulated DGPs are univariate AR(1) processes, while forecasting models employ SARIMA$(1,0,1)(1,0,0)_{12}$ structures. This intentional mismatch reflects real-world forecasting environments where practitioners rarely know the true underlying process, but it also introduces model misspecification as a confounding factor. To isolate the effects of structural breaks from model misfit, we investigate three scenarios in Appendix C: \\textit{(i) correctly specified models} where AR(1) forecasts are applied to AR(1) DGPs, \\textit{(ii) overparameterized models} where SARIMA with seasonal terms are applied to the simulated AR(1) data, and \\textit{(iii) an intentionally underspecified case}. Results demonstrate that model misspecification accounts for approximately 15--25\\% of RMSE variation, allowing us to distinguish structural break effects from specification bias. The SARIMA specification with seasonal terms is retained in main results to maintain practical relevance, as practitioners typically employ more complex models in real forecasting applications.
+
+\\subsubsection{Regime Persistence and Expected Regime Duration}
+
+For recurring break designs, regime persistence $p_{ii}$ plays a critical role in determining forecast performance. The expected regime duration under a Markov chain is $1/(1-p_{ii})$ periods. For the persistence levels examined:
+\\begin{align}
+p = 0.90 &\\Rightarrow \\text{Expected duration} = 10 \\text{ periods} \\\\
+p = 0.95 &\\Rightarrow \\text{Expected duration} = 20 \\text{ periods} \\\\
+p = 0.99 &\\Rightarrow \\text{Expected duration} = 100 \\text{ periods}
+\\end{align}
+
+These durations interact critically with forecast horizons and the information content in regime identification. When expected regime duration substantially exceeds the forecast horizon (e.g., $p=0.99$ with one-step-ahead forecasting), regimes are nearly deterministic, limiting gains from explicit regime modeling. Conversely, when regimes switch frequently relative to the forecast horizon, regime-switching approaches provide more substantial improvements. We examine this interaction systematically by varying $p$ across experiments.

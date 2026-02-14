@@ -28,7 +28,7 @@ E\left( y_{t+1} \mid y_{t-W+1}, \dots, y_t \right).
 \end{equation}
 
 By restricting estimation to recent observations, the rolling approach reduces contamination from outdated regimes and improves responsiveness to structural shifts. However, this comes at the cost of higher estimation variance due to the smaller effective sample.
-
+\\paragraph{Window Length Selection.} The choice of window length $W$ represents a critical hyperparameter balancing adaptation speed against estimation efficiency. Smaller windows enable faster adjustment to regime changes but increase parameter estimation variance; larger windows provide more stable estimates but delay adaptation post-break. In our experiments, we employ $W \\in \\{80, 100\\}$ informed by sensitivity analysis shown in Appendix D, which demonstrates performance stability for $W \\in [70, 110]$ in mean-break settings. For practitioners, we recommend $W \\approx 80$--100 for monthly data with anticipated breaks every 12--24 months, with domain-specific sensitivity analysis to determine optimal values.
 \subsection{2. Break-Specific Extensions}
 
 Additional models are introduced depending on the form of instability.

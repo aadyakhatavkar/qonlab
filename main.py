@@ -56,9 +56,21 @@ For advanced usage (run specific break types):
     if result != 0:
         return result
     
-    # If --pdf flag is set, build PDF with tables after experiments
-    # (plots are not generated, so we only build tables PDF)
+    # If --pdf flag is set, update paper tables then build PDF
     if args.pdf:
+        # Step 1: Update paper tables with latest results
+        print("\n" + "="*70)
+        print("STEP 1: Updating paper tables with latest experimental results...")
+        print("="*70)
+        update_cmd = [sys.executable, 'scripts/update_paper_tables.py']
+        result = subprocess.run(update_cmd).returncode
+        if result != 0:
+            print("\n⚠️  Table update encountered issues, but continuing with PDF build...")
+        
+        # Step 2: Build PDF with updated tables
+        print("\n" + "="*70)
+        print("STEP 2: Building PDF with updated tables...")
+        print("="*70)
         pdf_cmd = [sys.executable, 'scripts/build_pdfs.py', '--tables']
         return subprocess.run(pdf_cmd).returncode
     

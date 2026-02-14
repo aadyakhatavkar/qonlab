@@ -1,0 +1,134 @@
+[2026-02-14 01:43:12,022] INFO: ======================================================================
+[2026-02-14 01:43:12,022] INFO: STRUCTURAL BREAK EXPERIMENTS RUNNER STARTED
+[2026-02-14 01:43:12,023] INFO: ======================================================================
+[2026-02-14 01:43:13,474] INFO: Parameters: T=400, Tb=200, n_sim=300
+[2026-02-14 01:43:13,474] INFO: Quick mode: False
+[2026-02-14 01:43:13,474] INFO: Starting variance break experiments...
+[2026-02-14 01:43:13,474] INFO: ======================================================================
+[2026-02-14 01:43:13,475] INFO: VARIANCE BREAK EXPERIMENTS START
+[2026-02-14 01:43:13,475] INFO: ======================================================================
+[2026-02-14 01:43:13,475] INFO: [1/2] Single variance breaks (T=400, Tb=200, n_sim=300)
+[2026-02-14 01:43:13,475] INFO: Starting variance_single: Gaussian
+[2026-02-14 02:31:58,586] INFO: ✓ variance_single Gaussian completed in 2925.1s
+[2026-02-14 02:31:58,590] INFO: Starting variance_single: Student-t(df=5)
+[2026-02-14 02:35:38,927] INFO: ✓ variance_single Student-t(df=5) completed in 220.3s
+[2026-02-14 02:35:38,927] INFO: Starting variance_single: Student-t(df=3)
+[2026-02-14 02:37:49,555] INFO: ✓ variance_single Student-t(df=3) completed in 130.6s
+[2026-02-14 02:37:49,557] INFO: Saving variance_single results by innovation type...
+[2026-02-14 02:37:49,605] INFO:   Gaussian: best method = SARIMA Global (RMSE=2.0476)
+[2026-02-14 02:37:49,612] INFO: ✓ CSV saved: outputs/tables/variance_single_20260214_023749_Gaussian.csv
+[2026-02-14 02:37:49,695] INFO: ✓ LaTeX table saved: outputs/tex/variance_single_20260214_023749_Gaussian.tex
+[2026-02-14 02:37:49,696] INFO:   Student-t(df=3): best method = GARCH (RMSE=2.0311)
+[2026-02-14 02:37:49,697] INFO: ✓ CSV saved: outputs/tables/variance_single_20260214_023749_Student-tdf3.csv
+[2026-02-14 02:37:49,700] INFO: ✓ LaTeX table saved: outputs/tex/variance_single_20260214_023749_Student-tdf3.tex
+[2026-02-14 02:37:49,701] INFO:   Student-t(df=5): best method = SARIMA Global (RMSE=2.2351)
+[2026-02-14 02:37:49,702] INFO: ✓ CSV saved: outputs/tables/variance_single_20260214_023749_Student-tdf5.csv
+[2026-02-14 02:37:49,705] INFO: ✓ LaTeX table saved: outputs/tex/variance_single_20260214_023749_Student-tdf5.tex
+[2026-02-14 02:37:49,705] INFO: [2/2] Recurring variance breaks (T=400, n_sim=300)
+[2026-02-14 02:37:49,705] INFO: Starting variance_recurring (Markov-switching)
+[2026-02-14 02:40:34,617] INFO: ✓ variance_recurring completed in 164.9s
+[2026-02-14 02:40:34,617] INFO: Saving variance_recurring results...
+[2026-02-14 02:40:34,620] INFO: ✓ CSV saved: outputs/tables/variance_recurring_20260214_024034_MarkovSwitching.csv
+[2026-02-14 02:40:34,633] INFO: ✓ LaTeX table saved: outputs/tex/variance_recurring_20260214_024034_MarkovSwitching.tex
+[2026-02-14 02:40:34,633] INFO:   ✓ Saved variance_recurring
+[2026-02-14 02:40:34,658] INFO: ======================================================================
+[2026-02-14 02:40:34,659] INFO: VARIANCE BREAK EXPERIMENTS COMPLETED
+[2026-02-14 02:40:34,659] INFO: ======================================================================
+[2026-02-14 02:40:34,660] INFO: Starting mean break experiments...
+[2026-02-14 02:40:34,660] INFO: ======================================================================
+[2026-02-14 02:40:34,661] INFO: MEAN BREAK EXPERIMENTS START
+[2026-02-14 02:40:34,661] INFO: ======================================================================
+[2026-02-14 02:40:34,663] INFO: [1/2] Single mean breaks (T=400, Tb=200, n_sim=300)
+[2026-02-14 02:40:34,664] INFO: Starting mean_single: Gaussian
+[2026-02-14 02:44:43,320] INFO: ✓ mean_single Gaussian completed in 248.7s
+[2026-02-14 02:44:43,320] INFO: Starting mean_single: Student-t(df=5)
+[2026-02-14 02:48:11,762] INFO: ✓ mean_single Student-t(df=5) completed in 208.4s
+[2026-02-14 02:48:11,762] INFO: Starting mean_single: Student-t(df=3)
+[2026-02-14 02:50:40,093] INFO: ✓ mean_single Student-t(df=3) completed in 148.3s
+[2026-02-14 02:50:40,094] INFO: Saving mean_single results by innovation type...
+[2026-02-14 02:50:40,096] INFO:   Gaussian: best method = SARIMA + Break Dummy (oracle Tb) (RMSE=0.9789)
+[2026-02-14 02:50:40,097] INFO: ✓ CSV saved: outputs/tables/mean_single_20260214_025040_Gaussian.csv
+[2026-02-14 02:50:40,102] INFO: ✓ LaTeX table saved: outputs/tex/mean_single_20260214_025040_Gaussian.tex
+[2026-02-14 02:50:40,104] INFO:   Student-t(df=3): best method = SARIMA + Break Dummy (oracle Tb) (RMSE=1.1056)
+[2026-02-14 02:50:40,106] INFO: ✓ CSV saved: outputs/tables/mean_single_20260214_025040_Student-tdf3.csv
+[2026-02-14 02:50:40,110] INFO: ✓ LaTeX table saved: outputs/tex/mean_single_20260214_025040_Student-tdf3.tex
+[2026-02-14 02:50:40,111] INFO:   Student-t(df=5): best method = SARIMA + Break Dummy (oracle Tb) (RMSE=1.0610)
+[2026-02-14 02:50:40,113] INFO: ✓ CSV saved: outputs/tables/mean_single_20260214_025040_Student-tdf5.csv
+[2026-02-14 02:50:40,117] INFO: ✓ LaTeX table saved: outputs/tex/mean_single_20260214_025040_Student-tdf5.tex
+[2026-02-14 02:50:40,117] INFO: [2/2] Recurring mean breaks (T=400, n_sim=300)
+[2026-02-14 02:50:40,118] INFO: Starting mean_recurring (Markov-switching)
+[2026-02-14 02:52:19,615] INFO: ✓ mean_recurring completed in 99.5s
+[2026-02-14 02:52:19,615] INFO: Saving mean_recurring results...
+[2026-02-14 02:52:19,616] INFO: ✓ CSV saved: outputs/tables/mean_recurring_20260214_025219_MarkovSwitching.csv
+[2026-02-14 02:52:19,618] INFO: ✓ LaTeX table saved: outputs/tex/mean_recurring_20260214_025219_MarkovSwitching.tex
+[2026-02-14 02:52:19,618] INFO:   ✓ Saved mean_recurring
+[2026-02-14 02:52:19,621] INFO: ======================================================================
+[2026-02-14 02:52:19,621] INFO: MEAN BREAK EXPERIMENTS COMPLETED
+[2026-02-14 02:52:19,621] INFO: ======================================================================
+[2026-02-14 02:52:19,621] INFO: Starting parameter break experiments...
+[2026-02-14 02:52:19,621] INFO: ======================================================================
+[2026-02-14 02:52:19,621] INFO: PARAMETER BREAK EXPERIMENTS START
+[2026-02-14 02:52:19,621] INFO: ======================================================================
+[2026-02-14 02:52:19,621] INFO: [1/2] Single parameter breaks (T=400, Tb=200, n_sim=300)
+[2026-02-14 02:52:19,621] INFO: Starting parameter_single: Gaussian
+[2026-02-14 02:53:38,628] INFO: ✓ parameter_single Gaussian completed in 79.0s
+[2026-02-14 02:53:38,628] INFO: Starting parameter_single: Student-t(df=5)
+[2026-02-14 02:55:23,620] INFO: ✓ parameter_single Student-t(df=5) completed in 105.0s
+[2026-02-14 02:55:23,620] INFO: Starting parameter_single: Student-t(df=3)
+[2026-02-14 02:56:41,394] INFO: ✓ parameter_single Student-t(df=3) completed in 77.8s
+[2026-02-14 02:56:41,394] INFO: Saving parameter_single results by innovation type...
+[2026-02-14 02:56:41,395] INFO:   Gaussian: best method = MS AR (RMSE=1.0735)
+[2026-02-14 02:56:41,396] INFO: ✓ CSV saved: outputs/tables/parameter_single_20260214_025641_Gaussian.csv
+[2026-02-14 02:56:41,398] INFO: ✓ LaTeX table saved: outputs/tex/parameter_single_20260214_025641_Gaussian.tex
+[2026-02-14 02:56:41,399] INFO:   Student-t(df=3): best method = Rolling SARIMA (RMSE=0.9106)
+[2026-02-14 02:56:41,400] INFO: ✓ CSV saved: outputs/tables/parameter_single_20260214_025641_Student-tdf3.csv
+[2026-02-14 02:56:41,402] INFO: ✓ LaTeX table saved: outputs/tex/parameter_single_20260214_025641_Student-tdf3.tex
+[2026-02-14 02:56:41,403] INFO:   Student-t(df=5): best method = MS AR (RMSE=0.9653)
+[2026-02-14 02:56:41,404] INFO: ✓ CSV saved: outputs/tables/parameter_single_20260214_025641_Student-tdf5.csv
+[2026-02-14 02:56:41,406] INFO: ✓ LaTeX table saved: outputs/tex/parameter_single_20260214_025641_Student-tdf5.tex
+[2026-02-14 02:56:41,406] INFO: [2/2] Recurring parameter breaks (T=400, n_sim=300)
+[2026-02-14 02:56:41,406] INFO: Starting parameter_recurring: p=0.9
+[2026-02-14 02:57:58,291] INFO: ✓ parameter_recurring p=0.9 completed in 76.9s
+[2026-02-14 02:57:58,291] INFO: Starting parameter_recurring: p=0.95
+[2026-02-14 02:59:07,047] INFO: ✓ parameter_recurring p=0.95 completed in 68.8s
+[2026-02-14 02:59:07,047] INFO: Starting parameter_recurring: p=0.99
+[2026-02-14 03:01:01,792] INFO: ✓ parameter_recurring p=0.99 completed in 114.7s
+[2026-02-14 03:01:01,792] INFO: Saving parameter_recurring results by persistence level...
+[2026-02-14 03:01:01,796] INFO:   p=0.9: best method = MS AR (RMSE=1.1426)
+[2026-02-14 03:01:01,797] INFO: ✓ CSV saved: outputs/tables/parameter_recurring_20260214_030101_p09.csv
+[2026-02-14 03:01:01,800] INFO: ✓ LaTeX table saved: outputs/tex/parameter_recurring_20260214_030101_p09.tex
+[2026-02-14 03:01:01,800] INFO:   p=0.95: best method = MS AR (RMSE=1.0778)
+[2026-02-14 03:01:01,801] INFO: ✓ CSV saved: outputs/tables/parameter_recurring_20260214_030101_p095.csv
+[2026-02-14 03:01:01,803] INFO: ✓ LaTeX table saved: outputs/tex/parameter_recurring_20260214_030101_p095.tex
+[2026-02-14 03:01:01,804] INFO:   p=0.99: best method = MS AR (RMSE=1.0318)
+[2026-02-14 03:01:01,805] INFO: ✓ CSV saved: outputs/tables/parameter_recurring_20260214_030101_p099.csv
+[2026-02-14 03:01:01,807] INFO: ✓ LaTeX table saved: outputs/tex/parameter_recurring_20260214_030101_p099.tex
+[2026-02-14 03:01:01,812] INFO: ======================================================================
+[2026-02-14 03:01:01,813] INFO: PARAMETER BREAK EXPERIMENTS COMPLETED
+[2026-02-14 03:01:01,813] INFO: ======================================================================
+[2026-02-14 03:01:01,815] INFO: ✓ Combined results saved: outputs/tables/aligned_breaks_20260214_030101.csv
+[2026-02-14 03:01:01,821] INFO: ✓ LaTeX table saved: outputs/tex/aligned_breaks_20260214_030101.tex
+[2026-02-14 03:01:01,822] INFO: 
+======================================================================
+ OVERALL SUMMARY
+======================================================================
+Total results: 54 rows
+Time elapsed: 4668.3 seconds (77.8 minutes)
+
+Results saved to: 
+  CSV: outputs/tables/aligned_breaks_20260214_030101.csv
+  LaTeX: outputs/tex/aligned_breaks_20260214_030101.tex
+  Log: outputs/logs/run_20260214_014312.log
+
+Metrics available: RMSE, MAE, Bias, Variance
+
+[2026-02-14 03:01:01,828] INFO: Top methods:
+                          Method     RMSE      MAE      Bias
+                  Rolling SARIMA 0.910601 0.679245  0.021179
+                           MS AR 0.965322 0.730854  0.040840
+                  Rolling SARIMA 0.978095 0.750957  0.014276
+SARIMA + Break Dummy (oracle Tb) 0.978856 0.760688  0.156829
+                           MS AR 1.031788 0.804293 -0.010238
+[2026-02-14 03:01:01,828] INFO: ======================================================================
+[2026-02-14 03:01:01,828] INFO: RUNNER COMPLETED SUCCESSFULLY
+[2026-02-14 03:01:01,828] INFO: ======================================================================

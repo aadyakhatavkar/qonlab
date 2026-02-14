@@ -1,0 +1,17 @@
+\begin{table}[h!]
+\centering
+\caption{Mean Single Results - Gaussian}
+\label{tab:mean_single_gaussian}
+\begin{tabular}{llllr}
+\toprule
+Method & RMSE & MAE & Bias & Successes \\
+\midrule
+SARIMA + Break Dummy (oracle Tb) & 0.9789 & 0.7607 & 0.1568 & 300 \\
+Simple Exp. Smoothing (SES) & 1.0598 & 0.8488 & 0.0644 & 300 \\
+Holt-Winters (additive) & 1.0979 & 0.8643 & 0.0266 & 300 \\
+SARIMA Rolling & 1.1424 & 0.9059 & 0.1833 & 300 \\
+SARIMA Global & 1.1482 & 0.8985 & 0.3800 & 300 \\
+\bottomrule
+\end{tabular}
+
+\end{table}

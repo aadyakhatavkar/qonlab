@@ -24,7 +24,7 @@ pixi install
 ```bash
 pixi run python main.py --pdf
 ```
-Runs all experiments + generates PDF report with tables & figures. Takes ~45 minutes. Output: `outputs/pdf/`
+Runs all experiments + generates PDF report with tables & figures. Takes ~25 minutes. Output: `outputs/pdf/`
 
 ### Quick Test (2 minutes)
 ```bash
@@ -32,21 +32,17 @@ pixi run python main.py --quick
 ```
 Same as above but with n_sim=30 instead of 300 (for testing).
 
-### Full Run (45 minutes)
+### Full Run (~25 minutes)
 ```bash
 pixi run python main.py
 ```
 All experiments without PDF generation. Results in `outputs/csv/` and `outputs/tex/`.
 
-### Regenerate PDF (30 seconds)
+### Regenerate PDF
 ```bash
 python scripts/build_pdfs.py --tables --figures
 ```
 Builds PDF from existing results (use after experiments are done).
-
----
-
-## Advanced Usage
 
 ---
 
@@ -64,7 +60,7 @@ Evaluates forecasting methods under three types of structural breaks:
 - For recurring breaks: Markov-switching regimes with persistence levels 0.90, 0.95, 0.99
 - Monte Carlo: 300 replications per scenario
 
-**Key Research Question**: Do simple adaptive methods (rolling windows) perform as well as complex ones (Markov switching) when practitioners don't know a break occurred?
+**Key Research Question**: How do different forecasting strategies react to structural breaks across various simulation scenarios? And how is predictive stability observed?
 
 ---
 
